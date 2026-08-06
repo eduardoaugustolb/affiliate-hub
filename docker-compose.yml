@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: drops_do_frost
+    ports:
+      - '5433:5432'
+    volumes:
+      - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d drops_do_frost']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  dbgate:
+    image: dbgate/dbgate
+    restart: on-failure
+    ports:
+      - '8080:3000'
+    environment:
+      CONNECTIONS: db
+      LABEL_db: Drops do Frost (local)
+      SERVER_db: db
+      USER_db: postgres
+      PASSWORD_db: postgres
+      PORT_db: 5432
+      ENGINE_db: postgres@dbgate-plugin-postgres
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

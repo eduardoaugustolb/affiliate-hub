@@ -1,0 +1,22 @@
+{
+  "name": "@affiliate-hub/catalog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback"
+  },
+  "dependencies": {
+    "@affiliate-hub/shared-kernel": "workspace:*"
+  },
+  "devDependencies": {
+    "knex": "^3.2.10",
+    "pg": "^8.13.1"
+  }
+}

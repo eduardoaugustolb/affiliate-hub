@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: drops_do_frost
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d drops_do_frost"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/drops_do_frost
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Instalar dependências
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck (todos os pacotes)
+        run: bun run typecheck
+
+      - name: Testes unitários — catalog
+        run: bun test
+        working-directory: packages/catalog
+
+      - name: Testes unitários — link-redirect
+        run: bun test
+        working-directory: packages/link-redirect
+
+      - name: Migrar banco — catalog
+        run: bunx knex --knexfile knexfile.ts migrate:latest
+        working-directory: packages/catalog
+
+      - name: Migrar banco — link-redirect
+        run: bunx knex --knexfile knexfile.ts migrate:latest
+        working-directory: packages/link-redirect
+
+      - name: Testes de integração — api
+        run: bun run test:integration
+        working-directory: services/api
