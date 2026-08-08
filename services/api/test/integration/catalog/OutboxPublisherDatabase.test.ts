@@ -1,8 +1,9 @@
-import { OutboxPublisherDatabase } from '@affiliate-hub/catalog'
 import { afterEach, describe, expect, it } from 'bun:test'
+import { OutboxPublisherDatabase } from '@affiliate-hub/catalog'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 
-const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const DATABASE_URL =
+  process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 
 describe('OutboxPublisherDatabase (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)

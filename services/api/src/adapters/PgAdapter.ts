@@ -1,5 +1,5 @@
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
-import {SQL as SQLClient} from "bun"
+import { SQL as SQLClient } from 'bun'
 
 export class PgAdapter implements DatabaseConnection {
   private readonly sql: SQLClient

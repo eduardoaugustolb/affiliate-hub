@@ -8,10 +8,14 @@
     "services/*"
   ],
   "scripts": {
-    "typecheck": "bun run --filter '*' typecheck"
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.7",
     "@types/bun": "^1.3.14",
+    "knex": "^3.3.0",
     "typescript": "^5.7.3"
   }
 }

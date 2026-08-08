@@ -2,7 +2,8 @@ import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 import { createServer } from '../../../src/main'
 
-const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const DATABASE_URL =
+  process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 const TEST_PORT = 3056
 const BASE_URL = `http://localhost:${TEST_PORT}`
 
@@ -43,9 +44,10 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toBe('https://example.com/redirect-target')
 
-    const rows = await db.query<{ product_id: string }>('select product_id from click_logs where product_id = $1', [
-      productId,
-    ])
+    const rows = await db.query<{ product_id: string }>(
+      'select product_id from click_logs where product_id = $1',
+      [productId],
+    )
     expect(rows).toHaveLength(1)
   })
 

@@ -1,7 +1,7 @@
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
+import type { ProductRepository } from '../application/ports/ProductRepository'
 import { Product, type ProductSnapshot } from '../domain/Product'
 import type { ProductStatus } from '../domain/ProductStatus'
-import type { ProductRepository } from '../application/ports/ProductRepository'
 
 interface ProductRow {
   id: string

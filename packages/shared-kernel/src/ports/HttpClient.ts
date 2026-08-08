@@ -1,4 +1,4 @@
-import type { HttpStatus } from "./HttpServer"
+import type { HttpStatus } from './HttpServer'
 
 export interface HttpRequestOptions {
   headers?: Record<string, string>

@@ -1,21 +1,21 @@
 import {
-  HttpStatus,
   type HttpRequest,
   type HttpResponse,
   type HttpServer,
+  HttpStatus,
   type RouteHandler,
 } from '@affiliate-hub/shared-kernel'
-import { Hono, type Context } from 'hono'
+import { type Context, Hono } from 'hono'
 
 export class HonoHttpServer implements HttpServer {
   private readonly app = new Hono()
 
   get(path: string, handler: RouteHandler): void {
-    this.app.get(path, context => this.execute(handler, context))
+    this.app.get(path, (context) => this.execute(handler, context))
   }
 
   post(path: string, handler: RouteHandler): void {
-    this.app.post(path, context => this.execute(handler, context))
+    this.app.post(path, (context) => this.execute(handler, context))
   }
 
   async listen(port: number): Promise<void> {
@@ -28,10 +28,7 @@ export class HonoHttpServer implements HttpServer {
     console.log(`Server is running on port ${server.port}`)
   }
 
-  private async execute(
-    handler: RouteHandler,
-    context: Context,
-  ): Promise<Response> {
+  private async execute(handler: RouteHandler, context: Context): Promise<Response> {
     const httpRequest: HttpRequest = {
       params: context.req.param(),
       query: context.req.query(),

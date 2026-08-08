@@ -1,4 +1,9 @@
-import { ApplicationError, DomainError, NotFoundError, type HttpResponse } from '@affiliate-hub/shared-kernel'
+import {
+  ApplicationError,
+  DomainError,
+  type HttpResponse,
+  NotFoundError,
+} from '@affiliate-hub/shared-kernel'
 
 export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
   if (error instanceof NotFoundError) {

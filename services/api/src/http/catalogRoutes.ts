@@ -47,7 +47,9 @@ export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogU
 
   httpServer.post('/products/:id/deactivate', async (request, response) => {
     try {
-      const output = await useCases.deactivateProduct.execute({ productId: request.params.id as string })
+      const output = await useCases.deactivateProduct.execute({
+        productId: request.params.id as string,
+      })
       response.status(200).send(output)
     } catch (error) {
       mapErrorToHttp(error, response)
