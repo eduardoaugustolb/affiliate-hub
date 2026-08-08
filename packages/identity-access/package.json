@@ -1,0 +1,13 @@
+{
+  "name": "identity-access",
+  "private": true,
+  "dependencies": {
+    "@affiliate-hub/shared-kernel": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
