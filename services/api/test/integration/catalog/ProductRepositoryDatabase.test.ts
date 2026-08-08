@@ -1,8 +1,9 @@
-import { Product, ProductRepositoryDatabase } from '@affiliate-hub/catalog'
 import { afterEach, describe, expect, it } from 'bun:test'
+import { Product, ProductRepositoryDatabase } from '@affiliate-hub/catalog'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 
-const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const DATABASE_URL =
+  process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 
 describe('ProductRepositoryDatabase (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)
@@ -17,11 +18,14 @@ describe('ProductRepositoryDatabase (integration)', () => {
   })
 
   it('saves and finds a product by id', async () => {
-    const product = Product.createDraft({ name: 'Oversized Hoodie', category: 'streetwear' })
-    insertedIds.push(product.getId().toString())
+    const product = Product.createDraft(crypto.randomUUID(), {
+      name: 'Oversized Hoodie',
+      category: 'streetwear',
+    })
+    insertedIds.push(product.getId())
 
     await productRepository.save(product)
-    const found = await productRepository.findById(product.getId().toString())
+    const found = await productRepository.findById(product.getId())
 
     expect(found).not.toBeNull()
     expect(found?.getStatus()).toBe('draft')
@@ -29,45 +33,56 @@ describe('ProductRepositoryDatabase (integration)', () => {
   })
 
   it('round-trips photos and activation state through the jsonb column', async () => {
-    const product = Product.createDraft({ name: 'Perfume X', category: 'perfume' })
-    insertedIds.push(product.getId().toString())
+    const product = Product.createDraft(crypto.randomUUID(), {
+      name: 'Perfume X',
+      category: 'perfume',
+    })
+    insertedIds.push(product.getId())
     product.addPhoto('https://example.com/photo.jpg')
     product.approvePhoto('https://example.com/photo.jpg')
     product.assignAffiliateLink('https://example.com/link')
     product.activate()
 
     await productRepository.save(product)
-    const found = await productRepository.findById(product.getId().toString())
+    const found = await productRepository.findById(product.getId())
 
     expect(found?.getStatus()).toBe('active')
-    expect(found?.toSnapshot().photos).toEqual([{ url: 'https://example.com/photo.jpg', approved: true }])
+    expect(found?.toSnapshot().photos).toEqual([
+      { url: 'https://example.com/photo.jpg', approved: true },
+    ])
   })
 
   it('lists only products with the given status, excluding removed ones', async () => {
-    const draft = Product.createDraft({ name: 'Cap', category: 'streetwear' })
-    const removed = Product.createDraft({ name: 'Old Cap', category: 'streetwear' })
+    const draft = Product.createDraft(crypto.randomUUID(), { name: 'Cap', category: 'streetwear' })
+    const removed = Product.createDraft(crypto.randomUUID(), {
+      name: 'Old Cap',
+      category: 'streetwear',
+    })
     removed.deactivate()
-    insertedIds.push(draft.getId().toString(), removed.getId().toString())
+    insertedIds.push(draft.getId(), removed.getId())
 
     await productRepository.save(draft)
     await productRepository.save(removed)
 
     const drafts = await productRepository.listByStatus('draft')
-    const draftIds = drafts.map((product) => product.getId().toString())
+    const draftIds = drafts.map((product) => product.getId())
 
-    expect(draftIds).toContain(draft.getId().toString())
-    expect(draftIds).not.toContain(removed.getId().toString())
+    expect(draftIds).toContain(draft.getId())
+    expect(draftIds).not.toContain(removed.getId())
   })
 
   it('upserts on save instead of duplicating the row', async () => {
-    const product = Product.createDraft({ name: 'Bucket Hat', category: 'streetwear' })
-    insertedIds.push(product.getId().toString())
+    const product = Product.createDraft(crypto.randomUUID(), {
+      name: 'Bucket Hat',
+      category: 'streetwear',
+    })
+    insertedIds.push(product.getId())
     await productRepository.save(product)
 
     product.deactivate()
     await productRepository.save(product)
 
-    const found = await productRepository.findById(product.getId().toString())
+    const found = await productRepository.findById(product.getId())
     expect(found?.getStatus()).toBe('inactive')
   })
 

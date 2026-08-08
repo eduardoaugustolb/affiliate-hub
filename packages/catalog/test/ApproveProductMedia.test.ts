@@ -1,5 +1,5 @@
-import { NotFoundError } from '@affiliate-hub/shared-kernel'
 import { describe, expect, it } from 'bun:test'
+import { NotFoundError } from '@affiliate-hub/shared-kernel'
 import { ApproveProductMedia } from '../src/application/use-cases/ApproveProductMedia'
 import { Product } from '../src/domain/Product'
 import { EventPublisherFake } from './doubles/EventPublisherFake'
@@ -9,14 +9,14 @@ describe('ApproveProductMedia', () => {
   it('approves photo and activates product when tryActivate=true and the invariant is satisfied', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft({ name: 'Perfume X', category: 'perfume' })
+    const product = Product.createDraft('PRODUCT-1', { name: 'Perfume X', category: 'perfume' })
     product.addPhoto('https://example.com/photo.jpg')
     product.assignAffiliateLink('https://example.com/link')
     await productRepository.save(product)
 
     const useCase = new ApproveProductMedia(productRepository, eventPublisher)
     const output = await useCase.execute({
-      productId: product.getId().toString(),
+      productId: product.getId(),
       photoUrl: 'https://example.com/photo.jpg',
       tryActivate: true,
     })
@@ -37,13 +37,13 @@ describe('ApproveProductMedia', () => {
   it('does not publish an event when not trying to activate', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft({ name: 'Perfume X', category: 'perfume' })
+    const product = Product.createDraft('PRODUCT-2', { name: 'Perfume X', category: 'perfume' })
     product.addPhoto('https://example.com/photo.jpg')
     await productRepository.save(product)
 
     const useCase = new ApproveProductMedia(productRepository, eventPublisher)
     await useCase.execute({
-      productId: product.getId().toString(),
+      productId: product.getId(),
       photoUrl: 'https://example.com/photo.jpg',
     })
 

@@ -1,6 +1,5 @@
 import { DomainError } from '@affiliate-hub/shared-kernel'
 import { Photo } from './Photo'
-import { ProductId } from './ProductId'
 import type { ProductStatus } from './ProductStatus'
 
 export type Category = 'streetwear' | 'perfume'
@@ -27,7 +26,7 @@ export interface CreateProductData {
 
 export class Product {
   private constructor(
-    private readonly id: ProductId,
+    private readonly id: string,
     private name: string,
     private readonly category: Category,
     private status: ProductStatus,
@@ -40,26 +39,14 @@ export class Product {
     private removedAt: Date | null,
   ) {}
 
-  static createDraft(data: CreateProductData): Product {
+  static createDraft(id: string, data: CreateProductData): Product {
     const now = new Date()
-    return new Product(
-      ProductId.generate(),
-      data.name,
-      data.category,
-      'draft',
-      null,
-      null,
-      [],
-      null,
-      now,
-      now,
-      null,
-    )
+    return new Product(id, data.name, data.category, 'draft', null, null, [], null, now, now, null)
   }
 
   static rehydrate(snapshot: ProductSnapshot): Product {
     return new Product(
-      ProductId.rehydrate(snapshot.id),
+      snapshot.id,
       snapshot.name,
       snapshot.category,
       snapshot.status,
@@ -122,7 +109,7 @@ export class Product {
 
   toSnapshot(): ProductSnapshot {
     return {
-      id: this.id.toString(),
+      id: this.id,
       name: this.name,
       category: this.category,
       status: this.status,
@@ -136,7 +123,7 @@ export class Product {
     }
   }
 
-  getId(): ProductId {
+  getId(): string {
     return this.id
   }
 

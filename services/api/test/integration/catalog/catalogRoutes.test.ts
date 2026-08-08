@@ -2,7 +2,8 @@ import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 import { createServer } from '../../../src/main'
 
-const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const DATABASE_URL =
+  process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 const TEST_PORT = 3055
 const BASE_URL = `http://localhost:${TEST_PORT}`
 
@@ -33,7 +34,7 @@ describe('Catalog HTTP routes (integration)', () => {
     insertedIds.push(body.productId)
 
     expect(response.status).toBe(201)
-    expect(body.productId).toMatch(/^[A-Z]{3}-[A-Z]{3}-[A-Z]{3}$/)
+    expect(body.productId).toMatch(/^[0-9a-f-]{36}$/)
   })
 
   it('GET /products/curation lists drafts just created', async () => {
@@ -94,7 +95,9 @@ describe('Catalog HTTP routes (integration)', () => {
 
     expect(response.status).toBe(200)
 
-    const rows = await db.query<{ status: string }>('select status from products where id = $1', [productId])
+    const rows = await db.query<{ status: string }>('select status from products where id = $1', [
+      productId,
+    ])
     expect(rows[0]?.status).toBe('inactive')
   })
 

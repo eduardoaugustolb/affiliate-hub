@@ -8,13 +8,13 @@ describe('DeactivateProduct', () => {
   it('deactivates a product (soft delete) and publishes ProductDeactivated', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft({ name: 'Perfume X', category: 'perfume' })
+    const product = Product.createDraft('PRODUCT-1', { name: 'Perfume X', category: 'perfume' })
     await productRepository.save(product)
 
     const useCase = new DeactivateProduct(productRepository, eventPublisher)
-    await useCase.execute({ productId: product.getId().toString() })
+    await useCase.execute({ productId: product.getId() })
 
-    const updatedProduct = await productRepository.findById(product.getId().toString())
+    const updatedProduct = await productRepository.findById(product.getId())
     expect(updatedProduct?.getStatus()).toBe('inactive')
     expect(eventPublisher.published[0]?.name).toBe('ProductDeactivated')
   })

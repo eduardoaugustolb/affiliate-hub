@@ -1,7 +1,7 @@
 import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
 import type { ProductStatus } from '../../domain/ProductStatus'
-import { ProductActivated } from '../ports/EventPublisher'
 import type { EventPublisher } from '../ports/EventPublisher'
+import { ProductActivated } from '../ports/EventPublisher'
 import type { ProductRepository } from '../ports/ProductRepository'
 
 export interface ApproveProductMediaInput {
@@ -16,7 +16,9 @@ export interface ApproveProductMediaOutput {
   status: ProductStatus
 }
 
-export class ApproveProductMedia implements UseCase<ApproveProductMediaInput, ApproveProductMediaOutput> {
+export class ApproveProductMedia
+  implements UseCase<ApproveProductMediaInput, ApproveProductMediaOutput>
+{
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly eventPublisher: EventPublisher,
@@ -39,9 +41,9 @@ export class ApproveProductMedia implements UseCase<ApproveProductMediaInput, Ap
     await this.productRepository.save(product)
 
     if (product.getStatus() === 'active') {
-      await this.eventPublisher.publish(new ProductActivated(product.getId().toString()))
+      await this.eventPublisher.publish(new ProductActivated(product.getId()))
     }
 
-    return { productId: product.getId().toString(), status: product.getStatus() }
+    return { productId: product.getId(), status: product.getStatus() }
   }
 }

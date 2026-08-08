@@ -6,7 +6,7 @@ export class ProductRepositoryFake implements ProductRepository {
   private readonly products = new Map<string, Product>()
 
   async save(product: Product): Promise<void> {
-    this.products.set(product.getId().toString(), product)
+    this.products.set(product.getId(), product)
   }
 
   async findById(id: string): Promise<Product | null> {

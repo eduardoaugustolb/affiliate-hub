@@ -1,6 +1,6 @@
 import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
-import { ProductDeactivated } from '../ports/EventPublisher'
 import type { EventPublisher } from '../ports/EventPublisher'
+import { ProductDeactivated } from '../ports/EventPublisher'
 import type { ProductRepository } from '../ports/ProductRepository'
 
 export interface DeactivateProductInput {
@@ -25,8 +25,8 @@ export class DeactivateProduct implements UseCase<DeactivateProductInput, Deacti
 
     product.deactivate()
     await this.productRepository.save(product)
-    await this.eventPublisher.publish(new ProductDeactivated(product.getId().toString()))
+    await this.eventPublisher.publish(new ProductDeactivated(product.getId()))
 
-    return { productId: product.getId().toString() }
+    return { productId: product.getId() }
   }
 }

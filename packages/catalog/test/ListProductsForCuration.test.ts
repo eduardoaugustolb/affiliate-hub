@@ -7,8 +7,8 @@ describe('ListProductsForCuration', () => {
   it('lists only draft products', async () => {
     const productRepository = new ProductRepositoryFake()
 
-    const draft = Product.createDraft({ name: 'Cap', category: 'streetwear' })
-    const active = Product.createDraft({ name: 'Perfume Y', category: 'perfume' })
+    const draft = Product.createDraft('PRODUCT-1', { name: 'Cap', category: 'streetwear' })
+    const active = Product.createDraft('PRODUCT-2', { name: 'Perfume Y', category: 'perfume' })
     active.addPhoto('https://example.com/photo.jpg')
     active.approvePhoto('https://example.com/photo.jpg')
     active.assignAffiliateLink('https://example.com/link')

@@ -8,8 +8,9 @@ import {
 } from '@affiliate-hub/catalog'
 import { ClickLogDatabase, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
-import { PgAdapter } from './adapters/PgAdapter'
 import { HonoHttpServer } from './adapters/HonoHttpServer'
+import { IdGeneratorBun } from './adapters/IdGeneratorBun'
+import { PgAdapter } from './adapters/PgAdapter'
 import { registerCatalogRoutes } from './http/catalogRoutes'
 import { registerLinkRedirectRoutes } from './http/linkRedirectRoutes'
 
@@ -23,9 +24,10 @@ export function createServer(): HttpServer {
   const productRepository = new ProductRepositoryDatabase(db)
   const eventPublisher = new OutboxPublisherDatabase(db)
   const clickLog = new ClickLogDatabase(db)
+  const idGenerator = new IdGeneratorBun()
 
   const catalogUseCases = {
-    registerProduct: new RegisterProduct(productRepository),
+    registerProduct: new RegisterProduct(productRepository, idGenerator),
     approveProductMedia: new ApproveProductMedia(productRepository, eventPublisher),
     deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
     listProductsForCuration: new ListProductsForCuration(productRepository),
