@@ -2,28 +2,32 @@ import {
   ApproveProductMedia,
   DeactivateProduct,
   ListProductsForCuration,
-  OutboxPublisherDatabase,
-  ProductRepositoryDatabase,
+  OutboxPublisherSql,
+  ProductRepositorySql,
   RegisterProduct,
 } from '@affiliate-hub/catalog'
-import { ClickLogDatabase, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
+import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
+import { BunRuntimeServer } from './adapters/BunRuntimeServer'
 import { HonoHttpServer } from './adapters/HonoHttpServer'
 import { IdGeneratorBun } from './adapters/IdGeneratorBun'
 import { PgAdapter } from './adapters/PgAdapter'
+import { env } from './env'
 import { registerCatalogRoutes } from './http/catalogRoutes'
 import { registerLinkRedirectRoutes } from './http/linkRedirectRoutes'
 
 export function createServer(): HttpServer {
-  const databaseUrl = process.env.DATABASE_URL
+  const runtime = new BunRuntimeServer()
+
+  const databaseUrl = env.DATABASE_URL
   if (!databaseUrl) {
     throw new Error('DATABASE_URL is not set')
   }
 
   const db = new PgAdapter(databaseUrl)
-  const productRepository = new ProductRepositoryDatabase(db)
-  const eventPublisher = new OutboxPublisherDatabase(db)
-  const clickLog = new ClickLogDatabase(db)
+  const productRepository = new ProductRepositorySql(db)
+  const eventPublisher = new OutboxPublisherSql(db)
+  const clickLog = new ClickLogSql(db)
   const idGenerator = new IdGeneratorBun()
 
   const catalogUseCases = {
@@ -37,7 +41,7 @@ export function createServer(): HttpServer {
     redirectToAffiliateLink: new RedirectToAffiliateLink(productRepository, clickLog),
   }
 
-  const httpServer = new HonoHttpServer()
+  const httpServer = new HonoHttpServer(runtime)
   registerCatalogRoutes(httpServer, catalogUseCases)
   registerLinkRedirectRoutes(httpServer, linkRedirectUseCases)
   return httpServer

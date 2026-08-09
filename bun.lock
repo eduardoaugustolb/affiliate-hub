@@ -22,16 +22,22 @@
         "pg": "^8.13.1",
       },
     },
+    "packages/config": {
+      "name": "@affiliate-hub/config",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.1.13",
+      },
+    },
     "packages/identity-access": {
-      "name": "identity-access",
+      "name": "@affiliate-hub/identity-access",
+      "version": "0.1.0",
       "dependencies": {
         "@affiliate-hub/shared-kernel": "workspace:*",
       },
       "devDependencies": {
-        "@types/bun": "latest",
-      },
-      "peerDependencies": {
-        "typescript": "^5",
+        "knex": "^3.2.10",
+        "pg": "^8.13.1",
       },
     },
     "packages/link-redirect": {
@@ -55,9 +61,11 @@
       "version": "0.1.0",
       "dependencies": {
         "@affiliate-hub/catalog": "workspace:*",
+        "@affiliate-hub/config": "workspace:*",
         "@affiliate-hub/link-redirect": "workspace:*",
         "@affiliate-hub/shared-kernel": "workspace:*",
         "hono": "^4.13.0",
+        "zod": "^4.4.3",
       },
     },
   },
@@ -65,6 +73,10 @@
     "@affiliate-hub/api": ["@affiliate-hub/api@workspace:services/api"],
 
     "@affiliate-hub/catalog": ["@affiliate-hub/catalog@workspace:packages/catalog"],
+
+    "@affiliate-hub/config": ["@affiliate-hub/config@workspace:packages/config"],
+
+    "@affiliate-hub/identity-access": ["@affiliate-hub/identity-access@workspace:packages/identity-access"],
 
     "@affiliate-hub/link-redirect": ["@affiliate-hub/link-redirect@workspace:packages/link-redirect"],
 
@@ -115,8 +127,6 @@
     "hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
 
     "hono": ["hono@4.13.0", "", {}, "sha512-jhunvfHWxd7J5EFfSgH4xsYJzSe/lfqbUCxiyyeaQasUsXeEHXtzVid+7EOGByc5JnFa23SSFL3Y2RV/z1T+eQ=="],
-
-    "identity-access": ["identity-access@workspace:packages/identity-access"],
 
     "interpret": ["interpret@2.2.0", "", {}, "sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw=="],
 
@@ -173,6 +183,8 @@
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
 
     "xtend": ["xtend@4.0.2", "", {}, "sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ=="],
+
+    "zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "pg/pg-connection-string": ["pg-connection-string@2.14.0", "", {}, "sha512-XwWDGcLRGCXAR8F/AM5bG7Q+A3Wm2s6QeEjlOKZLlH3UYcguiqCWKyWXVag5TLTIjR7oOJUY8kcADaZgWPyLeg=="],
   }

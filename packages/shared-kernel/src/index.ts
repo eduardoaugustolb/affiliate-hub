@@ -1,8 +1,10 @@
 export { ApplicationError } from './errors/ApplicationError'
 export { DomainError } from './errors/DomainError'
 export { NotFoundError } from './errors/NotFoundError'
+
 export type { DatabaseConnection } from './ports/DatabaseConnection'
 export type { HttpClient, HttpClientResponse, HttpRequestOptions } from './ports/HttpClient'
+export type { FetchHandler, HttpRuntimeAdapter, RunningServer } from './ports/HttpRuntimeAdapter'
 export * from './ports/HttpServer'
 export type { IdGenerator } from './ports/IdGenerator'
 export type { UseCase } from './UseCase'

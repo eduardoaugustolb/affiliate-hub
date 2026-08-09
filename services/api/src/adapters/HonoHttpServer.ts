@@ -1,6 +1,7 @@
 import {
   type HttpRequest,
   type HttpResponse,
+  type HttpRuntimeAdapter,
   type HttpServer,
   HttpStatus,
   type RouteHandler,
@@ -9,6 +10,7 @@ import { type Context, Hono } from 'hono'
 
 export class HonoHttpServer implements HttpServer {
   private readonly app = new Hono()
+  constructor(private readonly runtime: HttpRuntimeAdapter) {}
 
   get(path: string, handler: RouteHandler): void {
     this.app.get(path, (context) => this.execute(handler, context))
@@ -19,10 +21,9 @@ export class HonoHttpServer implements HttpServer {
   }
 
   async listen(port: number): Promise<void> {
-    const server = Bun.serve({
+    const server = await this.runtime.serve(this.app.fetch, {
       port,
       hostname: '0.0.0.0',
-      fetch: this.app.fetch,
     })
 
     console.log(`Server is running on port ${server.port}`)

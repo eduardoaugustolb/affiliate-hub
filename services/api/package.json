@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@affiliate-hub/catalog": "workspace:*",
+    "@affiliate-hub/config": "workspace:*",
     "@affiliate-hub/link-redirect": "workspace:*",
     "@affiliate-hub/shared-kernel": "workspace:*",
-    "hono": "^4.13.0"
+    "hono": "^4.13.0",
+    "zod": "^4.4.3"
   }
 }
