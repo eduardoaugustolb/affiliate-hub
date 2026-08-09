@@ -17,7 +17,7 @@ interface ProductRow {
   removed_at: Date | null
 }
 
-export class ProductRepositoryDatabase implements ProductRepository {
+export class ProductRepositorySql implements ProductRepository {
   constructor(private readonly db: DatabaseConnection) {}
 
   async save(product: Product): Promise<void> {

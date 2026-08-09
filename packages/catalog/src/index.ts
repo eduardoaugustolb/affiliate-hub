@@ -1,5 +1,5 @@
-export { OutboxPublisherDatabase } from './adapters/OutboxPublisherDatabase'
-export { ProductRepositoryDatabase } from './adapters/ProductRepositoryDatabase'
+export { OutboxPublisherSql } from './adapters/OutboxPublisherSql'
+export { ProductRepositorySql } from './adapters/ProductRepositorySql'
 export type { DomainEvent, EventPublisher } from './application/ports/EventPublisher'
 export { ProductActivated, ProductDeactivated } from './application/ports/EventPublisher'
 export type { ProductRepository } from './application/ports/ProductRepository'

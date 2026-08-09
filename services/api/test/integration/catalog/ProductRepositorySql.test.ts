@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { Product, ProductRepositoryDatabase } from '@affiliate-hub/catalog'
+import { Product, ProductRepositorySql } from '@affiliate-hub/catalog'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 
-describe('ProductRepositoryDatabase (integration)', () => {
+describe('ProductRepositorySql (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)
-  const productRepository = new ProductRepositoryDatabase(db)
+  const productRepository = new ProductRepositorySql(db)
   const insertedIds: string[] = []
 
   afterEach(async () => {

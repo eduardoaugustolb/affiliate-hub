@@ -1,7 +1,7 @@
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
 import type { ClickLog, ClickRecord } from '../application/ports/ClickLog'
 
-export class ClickLogDatabase implements ClickLog {
+export class ClickLogSql implements ClickLog {
   constructor(private readonly db: DatabaseConnection) {}
 
   async register(click: ClickRecord): Promise<void> {

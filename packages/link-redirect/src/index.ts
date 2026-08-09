@@ -1,4 +1,4 @@
-export { ClickLogDatabase } from './adapters/ClickLogDatabase'
+export { ClickLogSql } from './adapters/ClickLogSql'
 export type { ClickLog, ClickRecord } from './application/ports/ClickLog'
 export type {
   RedirectToAffiliateLinkInput,

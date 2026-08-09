@@ -1,7 +1,7 @@
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
 import type { DomainEvent, EventPublisher } from '../application/ports/EventPublisher'
 
-export class OutboxPublisherDatabase implements EventPublisher {
+export class OutboxPublisherSql implements EventPublisher {
   constructor(private readonly db: DatabaseConnection) {}
 
   async publish(event: DomainEvent): Promise<void> {

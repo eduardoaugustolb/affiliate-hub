@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { OutboxPublisherDatabase } from '@affiliate-hub/catalog'
+import { OutboxPublisherSql } from '@affiliate-hub/catalog'
 import { PgAdapter } from '../../../src/adapters/PgAdapter'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 
-describe('OutboxPublisherDatabase (integration)', () => {
+describe('OutboxPublisherSql (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)
-  const eventPublisher = new OutboxPublisherDatabase(db)
+  const eventPublisher = new OutboxPublisherSql(db)
 
   afterEach(async () => {
     await db.query("delete from outbox_events where payload::text like '%INTEGRATION-TEST%'")
