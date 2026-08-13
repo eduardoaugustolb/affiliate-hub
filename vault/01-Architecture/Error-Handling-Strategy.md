@@ -32,7 +32,7 @@ apropriado daquela borda:
 
 ## Regra
 
-Caso de uso e entidade **lançam** o erro tipado — nunca chamam `console.log`,
+Caso de uso e entidade **lançam** o erro tipado, nunca chamam `console.log`,
 nunca decidem status HTTP, nunca sabem que existe uma fila. Quem decide o que
 fazer com o erro é sempre o adapter de entrada, na borda.
 

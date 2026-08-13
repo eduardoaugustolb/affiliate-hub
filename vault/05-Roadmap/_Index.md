@@ -18,7 +18,7 @@ updated: 2026-08-06
 | 4 | Distribuição | [[Fase-4-Distribuicao]] |
 | 5 | Operação | [[Fase-5-Operacao]] |
 
-Cada fase entrega módulo(s) inteiro(s) — ver [[03-Modules/_Index|Módulos]] pro
+Cada fase entrega módulo(s) inteiro(s), ver [[03-Modules/_Index|Módulos]] pro
 detalhe de cada um. Nenhuma fase começa sem a anterior passar no
 [[08-DoD/Definition-of-Done|Definition of Done]].
 

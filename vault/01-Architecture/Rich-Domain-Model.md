@@ -16,14 +16,14 @@ updated: 2026-08-06
 
 > [!note] Convenção de idioma
 > O código do projeto é sempre em inglês (nomes de classe, método, variável,
-> mensagem de erro) — só a documentação (este vault, comentários de PR) é em
+> mensagem de erro), só a documentação (este vault, comentários de PR) é em
 > pt-BR. Ver [[02-Decisions/ADR-0009-idioma-codigo-vs-documentacao|ADR-0009]].
 > Os exemplos abaixo refletem o código real de `packages/catalog`.
 
 ## O que é uma entidade anêmica (o que evitar)
 
 ```ts
-// ❌ ANEMIC — the entity is just a data bag, the rule lives outside it
+// ❌ ANEMIC: the entity is just a data bag, the rule lives outside it
 class Product {
   id: string
   status: string
@@ -32,7 +32,7 @@ class Product {
 }
 
 // the business rule "cannot activate without an approved photo and a valid link"
-// leaks into the use case — any other part of the code can build an active
+// leaks into the use case: any other part of the code can build an active
 // Product without this check, because nothing prevents it
 class ApproveProductMedia {
   execute(input) {
@@ -52,7 +52,7 @@ duplicada em mais de um caso de uso, dado inválido representável (um `Product`
 ## O que é uma entidade rica (o padrão do projeto)
 
 ```ts
-// ✅ RICH — the entity owns its own invariant
+// ✅ RICH: the entity owns its own invariant
 class Product {
   private constructor(
     private readonly id: ProductId,
@@ -91,7 +91,7 @@ class Product {
 }
 ```
 
-O caso de uso fica fino — ele orquestra, não decide:
+O caso de uso fica fino, ele orquestra, não decide:
 
 ```ts
 class ApproveProductMedia implements UseCase<Input, Output> {
@@ -100,7 +100,7 @@ class ApproveProductMedia implements UseCase<Input, Output> {
   async execute(input: Input): Promise<Output> {
     const product = await this.productRepository.findById(input.productId)
     product.approvePhoto(input.photoUrl)
-    if (input.tryActivate) product.activate() // may throw DomainError — the error mapper handles it at the edge
+    if (input.tryActivate) product.activate() // may throw DomainError: the error mapper handles it at the edge
     await this.productRepository.save(product)
     return { productId: product.getId().toString() }
   }
@@ -115,7 +115,7 @@ Código completo e testado: [[03-Modules/Catalog|Módulo Catalog]] →
 1. **Sem setter público de campo que participa de invariante.** Mudança de
    estado acontece por método nomeado no domínio (`activate()`, não `setStatus()`).
 2. **Construtor privado + factory method nomeado** (`Product.createDraft(...)`)
-   em vez de `new Product(...)` espalhado pelo código — o nome do factory já
+   em vez de `new Product(...)` espalhado pelo código, o nome do factory já
    documenta em que estado a entidade nasce.
 3. **Estado inválido deve ser irrepresentável quando possível.** Prefira
    `string | null` explícito a `string` solta que pode estar vazia/malformada.
@@ -129,7 +129,7 @@ Código completo e testado: [[03-Modules/Catalog|Módulo Catalog]] →
 
 ## Ver também
 
-[[Use-Case-Pattern]] — como o caso de uso permanece fino quando a entidade é
-rica · [[Error-Handling-Strategy]] — o que fazer com o `DomainError` lançado
-pela entidade · [[03-Modules/Catalog|Módulo Catalog]] — onde essa entidade
+[[Use-Case-Pattern]]: como o caso de uso permanece fino quando a entidade é
+rica · [[Error-Handling-Strategy]]: o que fazer com o `DomainError` lançado
+pela entidade · [[03-Modules/Catalog|Módulo Catalog]]: onde essa entidade
 `Product` de exemplo realmente vive

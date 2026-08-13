@@ -1,5 +1,5 @@
 ---
-title: ADR-0003 — Porta HttpClient
+title: "ADR-0003: Porta HttpClient"
 tags:
   - decision
   - layer/adapters
@@ -8,7 +8,7 @@ created: 2026-08-06
 updated: 2026-08-06
 ---
 
-# ADR-0003 — Porta `HttpClient` Própria pra Toda Chamada de Saída
+# ADR-0003: Porta `HttpClient` Própria pra Toda Chamada de Saída
 
 ## Contexto
 
@@ -20,13 +20,13 @@ resolve isso com uma porta `HttpClient` + `FetchAdapter`.
 ## Decisão
 
 Porta `HttpClient`, implementada com `fetch` nativo do Bun. Toda integração
-externa passa por essa porta — nunca `fetch`/`axios` direto dentro de um caso
+externa passa por essa porta, nunca `fetch`/`axios` direto dentro de um caso
 de uso ou adapter de domínio específico (ex.: `ShopeeAffiliateProvider` recebe
 `HttpClient` injetado, não importa `fetch` global).
 
 ## Alternativas Consideradas
 
-- **`axios` direto dentro de cada adapter de integração**: rejeitado —
+- **`axios` direto dentro de cada adapter de integração**: rejeitado:
   duplica configuração de timeout/retry/header em cada integração e acopla
   cada adapter a uma lib HTTP específica, sem necessidade.
 

@@ -8,13 +8,13 @@ Isso é núcleo do processo de desenvolvimento, não estilo opcional.
 ```
 <tipo>(<escopo opcional>): <descrição curta, no imperativo, minúscula>
 
-<corpo opcional — explica o porquê, não o quê>
+<corpo opcional: explica o porquê, não o quê>
 
-<rodapé opcional — BREAKING CHANGE, referência a issue>
+<rodapé opcional: BREAKING CHANGE, referência a issue>
 ```
 
-O `<tipo>` fica em inglês (é vocabulário de ferramenta — changelog automático,
-`commitlint`, etc. — não prosa). A descrição, o corpo e o rodapé são em
+O `<tipo>` fica em inglês (é vocabulário de ferramenta, changelog automático,
+`commitlint`, etc., não prosa). A descrição, o corpo e o rodapé são em
 português.
 
 ### Tipos
@@ -56,10 +56,10 @@ chore: renomeia escopo de pacote @drops-do-frost pra @affiliate-hub
 
 ### Regras
 
-- **Nunca** adicionar `Co-Authored-By` — o autor é sempre a pessoa que
+- **Nunca** adicionar `Co-Authored-By`, o autor é sempre a pessoa que
   commitou, não a ferramenta usada pra escrever o código.
 - Mensagem no imperativo ("adiciona", não "adicionado" ou "adicionando").
-- Um commit, uma mudança lógica — não misturar `feat` com `chore` no mesmo
+- Um commit, uma mudança lógica, não misturar `feat` com `chore` no mesmo
   commit só porque tocou nos mesmos arquivos.
 - `BREAKING CHANGE:` no rodapé quando quebra compatibilidade (relevante uma
   vez que os pacotes internos comecem a ser consumidos por mais de um

@@ -10,7 +10,7 @@ updated: 2026-08-06
 
 # ✅ Requisitos Não Funcionais
 
-- [[Requisitos-Nao-Funcionais|Requisitos Não Funcionais]] — substituibilidade
+- [[Requisitos-Nao-Funcionais|Requisitos Não Funcionais]], substituibilidade
   de infraestrutura, resiliência de sessão WhatsApp, soft delete, custo-alvo,
   observabilidade mínima, conformidade com a LGPD.
 

@@ -1,5 +1,5 @@
 ---
-title: Hexagonal — Ports & Adapters
+title: "Hexagonal: Ports & Adapters"
 tags:
   - architecture
 status: accepted
@@ -9,8 +9,8 @@ updated: 2026-08-06
 
 # Arquitetura Hexagonal (Ports & Adapters)
 
-Todo acesso a algo externo ao domínio — banco, HTTP, fila, storage, SDK de
-terceiro, até o relógio do sistema — passa por uma **porta**: uma interface
+Todo acesso a algo externo ao domínio (banco, HTTP, fila, storage, SDK de
+terceiro, até o relógio do sistema) passa por uma **porta**: uma interface
 declarada pela camada de aplicação, nomeada em termos de domínio.
 
 ## Regra de nomenclatura de porta
@@ -28,14 +28,14 @@ AffiliateProvider (porta, declarada por Application)
   └── SheinAffiliateProvider implements AffiliateProvider   (adapter futuro, se necessário)
 ```
 
-Nenhum caso de uso muda quando `SheinAffiliateProvider` é adicionado — só o
+Nenhum caso de uso muda quando `SheinAffiliateProvider` é adicionado, só o
 composition root passa a escolher qual adapter injetar (ou injeta os dois, se
 o caso de uso for desenhado pra lidar com múltiplas fontes).
 
 ## Entrada também é porta
 
 Quem define o contrato de entrada (rota HTTP, mensagem de fila, comando de
-cron) é a própria camada que expõe aquele caso de uso — e essa camada declara
+cron) é a própria camada que expõe aquele caso de uso, e essa camada declara
 a porta de transporte (`HttpServer`, `QueueConsumer`, `TaskScheduler`) que
 os adapters de framework implementam. O caso de uso não sabe se foi chamado
 por uma rota REST, um worker de fila ou um comando de terminal.

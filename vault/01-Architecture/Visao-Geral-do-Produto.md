@@ -28,6 +28,6 @@ Sistema de automação de ponta a ponta para operação de um perfil de afiliado
 
 ## Ver também
 
-- [[01-Architecture/_Index|Arquitetura]] — como o sistema é construído
-- [[03-Modules/_Index|Módulos]] — em que contextos o domínio se divide
-- [[06-Risks/Riscos-Conhecidos|Riscos Conhecidos]] — o que já sabemos que pode dar errado
+- [[01-Architecture/_Index|Arquitetura]]: como o sistema é construído
+- [[03-Modules/_Index|Módulos]]: em que contextos o domínio se divide
+- [[06-Risks/Riscos-Conhecidos|Riscos Conhecidos]]: o que já sabemos que pode dar errado

@@ -21,10 +21,10 @@ interface UseCase<Input, Output> {
 
 ## Regras
 
-- Casos de uso dependem de **portas**, nunca de adapters concretos — a porta é
+- Casos de uso dependem de **portas**, nunca de adapters concretos, a porta é
   declarada pela camada de aplicação, e o adapter concreto é injetado de fora
   (composition root), nunca instanciado dentro do caso de uso.
-- Caso de uso **orquestra**, não decide regra de negócio — a decisão mora na
+- Caso de uso **orquestra**, não decide regra de negócio, a decisão mora na
   entidade (ver [[Rich-Domain-Model]]). Se um caso de uso tem mais de um `if`
   checando invariante de domínio, é sinal de que essa regra deveria estar na
   entidade.
@@ -53,7 +53,7 @@ class DeactivateProduct implements UseCase<DesativarProdutoInput, DesativarProdu
 ## Teste de caso de uso
 
 Testado com adapter fake/in-memory de cada porta (`ProductRepositoryFake`,
-`EventPublisherFake`) — nunca contra banco/rede real. Critério de aceite
+`EventPublisherFake`), nunca contra banco/rede real. Critério de aceite
 completo em [[08-DoD/Definition-of-Done]].
 
 ## Ver também

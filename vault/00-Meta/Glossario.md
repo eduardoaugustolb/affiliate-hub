@@ -19,7 +19,7 @@ updated: 2026-08-06
 **Adapter**
 : Implementação concreta de uma porta, ligada a uma tecnologia específica
   (`PgAdapter implements DatabaseConnection`). Descartável e substituível por
-  definição — se não for, a porta está mal desenhada.
+  definição: se não for, a porta está mal desenhada.
 
 **Composition Root**
 : Único ponto do sistema (`main.ts` de cada serviço deployável) onde adapters
@@ -54,7 +54,7 @@ updated: 2026-08-06
 ## Termos de Produto (domínio "Drops do Frost")
 
 **Identificador de Produto**
-: Código curto tipo `BBA-QES-MZN`, gerado uma vez, imutável — chave usada no
+: Código curto tipo `BBA-QES-MZN`, gerado uma vez, imutável, chave usada no
   link curto, no QR code e no overlay da imagem de post.
 
 **Photo Dump**
@@ -67,4 +67,4 @@ updated: 2026-08-06
 
 **Kill Switch**
 : Mecanismo operacional pra pausar uma automação (ex.: `PauseBroadcast`) sem
-  precisar de deploy — usado como mitigação de risco.
+  precisar de deploy, usado como mitigação de risco.

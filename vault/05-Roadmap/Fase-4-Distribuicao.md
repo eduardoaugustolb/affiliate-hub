@@ -1,5 +1,5 @@
 ---
-title: Fase 4 — Distribuição
+title: "Fase 4: Distribuição"
 tags:
   - roadmap
 status: accepted
@@ -7,7 +7,7 @@ created: 2026-08-06
 updated: 2026-08-06
 ---
 
-# Fase 4 — Distribuição
+# Fase 4: Distribuição
 
 [[03-Modules/Broadcast|Broadcast]] (Baileys) + [[03-Modules/CommentAssist|CommentAssist]].
 
@@ -20,7 +20,7 @@ updated: 2026-08-06
 
 ## Atenção
 
-Este é o módulo de maior risco operacional (ban de WhatsApp) — ver
+Este é o módulo de maior risco operacional (ban de WhatsApp), ver
 [[06-Risks/Riscos-Conhecidos]]. Healthcheck (ver
 [[07-NFR/Requisitos-Nao-Funcionais]]) deve estar pronto antes de ativar em
 produção.

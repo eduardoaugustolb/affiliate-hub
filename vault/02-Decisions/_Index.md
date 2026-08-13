@@ -10,9 +10,9 @@ updated: 2026-08-06
 
 # 📜 Decisões (ADRs)
 
-Architecture Decision Records — cada decisão técnica não-óbvia vira uma nota
+Architecture Decision Records: cada decisão técnica não-óbvia vira uma nota
 aqui, com contexto, alternativas consideradas e status. Nunca editar o
-raciocínio de um ADR aceito — se a decisão mudar, criar um novo ADR e marcar
+raciocínio de um ADR aceito, se a decisão mudar, criar um novo ADR e marcar
 o antigo como `superseded`, linkando pro novo.
 
 ## Índice
@@ -31,14 +31,14 @@ o antigo como `superseded`, linkando pro novo.
 | [[ADR-0010-bun-test-em-todo-lugar]] | `bun:test` em todo lugar, substitui Vitest | accepted |
 | [[ADR-0011-auth-caseiro-sem-supabase]] | Auth caseiro, sem Supabase Auth | accepted |
 | [[ADR-0012-conventional-commits-ptbr]] | Conventional Commits com descrição em pt-BR | accepted |
-| [[ADR-0013-lgpd-criptografia-de-email]] | LGPD — e-mail criptografado em repouso, lookup via hash | accepted |
-| [[ADR-0014-cookies-e-rastreamento-de-clique]] | LGPD — cookie/pixel de terceiro só com consentimento; contagem agregada de clique não é dado pessoal | proposed |
+| [[ADR-0013-lgpd-criptografia-de-email]] | LGPD: e-mail criptografado em repouso, lookup via hash | accepted |
+| [[ADR-0014-cookies-e-rastreamento-de-clique]] | LGPD: cookie/pixel de terceiro só com consentimento; contagem agregada de clique não é dado pessoal | proposed |
 
 ## Template pra novo ADR
 
 ```md
 ---
-title: ADR-000X — <título curto>
+title: "ADR-000X: <título curto>"
 tags:
   - decision
 status: proposed

@@ -49,7 +49,7 @@ especificamente (não só a nota principal dele):
 `#layer/domain` `#layer/application` `#layer/adapters` `#layer/main`
 
 Usadas em notas de arquitetura e em ADRs para indicar em qual camada a decisão
-tem efeito — útil pra filtrar "tudo que toca camada de domínio", por exemplo.
+tem efeito, útil pra filtrar "tudo que toca camada de domínio", por exemplo.
 
 ## Regra
 
