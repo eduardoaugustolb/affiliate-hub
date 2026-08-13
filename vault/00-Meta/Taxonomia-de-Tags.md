@@ -4,7 +4,7 @@ tags:
   - meta
 status: living
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-10
 ---
 
 # Taxonomia de Tags
@@ -23,6 +23,7 @@ Convenção de tags usada em todo o vault, para permitir navegação por busca
 | `#roadmap` | Nota de fase de entrega |
 | `#risk` | Risco conhecido |
 | `#nfr` | Requisito não funcional |
+| `#compliance` | Conformidade legal/regulatória (ex.: LGPD) |
 | `#meta` | Nota sobre o próprio vault |
 
 ## Tags de Status (usadas no frontmatter `status:`, não como tag solta)

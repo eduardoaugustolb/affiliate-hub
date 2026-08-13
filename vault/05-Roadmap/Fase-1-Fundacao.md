@@ -4,7 +4,7 @@ tags:
   - roadmap
 status: accepted
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-10
 ---
 
 # Fase 1 — Fundação
@@ -24,10 +24,15 @@ curadoria. Sem essas duas peças, nenhum outro módulo tem o que consumir.
   `ApproveProductMedia`, `DeactivateProduct`, `ListProductsForCuration`) e
   ports.
 - `ProductRepositoryDatabase` + `PgAdapter` + migration via Knex.
-- `UserAuthenticatorDatabase implements UserAuthenticator` (auth caseira, ver
-  [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase|ADR-0011]]).
+- [[03-Modules/IdentityAccess|IdentityAccess]] — auth caseira (ver
+  [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase|ADR-0011]]). Domínio e
+  aplicação prontos; adapters, wiring HTTP e criptografia de e-mail (LGPD)
+  ainda pendentes — plano sequenciado completo em
+  [[03-Modules/IdentityAccess#Plano de Implementação]], não repetido aqui.
 - Serviço `api` deployável com composition root mínimo.
 
 ## Ver também
 
-[[08-DoD/Definition-of-Done]] — critério pra considerar esta fase pronta.
+[[08-DoD/Definition-of-Done]] — critério pra considerar esta fase pronta. ·
+[[09-Compliance/LGPD]] — conformidade legal, item bloqueante pra produção
+com dado real de titular no IdentityAccess.

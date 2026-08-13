@@ -5,7 +5,7 @@ tags:
   - home
 status: living
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-10
 aliases: [Home, Índice, MOC Principal]
 ---
 
@@ -37,6 +37,8 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 - ⚠️ **[[06-Risks/_Index|Riscos Conhecidos]]**
 - ✅ **[[07-NFR/_Index|Requisitos Não Funcionais]]**
 - 🎯 **[[08-DoD/_Index|Definition of Done por Módulo]]**
+- 🔒 **[[09-Compliance/_Index|Compliance]]** — LGPD: lei, inventário de dado
+  pessoal por módulo, checklist de conformidade.
 - 📖 **[[00-Meta/_Index|Meta]]** — glossário e taxonomia de tags
 
 ## Princípios Inegociáveis
@@ -77,8 +79,15 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 - [x] `HonoAdapter` como `HttpServer`, com testes HTTP ponta a ponta passando
 - [x] Repositório público no GitHub + CI (GitHub Actions) — ver [[04-Infrastructure/Deploy-Topology]]
 - [ ] IdentityAccess caseiro (auth própria — ver [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase]])
+  — domínio/aplicação implementados e testados; faltam adapters concretos,
+  `RegisterUser`/`UpdateUser`/`DeleteUser`, wiring HTTP e a criptografia de
+  e-mail exigida pela LGPD (ver abaixo).
 - [ ] AffiliateSync (Fase 2, bloqueado em confirmar acesso à Shopee Affiliate API)
+- [ ] Conformidade com a LGPD — ver [[09-Compliance/LGPD]] e
+      [[02-Decisions/ADR-0013-lgpd-criptografia-de-email|ADR-0013]]
+      (criptografia de e-mail em repouso, direitos do titular, checklist
+      técnico/processo)
 
 ---
 
-*Última atualização: 2026-08-06*
+*Última atualização: 2026-08-10*

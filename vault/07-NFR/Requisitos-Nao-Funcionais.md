@@ -4,7 +4,7 @@ tags:
   - nfr
 status: accepted
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-10
 ---
 
 # Requisitos Não Funcionais
@@ -23,3 +23,10 @@ updated: 2026-08-06
 - **Observabilidade mínima**: healthcheck do módulo Broadcast deve notificar
   (e-mail/Telegram) se a conexão do WhatsApp cair. Ver
   [[06-Risks/Riscos-Conhecidos]].
+- **Conformidade com a LGPD**: todo dado pessoal de titular (hoje, o
+  usuário do painel em [[03-Modules/IdentityAccess]]) precisa de medida
+  técnica de proteção compatível com o art. 46 da lei — mínimo: e-mail
+  nunca em texto plano em repouso, senha e token de sessão sempre
+  hash/não-reversíveis. Ver [[09-Compliance/LGPD]] (inventário e checklist)
+  e [[02-Decisions/ADR-0013-lgpd-criptografia-de-email|ADR-0013]] (decisão
+  técnica de criptografia de e-mail).

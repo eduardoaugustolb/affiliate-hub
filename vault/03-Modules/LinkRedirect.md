@@ -5,7 +5,7 @@ tags:
   - module/link-redirect
 status: implemented
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-10
 ---
 
 # LinkRedirect (Encurtador + QR)
@@ -74,6 +74,16 @@ enxuto nesse ponto, mesma lógica de design do [[CommentAssist]].
 somada às rotas de Catalog no mesmo `HonoHttpServer` (composition root em
 `services/api/src/main.ts`).
 
+## LGPD — Cookies e Rastreamento
+
+`click_logs` hoje grava só `product_id` + `clicked_at`, sem dado pessoal —
+contagem agregada de clique não fere a LGPD. **Antes de adicionar qualquer
+"métrificador"** (cookie de dedupe, pixel de Meta/TikTok/Google) na página
+do link-in-bio, seguir [[02-Decisions/ADR-0014-cookies-e-rastreamento-de-clique|ADR-0014]] —
+cookie/pixel não-essencial só dispara com consentimento explícito do
+visitante, nunca por padrão. Ver checklist em [[09-Compliance/LGPD]].
+
 ## Ver também
 
-[[05-Roadmap/Fase-2-Afiliacao]] · [[04-Infrastructure/Ports-Adapters-Matrix]]
+[[05-Roadmap/Fase-2-Afiliacao]] · [[04-Infrastructure/Ports-Adapters-Matrix]] ·
+[[09-Compliance/LGPD]]
