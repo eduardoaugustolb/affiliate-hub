@@ -4,14 +4,15 @@ export class Email {
   private constructor(private readonly value: string) {}
 
   static create(value: string): Email {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      throw new DomainError(`Invalid email: ${value}`)
+    const trimmed = value.toLowerCase().trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      throw new DomainError(`Invalid email: ${trimmed}`)
     }
-    return new Email(value)
+    return new Email(trimmed)
   }
 
   static rehydrate(value: string): Email {
-    return new Email(value)
+    return new Email(value.toLowerCase().trim())
   }
 
   toString(): string {

@@ -21,4 +21,12 @@ export class UserRepositoryFake implements UserRepository {
     }
     return null
   }
+
+  async updateById(user: User): Promise<void> {
+    this.users.set(user.getId(), user)
+  }
+
+  async deleteById(id: string): Promise<void> {
+    this.users.delete(id)
+  }
 }

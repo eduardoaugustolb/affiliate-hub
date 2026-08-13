@@ -3,10 +3,10 @@ import { InvalidCredentialsError } from '../src/application/errors/InvalidCreden
 import { AuthenticateUser } from '../src/application/use-cases/AuthenticateUser'
 import { User } from '../src/domain/User'
 import { IdGeneratorFake } from './doubles/IdGeneratorFake'
+import { KeyedHasherFake } from './doubles/KeyedHasherFake'
 import { PasswordHasherFake } from './doubles/PasswordHasherFake'
 import { SessionRepositoryFake } from './doubles/SessionRepositoryFake'
 import { TokenGeneratorFake } from './doubles/TokenGeneratorFake'
-import { TokenHasherFake } from './doubles/TokenHasherFake'
 import { UserRepositoryFake } from './doubles/UserRepositoryFake'
 
 async function setup() {
@@ -14,7 +14,7 @@ async function setup() {
   const sessionRepository = new SessionRepositoryFake()
   const passwordHasher = new PasswordHasherFake()
   const tokenGenerator = new TokenGeneratorFake()
-  const tokenHasher = new TokenHasherFake()
+  const keyedHasher = new KeyedHasherFake()
   const idGenerator = new IdGeneratorFake()
 
   const useCase = new AuthenticateUser(
@@ -22,7 +22,7 @@ async function setup() {
     sessionRepository,
     passwordHasher,
     tokenGenerator,
-    tokenHasher,
+    keyedHasher,
     idGenerator,
   )
 
@@ -33,12 +33,12 @@ async function setup() {
   })
   await userRepository.save(user)
 
-  return { useCase, userRepository, sessionRepository, tokenHasher, user }
+  return { useCase, userRepository, sessionRepository, keyedHasher, user }
 }
 
 describe('AuthenticateUser', () => {
   it('returns a token and persists a session when credentials are valid', async () => {
-    const { useCase, sessionRepository, tokenHasher, user } = await setup()
+    const { useCase, sessionRepository, keyedHasher, user } = await setup()
 
     const output = await useCase.execute({
       email: 'jane@example.com',
@@ -47,7 +47,7 @@ describe('AuthenticateUser', () => {
 
     expect(output.token).toBe('fake-token-1')
 
-    const session = await sessionRepository.findByTokenHash(tokenHasher.hash(output.token))
+    const session = await sessionRepository.findByTokenHash(await keyedHasher.hash(output.token))
     expect(session).toBeDefined()
     expect(session?.getUserId()).toBe(user.getId())
   })
@@ -57,22 +57,22 @@ describe('AuthenticateUser', () => {
 
     await useCase.execute({ email: 'jane@example.com', password: 'correct-password' })
 
-    const sessions = await sessionRepository.findByUserId(user.getId())
+    const sessions = await sessionRepository.listByUserId(user.getId())
     expect(sessions?.[0]?.isExpired(new Date())).toBe(false)
   })
 
   it('throws InvalidCredentialsError when the email does not exist', async () => {
     const { useCase } = await setup()
 
-    await expect(
-      useCase.execute({ email: 'unknown@example.com', password: 'whatever' }),
-    ).rejects.toThrow(InvalidCredentialsError)
+    expect(useCase.execute({ email: 'unknown@example.com', password: 'whatever' })).rejects.toThrow(
+      InvalidCredentialsError,
+    )
   })
 
   it('throws InvalidCredentialsError when the password is wrong', async () => {
     const { useCase } = await setup()
 
-    await expect(
+    return expect(
       useCase.execute({ email: 'jane@example.com', password: 'wrong-password' }),
     ).rejects.toThrow(InvalidCredentialsError)
   })
@@ -80,11 +80,11 @@ describe('AuthenticateUser', () => {
   it('does not create a session when authentication fails', async () => {
     const { useCase, sessionRepository, user } = await setup()
 
-    await expect(
+    return expect(
       useCase.execute({ email: 'jane@example.com', password: 'wrong-password' }),
     ).rejects.toThrow(InvalidCredentialsError)
 
-    const sessions = await sessionRepository.findByUserId(user.getId())
-    expect(sessions).toHaveLength(0)
+    const sessions = await sessionRepository.listByUserId(user.getId())
+    expect(sessions).toBeNull()
   })
 })

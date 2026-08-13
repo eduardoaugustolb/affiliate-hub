@@ -28,7 +28,7 @@ export class User {
   }
 
   static rehydrate(user: UserSnapshot): User {
-    return new User(user.id, user.passwordHash, Email.rehydrate(user.email), user.name)
+    return new User(user.id, user.passwordHash, Email.create(user.email), user.name)
   }
 
   getId(): string {

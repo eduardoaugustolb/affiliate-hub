@@ -1,11 +1,10 @@
-import type { IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
+import type { IdGenerator, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
 import { Email } from '../../domain/Email'
 import { Session } from '../../domain/Session'
 import { InvalidCredentialsError } from '../errors/InvalidCredentialsError'
 import type { PasswordHasher } from '../ports/PasswordHasher'
 import type { SessionRepository } from '../ports/SessionRepository'
 import type { TokenGenerator } from '../ports/TokenGenerator'
-import type { TokenHasher } from '../ports/TokenHasher'
 import type { UserRepository } from '../ports/UserRepository'
 
 export interface AuthenticateUserInput {
@@ -23,7 +22,7 @@ export class AuthenticateUser implements UseCase<AuthenticateUserInput, Authenti
     private readonly sessionRepository: SessionRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenGenerator: TokenGenerator,
-    private readonly tokenHasher: TokenHasher,
+    private readonly keyedHasher: KeyedHasher,
     private readonly idGenerator: IdGenerator,
   ) {}
 
@@ -35,7 +34,7 @@ export class AuthenticateUser implements UseCase<AuthenticateUserInput, Authenti
 
     const sessionId = this.idGenerator.generate()
     const token = this.tokenGenerator.generate()
-    const hashedToken = this.tokenHasher.hash(token)
+    const hashedToken = await this.keyedHasher.hash(token)
     const expiresAtTimestamp = Date.now() + 20 * 24 * 60 * 60 * 1000
 
     await this.sessionRepository.save(
