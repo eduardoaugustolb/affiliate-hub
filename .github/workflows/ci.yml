@@ -26,6 +26,10 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/drops_do_frost
+      TZ: UTC
+      PII_ENCRYPTION_KEY: MrKoZ96JWNqVn49In2Q-qXnXh3foWd2UhMZV5Vhehv0
+      EMAIL_LOOKUP_HMAC_KEY: L1MyXuM7fp0ag1R6YpZvfvuI84Fj-hv48ZkWTk2wVAQ
+      SESSION_TOKEN_HMAC_KEY: iM3G3CuSpZxUGNdjUCFhMFrwSXp25pqFaXn0hOOdwhU
 
     steps:
       - name: Checkout
@@ -50,6 +54,10 @@ jobs:
         run: bun test
         working-directory: packages/link-redirect
 
+      - name: Testes unitários — identity-access
+        run: bun test
+        working-directory: packages/identity-access
+
       - name: Migrar banco — catalog
         run: bunx knex --knexfile knexfile.ts migrate:latest
         working-directory: packages/catalog
@@ -57,6 +65,10 @@ jobs:
       - name: Migrar banco — link-redirect
         run: bunx knex --knexfile knexfile.ts migrate:latest
         working-directory: packages/link-redirect
+
+      - name: Migrar banco — identity-access
+        run: bunx knex --knexfile knexfile.ts migrate:latest
+        working-directory: packages/identity-access
 
       - name: Testes de integração — api
         run: bun run test:integration
