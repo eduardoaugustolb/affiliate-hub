@@ -1,5 +1,9 @@
 import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
-import { PgAdapter } from '../../../src/adapters/PgAdapter'
+import { User, UserRepositorySql } from '@affiliate-hub/identity-access'
+import { Argon2Hasher } from '../../../src/adapters/crypto/Argon2Hasher'
+import { CipherAdapter } from '../../../src/adapters/crypto/CipherAdapter'
+import { HmacKeyedHasher } from '../../../src/adapters/crypto/HmacKeyedHasher'
+import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 import { createServer } from '../../../src/main'
 
 const DATABASE_URL =
@@ -10,11 +14,35 @@ const BASE_URL = `http://localhost:${TEST_PORT}`
 describe('LinkRedirect HTTP routes (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)
   const insertedIds: string[] = []
+  const userId = 'redirect-integration-user'
+  let authHeaders: HeadersInit
 
   beforeAll(async () => {
     process.env.DATABASE_URL = DATABASE_URL
+    const passwordHasher = new Argon2Hasher()
+    const userRepository = new UserRepositorySql(
+      db,
+      new CipherAdapter(Buffer.from(process.env.PII_ENCRYPTION_KEY as string, 'base64url')),
+      new HmacKeyedHasher(process.env.EMAIL_LOOKUP_HMAC_KEY as string),
+    )
+    await db.query('delete from users where id = $1', [userId])
+    await userRepository.save(
+      User.create(userId, {
+        email: 'redirect-integration@example.com',
+        name: 'Redirect Integration',
+        passwordHash: await passwordHasher.hash('integration-password'),
+      }),
+    )
     const httpServer = createServer()
     await httpServer.listen(TEST_PORT)
+    const login = await fetch(`${BASE_URL}/session`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'redirect-integration@example.com', password: 'integration-password' }),
+    })
+    const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
+    if (!sessionCookie) throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
+    authHeaders = { cookie: sessionCookie }
   })
 
   afterEach(async () => {
@@ -28,10 +56,10 @@ describe('LinkRedirect HTTP routes (integration)', () => {
   it('GET /p/:id redirects to the current affiliate link and logs a click', async () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...authHeaders },
       body: JSON.stringify({ name: 'Perfume Redirect', category: 'perfume' }),
     })
-    const { productId } = (await created.json()) as { productId: string }
+    const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
 
     await db.query('update products set affiliate_link_url = $1 where id = $2', [
@@ -53,19 +81,19 @@ describe('LinkRedirect HTTP routes (integration)', () => {
 
   it('GET /p/:id maps NotFoundError to 404 when the product does not exist', async () => {
     const response = await fetch(`${BASE_URL}/p/DOES-NOT-EXIST`, { redirect: 'manual' })
-    const body = (await response.json()) as { error: string }
+    const body = (await response.json()) as { message: string }
 
     expect(response.status).toBe(404)
-    expect(body.error).toContain('DOES-NOT-EXIST')
+    expect(body.message).toContain('DOES-NOT-EXIST')
   })
 
   it('GET /p/:id maps NotFoundError to 404 when the product has no affiliate link yet', async () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...authHeaders },
       body: JSON.stringify({ name: 'Perfume No Link', category: 'perfume' }),
     })
-    const { productId } = (await created.json()) as { productId: string }
+    const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
 
     const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })

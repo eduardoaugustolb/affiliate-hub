@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test'
 import { OutboxPublisherSql } from '@affiliate-hub/catalog'
-import { PgAdapter } from '../../../src/adapters/PgAdapter'
+import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'

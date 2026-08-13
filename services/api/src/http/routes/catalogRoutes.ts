@@ -5,7 +5,7 @@ import type {
   RegisterProduct,
 } from '@affiliate-hub/catalog'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
-import { mapErrorToHttp } from './ErrorMapper'
+import { mapErrorToHttp } from '../ErrorMapper'
 
 export interface CatalogUseCases {
   registerProduct: RegisterProduct
@@ -18,7 +18,7 @@ export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogU
   httpServer.post('/products', async (request, response) => {
     try {
       const output = await useCases.registerProduct.execute(request.body as never)
-      response.status(201).send(output)
+      response.status(201).sendJson({ message: 'Product created successfully', ...output })
     } catch (error) {
       mapErrorToHttp(error, response)
     }
@@ -26,8 +26,23 @@ export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogU
 
   httpServer.get('/products/curation', async (_request, response) => {
     try {
-      const output = await useCases.listProductsForCuration.execute()
-      response.status(200).send(output)
+      const { products } = await useCases.listProductsForCuration.execute()
+      const normalizedProducts = products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        status: product.status,
+        mediaType: product.mediaType,
+        assignedTemplate: product.assignedTemplate,
+        photos: product.photos,
+        affiliateLinkUrl: product.affiliateLinkUrl,
+        createdAt: product.createdAt.toISOString(),
+        updatedAt: product.updatedAt.toISOString(),
+        removedAt: product.removedAt?.toISOString() ?? null,
+      }))
+      response
+        .status(200)
+        .sendJson({ message: 'Products retrieved successfully', products: normalizedProducts })
     } catch (error) {
       mapErrorToHttp(error, response)
     }
@@ -39,7 +54,7 @@ export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogU
         productId: request.params.id as string,
         ...(request.body as Record<string, unknown>),
       } as never)
-      response.status(200).send(output)
+      response.status(200).sendJson({ message: 'Product media approved successfully', ...output })
     } catch (error) {
       mapErrorToHttp(error, response)
     }
@@ -50,7 +65,7 @@ export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogU
       const output = await useCases.deactivateProduct.execute({
         productId: request.params.id as string,
       })
-      response.status(200).send(output)
+      response.status(200).sendJson({ message: 'Product deactivated successfully', ...output })
     } catch (error) {
       mapErrorToHttp(error, response)
     }

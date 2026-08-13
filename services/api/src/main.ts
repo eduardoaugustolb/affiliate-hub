@@ -6,15 +6,34 @@ import {
   ProductRepositorySql,
   RegisterProduct,
 } from '@affiliate-hub/catalog'
+import {
+  AuthenticateUser,
+  CryptoTokenGenerator,
+  GetAuthenticatedUser,
+  Logout,
+  SessionRepositorySql,
+  UpdateUser,
+  DeleteUser,
+  UserRepositorySql,
+} from '@affiliate-hub/identity-access'
 import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
-import { BunRuntimeServer } from './adapters/BunRuntimeServer'
-import { HonoHttpServer } from './adapters/HonoHttpServer'
-import { IdGeneratorBun } from './adapters/IdGeneratorBun'
-import { PgAdapter } from './adapters/PgAdapter'
+import { Argon2Hasher } from './adapters/crypto/Argon2Hasher'
+import { CipherAdapter } from './adapters/crypto/CipherAdapter'
+import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
+import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
+import { PgAdapter } from './adapters/database/PgAdapter'
+import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
+import { HonoHttpServer } from './adapters/http/HonoHttpServer'
 import { env } from './env'
-import { registerCatalogRoutes } from './http/catalogRoutes'
-import { registerLinkRedirectRoutes } from './http/linkRedirectRoutes'
+import { requireAuthentication } from './http/middlewares/RequireAuthentication'
+import { type CatalogUseCases, registerCatalogRoutes } from './http/routes/catalogRoutes'
+import {
+  type LinkRedirectUseCases,
+  registerLinkRedirectRoutes,
+} from './http/routes/linkRedirectRoutes'
+import { registerSessionRoutes, type SessionUseCases } from './http/routes/sessionRoutes'
+import { registerUserRoutes, type UserUseCases } from './http/routes/userRoutes'
 
 export function createServer(): HttpServer {
   const runtime = new BunRuntimeServer()
@@ -30,20 +49,55 @@ export function createServer(): HttpServer {
   const clickLog = new ClickLogSql(db)
   const idGenerator = new IdGeneratorBun()
 
-  const catalogUseCases = {
+  const sessionRepository = new SessionRepositorySql(db)
+  const cipher = new CipherAdapter(Buffer.from(env.PII_ENCRYPTION_KEY, 'base64url'))
+  const emailLookupHasher = new HmacKeyedHasher(env.EMAIL_LOOKUP_HMAC_KEY)
+  const sessionTokenHasher = new HmacKeyedHasher(env.SESSION_TOKEN_HMAC_KEY)
+  const argon2Hasher = new Argon2Hasher()
+  const tokenGenerator = new CryptoTokenGenerator()
+  const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
+
+  const catalogUseCases: CatalogUseCases = {
     registerProduct: new RegisterProduct(productRepository, idGenerator),
     approveProductMedia: new ApproveProductMedia(productRepository, eventPublisher),
     deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
     listProductsForCuration: new ListProductsForCuration(productRepository),
   }
 
-  const linkRedirectUseCases = {
+  const linkRedirectUseCases: LinkRedirectUseCases = {
     redirectToAffiliateLink: new RedirectToAffiliateLink(productRepository, clickLog),
   }
 
+  const sessionUseCases: SessionUseCases = {
+    logout: new Logout(sessionRepository, sessionTokenHasher),
+    authenticateUser: new AuthenticateUser(
+      userRepository,
+      sessionRepository,
+      argon2Hasher,
+      tokenGenerator,
+      sessionTokenHasher,
+      idGenerator,
+    ),
+    getAuthenticatedUser: new GetAuthenticatedUser(
+      userRepository,
+      sessionRepository,
+      sessionTokenHasher,
+    ),
+  }
+
+  const userUseCases: UserUseCases = {
+    updateUser: new UpdateUser(userRepository),
+    deleteUser: new DeleteUser(userRepository),
+  }
+
   const httpServer = new HonoHttpServer(runtime)
+  httpServer.use('/products', requireAuthentication(sessionUseCases.getAuthenticatedUser))
+  httpServer.use('/products/*', requireAuthentication(sessionUseCases.getAuthenticatedUser))
+  httpServer.use('/users/*', requireAuthentication(sessionUseCases.getAuthenticatedUser))
   registerCatalogRoutes(httpServer, catalogUseCases)
   registerLinkRedirectRoutes(httpServer, linkRedirectUseCases)
+  registerSessionRoutes(httpServer, sessionUseCases)
+  registerUserRoutes(httpServer, userUseCases)
   return httpServer
 }
 

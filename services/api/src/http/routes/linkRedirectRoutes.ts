@@ -1,6 +1,6 @@
 import type { RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
-import { mapErrorToHttp } from './ErrorMapper'
+import { mapErrorToHttp } from '../ErrorMapper'
 
 export interface LinkRedirectUseCases {
   redirectToAffiliateLink: RedirectToAffiliateLink
