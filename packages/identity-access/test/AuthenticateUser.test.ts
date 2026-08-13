@@ -80,7 +80,7 @@ describe('AuthenticateUser', () => {
   it('does not create a session when authentication fails', async () => {
     const { useCase, sessionRepository, user } = await setup()
 
-    return expect(
+    await expect(
       useCase.execute({ email: 'jane@example.com', password: 'wrong-password' }),
     ).rejects.toThrow(InvalidCredentialsError)
 
