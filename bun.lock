@@ -11,6 +11,16 @@
         "typescript": "^5.7.3",
       },
     },
+    "packages/affiliate-sync": {
+      "name": "@affiliate-hub/affiliate-sync",
+      "version": "0.1.0",
+      "dependencies": {
+        "@affiliate-hub/shared-kernel": "workspace:*",
+      },
+      "devDependencies": {
+        "pg": "^8.13.1",
+      },
+    },
     "packages/catalog": {
       "name": "@affiliate-hub/catalog",
       "version": "0.1.0",
@@ -77,6 +87,8 @@
     },
   },
   "packages": {
+    "@affiliate-hub/affiliate-sync": ["@affiliate-hub/affiliate-sync@workspace:packages/affiliate-sync"],
+
     "@affiliate-hub/api": ["@affiliate-hub/api@workspace:services/api"],
 
     "@affiliate-hub/catalog": ["@affiliate-hub/catalog@workspace:packages/catalog"],
