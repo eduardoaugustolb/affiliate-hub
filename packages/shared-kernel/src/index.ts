@@ -1,10 +1,13 @@
 export { ApplicationError } from './errors/ApplicationError'
+export { BadRequestError } from './errors/BadRequestError'
 export { DomainError } from './errors/DomainError'
 export { NotFoundError } from './errors/NotFoundError'
 
+export type { Cipher } from './ports/Cipher'
 export type { DatabaseConnection } from './ports/DatabaseConnection'
 export type { HttpClient, HttpClientResponse, HttpRequestOptions } from './ports/HttpClient'
 export type { FetchHandler, HttpRuntimeAdapter, RunningServer } from './ports/HttpRuntimeAdapter'
 export * from './ports/HttpServer'
 export type { IdGenerator } from './ports/IdGenerator'
+export type { KeyedHasher } from './ports/KeyedHasher'
 export type { UseCase } from './UseCase'
