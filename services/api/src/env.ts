@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const envSchema = z.object({
   DATABASE_URL: z.string(),
-  PORT: z.coerce.number(),
+  PORT: z.coerce.number().default(3000),
   TZ: z.string(),
   PII_ENCRYPTION_KEY: z.string(),
   EMAIL_LOOKUP_HMAC_KEY: z.string(),
