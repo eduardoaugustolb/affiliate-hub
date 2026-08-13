@@ -1,5 +1,5 @@
 import type { DeleteUser, UpdateUser } from '@affiliate-hub/identity-access'
-import { BadRequestError, HttpStatus, type HttpServer } from '@affiliate-hub/shared-kernel'
+import { BadRequestError, type HttpServer, HttpStatus } from '@affiliate-hub/shared-kernel'
 import { mapErrorToHttp } from '../ErrorMapper'
 
 interface AuthenticatedUser {

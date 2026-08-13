@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import {
   AuthenticateUser,
+  DeleteUser,
   GetAuthenticatedUser,
   Logout,
   UpdateUser,
-  DeleteUser,
   User,
 } from '@affiliate-hub/identity-access'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
@@ -146,7 +146,6 @@ describe('Session HTTP routes (integration)', () => {
       message: 'Authenticated user retrieved successfully',
       user: { id: 'USER-1', email: 'jane@example.com', name: 'Jane Doe' },
     })
-
   })
 
   it('authenticates through a secure cookie and invalidates it on logout', async () => {
@@ -187,6 +186,5 @@ describe('Session HTTP routes (integration)', () => {
     })
     expect(invalidatedSession.status).toBe(401)
     expect(await invalidatedSession.json()).toEqual({ message: 'Unauthorized' })
-
   })
 })

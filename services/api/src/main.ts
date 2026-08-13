@@ -9,11 +9,11 @@ import {
 import {
   AuthenticateUser,
   CryptoTokenGenerator,
+  DeleteUser,
   GetAuthenticatedUser,
   Logout,
   SessionRepositorySql,
   UpdateUser,
-  DeleteUser,
   UserRepositorySql,
 } from '@affiliate-hub/identity-access'
 import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'

@@ -38,10 +38,14 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const login = await fetch(`${BASE_URL}/session`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: 'redirect-integration@example.com', password: 'integration-password' }),
+      body: JSON.stringify({
+        email: 'redirect-integration@example.com',
+        password: 'integration-password',
+      }),
     })
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
-    if (!sessionCookie) throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
+    if (!sessionCookie)
+      throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
     authHeaders = { cookie: sessionCookie }
   })
 

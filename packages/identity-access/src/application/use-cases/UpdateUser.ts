@@ -22,8 +22,7 @@ export class UpdateUser implements UseCase<UpdateUserInput, void> {
         throw new UserAlreadyExistsError(`Email ${input.email} is already in use`)
 
       const existingEmail = await this.userRepository.findByEmail(Email.create(input.email))
-      if (existingEmail)
-        throw new UserAlreadyExistsError(`Email ${input.email} is already in use`)
+      if (existingEmail) throw new UserAlreadyExistsError(`Email ${input.email} is already in use`)
     }
 
     const updatedUser = User.rehydrate({
