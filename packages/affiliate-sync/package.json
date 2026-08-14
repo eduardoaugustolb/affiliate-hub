@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@affiliate-hub/shared-kernel": "workspace:*"
+    "@affiliate-hub/shared-kernel": "workspace:*",
+    "@affiliate-hub/contracts": "workspace:*"
   },
   "devDependencies": {
     "pg": "^8.13.1"

@@ -4,7 +4,7 @@ tags:
   - architecture
 status: living
 created: 2026-08-06
-updated: 2026-08-10
+updated: 2026-08-13
 ---
 
 # Matriz de Portas ↔ Adapters
@@ -19,6 +19,7 @@ de uma porta" (ver [[08-DoD/Definition-of-Done]]).
 | `EventPublisher` | [[03-Modules/Catalog\|Catalog]] | `OutboxPublisherDatabase` |
 | `AffiliateProvider` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `ShopeeAffiliateProvider` (futuro: `SheinAffiliateProvider`) |
 | `TaskScheduler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `RailwayCronScheduler` |
+| `IntegrationEventPublisher` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `OutboxIntegrationEventPublisher` (pendente; grava em `outbox_events`) |
 | `HttpClient` | Transversal (usado por AffiliateSync hoje) | `FetchHttpClientAdapter` (Bun `fetch`) |
 | `BackgroundRemover` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `RembgBackgroundRemover` |
 | `ImageRenderer` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `SatoriImageRenderer` |
@@ -102,3 +103,10 @@ composition root virar depósito genérico conforme o sistema cresce:
 > atualizar esta linha. Se uma porta aparece aqui sem nenhum adapter fake
 > correspondente em teste, o módulo ainda não passa no
 > [[08-DoD/Definition-of-Done|DoD]].
+
+> [!warning] Outbox não é dispatcher
+>
+> Gravar em `outbox_events` não entrega um evento por si só. A infraestrutura
+> precisa de um worker/dispatcher que leia registros pendentes, chame o
+> handler do módulo destinatário e só então marque o registro como processado.
+> Os handlers precisam ser idempotentes, pois uma entrega pode ser repetida.

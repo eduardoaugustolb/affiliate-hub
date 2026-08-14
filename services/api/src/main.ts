@@ -34,6 +34,8 @@ import {
 } from './http/routes/linkRedirectRoutes'
 import { registerSessionRoutes, type SessionUseCases } from './http/routes/sessionRoutes'
 import { registerUserRoutes, type UserUseCases } from './http/routes/userRoutes'
+import { handleAffiliateProductImportRequested } from './workers/handlers/handleAffiliateProductImportRequested'
+import { OutboxDispatcher } from './workers/OutboxDispatcher'
 
 export function createServer(): HttpServer {
   const runtime = new BunRuntimeServer()
@@ -63,6 +65,11 @@ export function createServer(): HttpServer {
     deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
     listProductsForCuration: new ListProductsForCuration(productRepository),
   }
+
+  const outboxDispatcher = new OutboxDispatcher(db, {
+    AffiliateProductImportRequested: handleAffiliateProductImportRequested(db, idGenerator),
+  })
+  setInterval(() => void outboxDispatcher.dispatchOne(), 60_000)
 
   const linkRedirectUseCases: LinkRedirectUseCases = {
     redirectToAffiliateLink: new RedirectToAffiliateLink(productRepository, clickLog),

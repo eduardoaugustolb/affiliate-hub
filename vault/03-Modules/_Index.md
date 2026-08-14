@@ -36,8 +36,10 @@ implantado (ver [[04-Infrastructure/Deploy-Topology]]).
   entre pacotes de módulo.
 - **LinkRedirect / CommentAssist → Catalog**: leitura via `ProductRepository`
   compartilhado (mesma porta, reaproveitada como dependência de leitura).
-- **AffiliateSync → Catalog**: `ImportProductFromFeed` delega a
-  `RegisterProduct` via porta, não import direto de classe.
+- **AffiliateSync → Catalog**: `ImportProductFromFeed` publica o evento de
+  integração `AffiliateProductImportRequested` na outbox. Um handler de
+  entrada do Catalog o consome e executa seu próprio `RegisterProduct`; não
+  há import de caso de uso ou repositório entre os módulos.
 
 ## Ver também
 
@@ -46,4 +48,4 @@ fronteira de pacote de workspace, não só convenção.
 
 ---
 
-*Última atualização: 2026-08-06*
+*Última atualização: 2026-08-13*

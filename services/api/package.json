@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@affiliate-hub/catalog": "workspace:*",
+    "@affiliate-hub/contracts": "workspace:*",
+    "@affiliate-hub/affiliate-sync": "workspace:*",
     "@affiliate-hub/config": "workspace:*",
     "@affiliate-hub/link-redirect": "workspace:*",
     "@affiliate-hub/shared-kernel": "workspace:*",

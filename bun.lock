@@ -15,6 +15,7 @@
       "name": "@affiliate-hub/affiliate-sync",
       "version": "0.1.0",
       "dependencies": {
+        "@affiliate-hub/contracts": "workspace:*",
         "@affiliate-hub/shared-kernel": "workspace:*",
       },
       "devDependencies": {
@@ -37,6 +38,16 @@
       "version": "0.1.0",
       "dependencies": {
         "zod": "^4.1.13",
+      },
+    },
+    "packages/contracts": {
+      "name": "@affiliate-hub/contracts",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
       },
     },
     "packages/identity-access": {
@@ -70,8 +81,10 @@
       "name": "@affiliate-hub/api",
       "version": "0.1.0",
       "dependencies": {
+        "@affiliate-hub/affiliate-sync": "workspace:*",
         "@affiliate-hub/catalog": "workspace:*",
         "@affiliate-hub/config": "workspace:*",
+        "@affiliate-hub/contracts": "workspace:*",
         "@affiliate-hub/identity-access": "workspace:*",
         "@affiliate-hub/link-redirect": "workspace:*",
         "@affiliate-hub/shared-kernel": "workspace:*",
@@ -94,6 +107,8 @@
     "@affiliate-hub/catalog": ["@affiliate-hub/catalog@workspace:packages/catalog"],
 
     "@affiliate-hub/config": ["@affiliate-hub/config@workspace:packages/config"],
+
+    "@affiliate-hub/contracts": ["@affiliate-hub/contracts@workspace:packages/contracts"],
 
     "@affiliate-hub/identity-access": ["@affiliate-hub/identity-access@workspace:packages/identity-access"],
 
