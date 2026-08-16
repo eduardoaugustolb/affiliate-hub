@@ -10,7 +10,8 @@
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "biome check .",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "test:coverage": "bun test --coverage --coverage-reporter=lcov --coverage-dir=coverage && bun run scripts/assertCoverage.ts coverage/lcov.info"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

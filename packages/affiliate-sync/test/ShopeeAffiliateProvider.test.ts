@@ -61,4 +61,24 @@ describe('ShopeeAffiliateProvider', () => {
       'Shopee product feed is not configured',
     )
   })
+
+  it('reports GraphQL errors when Shopee does not generate a link', async () => {
+    const httpClient: HttpClient = {
+      get: async <Body>() => ({ status: 200, body: {} as Body }),
+      post: async <Body>() => ({
+        status: 200,
+        body: { errors: [{ message: 'invalid product' }] } as Body,
+      }),
+    }
+    const provider = new ShopeeAffiliateProvider(httpClient, {
+      apiUrl: 'https://example.com/graphql',
+      credential: 'credential',
+      secret: 'secret',
+      productUrlTemplate: 'https://example.com/{externalProductId}',
+    })
+
+    await expect(provider.findLink('missing-product')).rejects.toThrow(
+      'Shopee Affiliate API did not generate a short link: invalid product',
+    )
+  })
 })

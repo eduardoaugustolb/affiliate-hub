@@ -43,7 +43,8 @@ export class SessionRepositorySql implements SessionRepository {
       }),
     )
 
-    return sessions.filter((s) => s !== undefined || s === null)
+    const activeSessions = sessions.filter((session): session is Session => session !== undefined)
+    return activeSessions.length === 0 ? null : activeSessions
   }
 
   async findById(sessionId: string): Promise<Session | null> {

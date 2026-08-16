@@ -65,6 +65,7 @@ bun run dev  # em services/api
 | `bun run format` | Formata com Biome |
 | `bun test` | Testes unitários (dentro de cada pacote) |
 | `bun run test:integration` | Testes de integração da API (em `services/api`) |
+| `bun --env-file=services/api/.env run test:coverage` | Suíte completa e bloqueio de cobertura global abaixo de 90% |
 | `bun run bench:http` | Benchmark dos roteadores HTTP (em `services/api`) |
 
 ## Env vars da API
