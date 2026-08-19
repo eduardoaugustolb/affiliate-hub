@@ -1,5 +1,7 @@
+export { AffiliateProductImportRegistrySql } from './adapters/AffiliateProductImportRegistrySql'
 export { OutboxPublisherSql } from './adapters/OutboxPublisherSql'
 export { ProductRepositorySql } from './adapters/ProductRepositorySql'
+export type { AffiliateProductImportRegistry } from './application/ports/AffiliateProductImportRegistry'
 export type { DomainEvent, EventPublisher } from './application/ports/EventPublisher'
 export { ProductActivated, ProductDeactivated } from './application/ports/EventPublisher'
 export type { ProductRepository } from './application/ports/ProductRepository'

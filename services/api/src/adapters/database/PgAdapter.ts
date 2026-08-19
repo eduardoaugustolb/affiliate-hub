@@ -2,35 +2,29 @@ import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
 import { SQL as SQLClient } from 'bun'
 
 export class PgAdapter implements DatabaseConnection {
-  private readonly sql: SQLClient
+  private sql: SQLClient
 
-  constructor(connectionString: string) {
-    this.sql = new SQLClient(connectionString)
+  constructor(connection: string | SQLClient) {
+    this.sql = typeof connection === 'string' ? new SQLClient(connection) : connection
   }
 
-  async query<Row = unknown>(sql: string, params: unknown[] = []): Promise<Row[]> {
-    const resultado = await this.sql.unsafe(sql, params as never[])
-    return resultado as unknown as Row[]
+  async query<Row = unknown>(query: string, params: unknown[] = []) {
+    return (await this.sql.unsafe(query, params as never[])) as unknown as Row[]
   }
 
   async transaction<Result>(
     callback: (connection: DatabaseConnection) => Promise<Result>,
   ): Promise<Result> {
-    return this.sql.begin(async (transaction) => callback(this.asConnection(transaction)))
+    return this.sql.begin(async (transaction) => callback(new PgAdapter(transaction)))
   }
 
-  private asConnection(sql: SQLClient): DatabaseConnection {
-    return {
-      query: async <Row = unknown>(query: string, params: unknown[] = []): Promise<Row[]> => {
-        const resultado = await sql.unsafe(query, params as never[])
-        return resultado as unknown as Row[]
-      },
-      transaction: async <Result>(callback: (connection: DatabaseConnection) => Promise<Result>) =>
-        sql.begin(async (transaction) => callback(this.asConnection(transaction))),
-    }
+  async connect(): Promise<void> {
+    this.sql = await this.sql.connect()
+    console.log('Postgres connection is ready!')
   }
 
   async close(): Promise<void> {
     await this.sql.end()
+    console.log('Postgres connection is closed!')
   }
 }

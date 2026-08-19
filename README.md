@@ -22,15 +22,23 @@ mesma disciplina de portas/adapters, caso de uso tipado e erro mapeado na borda.
 ```
 packages/
   shared-kernel/    Portas e tipos transversais (HttpServer, UseCase, erros)
+  contracts/        Contratos de integração entre bounded contexts
   config/           Helper de validação de env vars com zod
   catalog/          Fonte de verdade dos produtos (cadastro, curadoria, ciclo de vida)
   link-redirect/    Encurtador próprio + QR code + log de cliques
   identity-access/  Autenticação por sessão e gestão de usuário (LGPD)
+  affiliate-sync/   Integração e sincronização de catálogos de afiliados
 services/
-  api/              Composition root do HTTP server (Hono sobre Bun.serve)
+  api/              Composition root HTTP e workers (Hono sobre Bun.serve)
 vault/              Docs de arquitetura, ADRs, módulos e LGPD (Obsidian)
 PRD.md              Product Requirements Document
 ```
+
+Todo módulo de domínio organiza o código em `src/domain`, `src/application` e
+`src/adapters`. Adaptadores transversais e as bordas HTTP e de worker ficam em
+`services/api/src`. Testes unitários ficam em `test/unit`; testes que dependem
+de infraestrutura real ficam em `test/integration`. Os arquivos usam o sufixo
+`.spec.ts` para testes unitários e `.test.ts` para testes de integração.
 
 ## Como rodar local
 

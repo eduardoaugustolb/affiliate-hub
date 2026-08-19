@@ -54,9 +54,13 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
       '{externalProductId}',
       encodeURIComponent(externalProductId),
     )
+    const payload = JSON.stringify({
+      query: generateShortLinkMutation,
+      variables: { originUrl, subIds: this.config.subIds ?? [] },
+    })
     const timestamp = Math.floor(this.now().getTime() / 1_000).toString()
     const signature = new Bun.CryptoHasher('sha256')
-      .update(`${this.config.credential}${timestamp}${this.config.secret}`)
+      .update(`${this.config.credential}${timestamp}${payload}${this.config.secret}`)
       .digest('hex')
 
     const response = await this.httpClient.post<GenerateShortLinkResponse>(this.config.apiUrl, {
@@ -64,10 +68,7 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
         Authorization: `SHA256 Credential=${this.config.credential}, Signature=${signature}, Timestamp=${timestamp}`,
         'Content-Type': 'application/json',
       },
-      body: {
-        query: generateShortLinkMutation,
-        variables: { originUrl, subIds: this.config.subIds ?? [] },
-      },
+      body: payload,
     })
 
     const shortLink = response.body.data?.generateShortLink?.shortLink

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import {
+  type AffiliateProductImportJobQueue,
   ImportProductFromFeed,
   OutboxIntegrationEventPublisherSql,
 } from '@affiliate-hub/affiliate-sync'
+import type { Queue } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
+import { BullMqAffiliateProductImportJobQueue } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
+import { createAffiliateProductionImportQueue } from '../../../src/adapters/queue/createAffiliateProductImportQueue'
 import { handleAffiliateProductImportRequested } from '../../../src/workers/handlers/handleAffiliateProductImportRequested'
 import { OutboxDispatcher } from '../../../src/workers/OutboxDispatcher'
 
@@ -20,7 +24,11 @@ describe('ImportProductFromFeed (integration)', () => {
 
     try {
       const publisher = new OutboxIntegrationEventPublisherSql(db)
-      const importProductFromFeed = new ImportProductFromFeed(publisher, new IdGeneratorBun())
+      const importProductFromFeed = new ImportProductFromFeed(
+        publisher,
+        { enqueue: async () => undefined },
+        new IdGeneratorBun(),
+      )
       const dispatcher = new OutboxDispatcher(db, {
         AffiliateProductImportRequested: handleAffiliateProductImportRequested(
           db,
@@ -32,6 +40,7 @@ describe('ImportProductFromFeed (integration)', () => {
         externalProductId,
         name: marker,
         category: 'streetwear',
+        provider: 'shopee',
       })
 
       await dispatchUntilProcessed(db, dispatcher, first.eventId)
@@ -58,6 +67,7 @@ describe('ImportProductFromFeed (integration)', () => {
         externalProductId,
         name: marker,
         category: 'streetwear',
+        provider: 'shopee',
       })
       await dispatchUntilProcessed(db, dispatcher, second.eventId)
 
@@ -83,6 +93,96 @@ describe('ImportProductFromFeed (integration)', () => {
         externalProductId,
       ])
       await db.query('delete from products where name = $1', [marker])
+      await db.close()
+    }
+  })
+
+  it('persists the event in PostgreSQL and creates its job in Redis', async () => {
+    const marker = `INTEGRATION-AFFILIATE-QUEUE-${randomUUID()}`
+    const externalProductId = `shopee-${marker}`
+    const db = new PgAdapter(DATABASE_URL)
+    let queue: Queue | undefined
+
+    try {
+      queue = createAffiliateProductionImportQueue(`affiliate-product-import-test-${randomUUID()}`)
+      await queue.waitUntilReady()
+      await queue.obliterate({ force: true })
+
+      const importProductFromFeed = new ImportProductFromFeed(
+        new OutboxIntegrationEventPublisherSql(db),
+        new BullMqAffiliateProductImportJobQueue(queue),
+        new IdGeneratorBun(),
+      )
+      const output = await importProductFromFeed.execute({
+        externalProductId,
+        name: marker,
+        category: 'streetwear',
+        provider: 'shopee',
+      })
+
+      const events = await db.query<{ event_id: string; name: string }>(
+        'select event_id, name from outbox_events where event_id = $1',
+        [output.eventId],
+      )
+      const job = await queue.getJob(output.eventId)
+
+      expect(output.queuedImmediately).toBe(true)
+      expect(events).toEqual([
+        { event_id: output.eventId, name: 'AffiliateProductImportRequested' },
+      ])
+      expect(job?.data).toEqual({ eventId: output.eventId })
+    } finally {
+      if (queue) {
+        await queue.obliterate({ force: true })
+        await queue.close()
+      }
+      await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
+      await db.close()
+    }
+  })
+
+  it('persists the event and reports deferred delivery when Redis is unavailable', async () => {
+    const marker = `INTEGRATION-AFFILIATE-REDIS-DOWN-${randomUUID()}`
+    const externalProductId = `shopee-${marker}`
+    const db = new PgAdapter(DATABASE_URL)
+    let queue: Queue | undefined
+
+    try {
+      queue = createAffiliateProductionImportQueue(`affiliate-product-import-test-${randomUUID()}`)
+      await queue.waitUntilReady()
+      await queue.obliterate({ force: true })
+
+      const unavailableQueue: AffiliateProductImportJobQueue = {
+        enqueue: async () => {
+          throw new Error('Redis is unavailable')
+        },
+      }
+      const importProductFromFeed = new ImportProductFromFeed(
+        new OutboxIntegrationEventPublisherSql(db),
+        unavailableQueue,
+        new IdGeneratorBun(),
+      )
+      const output = await importProductFromFeed.execute({
+        externalProductId,
+        name: marker,
+        category: 'streetwear',
+        provider: 'shopee',
+      })
+
+      const events = await db.query<{ event_id: string }>(
+        'select event_id from outbox_events where event_id = $1',
+        [output.eventId],
+      )
+
+      expect(events).toEqual([{ event_id: output.eventId }])
+      expect(await queue.getJob(output.eventId)).toBeUndefined()
+      expect(output.queuedImmediately).toBe(false)
+    } finally {
+      if (queue) {
+        await queue.obliterate({ force: true })
+        await queue.close()
+      }
+      await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
       await db.close()
     }
   })

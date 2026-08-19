@@ -42,7 +42,7 @@ hash em si. `AuthenticateUser`/`GetAuthenticatedUser` usam `KeyedHasher`
 Diferente do design original (uma porta genérica `UserAuthenticator`), o
 módulo foi construído com portas separadas por responsabilidade, mais
 granular, cada uma trocável e fakeável isoladamente (ver testes em
-`test/doubles/`).
+`test/unit/doubles/`).
 
 ## Adapters
 

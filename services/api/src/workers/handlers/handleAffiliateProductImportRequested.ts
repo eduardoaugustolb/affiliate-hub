@@ -1,30 +1,33 @@
-import { ProductRepositorySql, RegisterProduct } from '@affiliate-hub/catalog'
+import type { OutboxEventForDelivery } from '@affiliate-hub/affiliate-sync'
+import {
+  AffiliateProductImportRegistrySql,
+  ProductRepositorySql,
+  RegisterProduct,
+} from '@affiliate-hub/catalog'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
-import { AffiliateProductImportRegistrySql } from '../../adapters/database/AffiliateProductImportRegistrySql'
-import type { OutboxEventHandler } from '../OutboxDispatcher'
 
-export interface AffiliateProductImportRegistry {
-  findProductId(externalProductId: string): Promise<string | null>
-  save(externalProductId: string, productId: string): Promise<void>
-}
+export type AffiliateProductImportRequestedHandler = (
+  event: OutboxEventForDelivery,
+) => Promise<void>
 
 export function handleAffiliateProductImportRequested(
   db: DatabaseConnection,
   idGenerator: IdGenerator,
-): OutboxEventHandler {
+): AffiliateProductImportRequestedHandler {
   return async (event) => {
     const payload = event.payload as AffiliateProductImportRequested['payload']
     if (!payload.externalProductId || !payload.name || !payload.category) {
       throw new Error(`Invalid AffiliateProductImportRequested event ${event.eventId}`)
     }
     const registry = new AffiliateProductImportRegistrySql(db)
-    if (await registry.findProductId(payload.externalProductId)) return
+    if (await registry.findProductId(payload.provider, payload.externalProductId)) return
 
     try {
       await db.transaction(async (transaction) => {
         const transactionalRegistry = new AffiliateProductImportRegistrySql(transaction)
-        if (await transactionalRegistry.findProductId(payload.externalProductId)) return
+        if (await transactionalRegistry.findProductId(payload.provider, payload.externalProductId))
+          return
 
         const registerProduct = new RegisterProduct(
           new ProductRepositorySql(transaction),
@@ -34,10 +37,17 @@ export function handleAffiliateProductImportRequested(
           name: payload.name,
           category: payload.category,
         })
-        await transactionalRegistry.save(payload.externalProductId, product.productId)
+        await transactionalRegistry.save(
+          payload.provider,
+          payload.externalProductId,
+          product.productId,
+        )
       })
     } catch (error) {
-      if (isUniqueViolation(error) && (await registry.findProductId(payload.externalProductId)))
+      if (
+        isUniqueViolation(error) &&
+        (await registry.findProductId(payload.provider, payload.externalProductId))
+      )
         return
       throw error
     }
@@ -45,5 +55,12 @@ export function handleAffiliateProductImportRequested(
 }
 
 function isUniqueViolation(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505'
+  if (typeof error !== 'object' || error === null) return false
+
+  if ('code' in error && error.code === '23505') return true
+
+  return (
+    error instanceof Error &&
+    error.message.includes('duplicate key value violates unique constraint')
+  )
 }

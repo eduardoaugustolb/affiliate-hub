@@ -5,6 +5,9 @@ export interface AffiliateProductImportRequested {
   payload: {
     externalProductId: string
     name: string
+    provider: string
     category: 'streetwear' | 'perfume'
   }
 }
+
+export const AffiliateProviderName = 'shopee'
