@@ -107,6 +107,24 @@ Ele tenta novamente criar o job e não executa handler nem altera
 `processed_at`. Isso separa recuperação de disponibilidade do caminho normal
 de baixa latência.
 
+## Observabilidade do worker
+
+`JsonLogger` emite uma linha JSON por log no stdout. Os logs do consumer usam
+`eventId`, `jobId`, `attempt`, `queueName` e `durationMs`; falhas também
+incluem `error.name`, `error.message` e `error.stack`.
+
+O processo worker expõe `GET /metrics` na porta `WORKER_METRICS_PORT` (9464
+por padrão). Ele combina as métricas Prometheus nativas do BullMQ, incluindo
+os estados waiting, active, completed e failed, com três sinais da outbox:
+
+- eventos de importação sem `processed_at` por mais de dez minutos;
+- latência média de processamento dos últimos quinze minutos;
+- maior latência de processamento dos últimos quinze minutos.
+
+Prometheus ou Grafana Cloud podem coletar esse endpoint. A configuração de
+alertas e a implantação em homologação são operações externas, não regras do
+worker.
+
 ## Idempotência no Catalog
 
 BullMQ oferece entrega pelo menos uma vez. A identidade da importação é

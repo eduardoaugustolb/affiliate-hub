@@ -99,6 +99,20 @@ Ele tenta criar o job novamente. Não chama Catalog e não preenche
 | Outra fila | novo consumer e nova implementação de `AffiliateProductImportJobQueue` em `services/api/src/infrastructure/queue` |
 | Regra de criação de produto | `packages/catalog` ou handler de integração |
 
+## 9. Como observar a operação
+
+O worker escreve logs JSON no stdout. Cada job registra início, conclusão ou
+falha com `eventId`, `jobId`, tentativa, fila e duração. Falhas preservam a
+estrutura do erro.
+
+O endpoint `GET /metrics` do worker, na porta `WORKER_METRICS_PORT` (9464 por
+padrão), entrega métricas Prometheus da fila e da outbox. Os alertas devem
+consumir ao menos:
+
+- jobs em estado `failed`;
+- `affiliate_import_outbox_unprocessed_over_ten_minutes > 0`;
+- ausência de scrape do endpoint, que indica worker indisponível.
+
 ## Ver também
 
 [[AffiliateSync]] · [[Catalog-Guia-Linear]] ·

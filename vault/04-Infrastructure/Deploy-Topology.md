@@ -26,6 +26,10 @@ O worker atual também agenda a reconciliação de enqueue a cada cinco minutos.
 Esse agendamento não é o mecanismo normal de entrega e não deve introduzir
 latência em uma importação com Redis disponível.
 
+O worker expõe `GET /metrics` em `WORKER_METRICS_PORT` (9464 por padrão). O
+endpoint deve permanecer acessível somente à rede do coletor de métricas em
+homologação e produção.
+
 ## Banco e Storage
 
 - **Banco**: Postgres hospedado no Supabase, acessado via protocolo Postgres
