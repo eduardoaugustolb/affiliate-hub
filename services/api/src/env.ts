@@ -6,6 +6,7 @@ export const envSchema = z
     DATABASE_URL: z.string(),
     REDIS_URL: z.string(),
     PORT: z.coerce.number().default(3000),
+    WORKER_METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(9464),
     TZ: z.string(),
     PII_ENCRYPTION_KEY: z.string(),
     EMAIL_LOOKUP_HMAC_KEY: z.string(),
