@@ -1,4 +1,5 @@
 export type { AffiliateProductImportJobQueue } from './application/ports/AffiliateProductImportJobQueue'
+export type { AffiliateProductImportRequestedEventHandler } from './application/ports/AffiliateProductImportRequestedEventHandler'
 export type { AffiliateProduct, AffiliateProvider } from './application/ports/AffiliateProvider'
 export type { IntegrationEventPublisher } from './application/ports/IntegrationEventPublisher'
 export type {
@@ -7,6 +8,11 @@ export type {
   PendingOutboxEnqueue,
 } from './application/ports/OutboxEventDeliveryRepository'
 export type { ScheduledTask, TaskScheduler } from './application/ports/TaskScheduler'
+export {
+  DeliverAffiliateProductImport,
+  type DeliverAffiliateProductImportInput,
+  type DeliverAffiliateProductImportOutput,
+} from './application/use-cases/DeliverAffiliateProductImport'
 export type {
   ImportProductFromFeedInput,
   ImportProductFromFeedOutput,

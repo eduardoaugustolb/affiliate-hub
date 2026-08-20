@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import {
+  DeliverAffiliateProductImport,
   type OutboxEventDeliveryRepository,
   SqlOutboxEventDeliveryRepository,
   SqlOutboxIntegrationEventPublisher,
@@ -32,11 +33,13 @@ describe('affiliate product import idempotency (integration)', () => {
       const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun())
       let handlerCalls = 0
       worker = createBullMqAffiliateProductImportConsumer(
-        new SqlOutboxEventDeliveryRepository(db),
-        async (event) => {
-          handlerCalls += 1
-          await handler(event)
-        },
+        new DeliverAffiliateProductImport(
+          new SqlOutboxEventDeliveryRepository(db),
+          async (event) => {
+            handlerCalls += 1
+            await handler(event)
+          },
+        ),
         queueName,
       )
       await Promise.all([queue.waitUntilReady(), worker.waitUntilReady()])
@@ -91,13 +94,17 @@ describe('affiliate product import idempotency (integration)', () => {
       }
 
       firstWorker = createBullMqAffiliateProductImportConsumer(
-        new SqlOutboxEventDeliveryRepository(firstWorkerDb),
-        createGatedHandler(firstWorkerDb),
+        new DeliverAffiliateProductImport(
+          new SqlOutboxEventDeliveryRepository(firstWorkerDb),
+          createGatedHandler(firstWorkerDb),
+        ),
         queueName,
       )
       secondWorker = createBullMqAffiliateProductImportConsumer(
-        new SqlOutboxEventDeliveryRepository(secondWorkerDb),
-        createGatedHandler(secondWorkerDb),
+        new DeliverAffiliateProductImport(
+          new SqlOutboxEventDeliveryRepository(secondWorkerDb),
+          createGatedHandler(secondWorkerDb),
+        ),
         queueName,
       )
       firstWorker.on('failed', (_job, error) => failures.push(error.message))
@@ -160,8 +167,10 @@ describe('affiliate product import idempotency (integration)', () => {
         markAsEnqueued: async (_) => {},
       }
       worker = createBullMqAffiliateProductImportConsumer(
-        repositoryThatFailsOnce,
-        handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+        new DeliverAffiliateProductImport(
+          repositoryThatFailsOnce,
+          handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+        ),
         queueName,
       )
       await Promise.all([queue.waitUntilReady(), worker.waitUntilReady()])

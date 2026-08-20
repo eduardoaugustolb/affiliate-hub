@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import {
+  DeliverAffiliateProductImport,
   ImportProductFromFeed,
   SqlOutboxEventDeliveryRepository,
   SqlOutboxIntegrationEventPublisher,
@@ -28,8 +29,10 @@ describe('affiliate product import worker (integration)', () => {
     try {
       queue = createAffiliateProductImportQueue(queueName)
       worker = createBullMqAffiliateProductImportConsumer(
-        new SqlOutboxEventDeliveryRepository(db),
-        handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+        new DeliverAffiliateProductImport(
+          new SqlOutboxEventDeliveryRepository(db),
+          handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+        ),
         queueName,
       )
       await Promise.all([queue.waitUntilReady(), worker.waitUntilReady()])

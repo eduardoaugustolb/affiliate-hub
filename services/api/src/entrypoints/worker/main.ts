@@ -1,4 +1,5 @@
 import {
+  DeliverAffiliateProductImport,
   ReconcilePendingOutboxEnqueues,
   SqlOutboxEventDeliveryRepository,
 } from '@affiliate-hub/affiliate-sync'
@@ -16,11 +17,12 @@ const RECONCILIATION_INTERVAL_MS = 5 * 60 * 1_000
 async function main(): Promise<void> {
   const db = new PgAdapter(env.DATABASE_URL)
   const deliveryRepository = new SqlOutboxEventDeliveryRepository(db)
-  const queue = createAffiliateProductImportQueue()
-  const worker = createBullMqAffiliateProductImportConsumer(
+  const delivery = new DeliverAffiliateProductImport(
     deliveryRepository,
     handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
   )
+  const queue = createAffiliateProductImportQueue()
+  const worker = createBullMqAffiliateProductImportConsumer(delivery)
   const reconciler = new ReconcilePendingOutboxEnqueues(
     deliveryRepository,
     new BullMqAffiliateProductImportJobQueue(queue),
