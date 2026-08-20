@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
-    "worker": "bun run src/workers/main.ts",
-    "worker:dev": "bun run --watch src/workers/main.ts",
+    "worker": "bun run src/entrypoints/worker/main.ts",
+    "worker:dev": "bun run --watch src/entrypoints/worker/main.ts",
     "test:integration": "bun test test/integration",
     "typecheck": "tsc --noEmit",
     "bench:http": "bun run bench/http-server.bench.ts"

@@ -2,17 +2,17 @@ import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import {
   type OutboxEventDeliveryRepository,
-  OutboxEventDeliveryRepositorySql,
-  OutboxIntegrationEventPublisherSql,
+  SqlOutboxEventDeliveryRepository,
+  SqlOutboxIntegrationEventPublisher,
 } from '@affiliate-hub/affiliate-sync'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { Queue, Worker } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
-import { EVENT_NAME } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { createAffiliateProductionImportQueue } from '../../../src/adapters/queue/createAffiliateProductImportQueue'
-import { createAffiliateProductImportWorker } from '../../../src/workers/createAffiliateProductImportWorker'
-import { handleAffiliateProductImportRequested } from '../../../src/workers/handlers/handleAffiliateProductImportRequested'
+import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
+import { createBullMqAffiliateProductImportConsumer } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportConsumer'
+import { EVENT_NAME } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
+import { createAffiliateProductImportQueue } from '../../../src/infrastructure/queue/bullmq/createAffiliateProductImportQueue'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
@@ -28,11 +28,11 @@ describe('affiliate product import idempotency (integration)', () => {
     let worker: Worker | undefined
 
     try {
-      queue = createAffiliateProductionImportQueue(queueName)
+      queue = createAffiliateProductImportQueue(queueName)
       const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun())
       let handlerCalls = 0
-      worker = createAffiliateProductImportWorker(
-        new OutboxEventDeliveryRepositorySql(db),
+      worker = createBullMqAffiliateProductImportConsumer(
+        new SqlOutboxEventDeliveryRepository(db),
         async (event) => {
           handlerCalls += 1
           await handler(event)
@@ -74,7 +74,7 @@ describe('affiliate product import idempotency (integration)', () => {
     let secondWorker: Worker | undefined
 
     try {
-      queue = createAffiliateProductionImportQueue(queueName)
+      queue = createAffiliateProductImportQueue(queueName)
       let arrivals = 0
       let releaseHandlers: (() => void) | undefined
       const bothHandlersStarted = new Promise<void>((resolve) => {
@@ -90,13 +90,13 @@ describe('affiliate product import idempotency (integration)', () => {
         }
       }
 
-      firstWorker = createAffiliateProductImportWorker(
-        new OutboxEventDeliveryRepositorySql(firstWorkerDb),
+      firstWorker = createBullMqAffiliateProductImportConsumer(
+        new SqlOutboxEventDeliveryRepository(firstWorkerDb),
         createGatedHandler(firstWorkerDb),
         queueName,
       )
-      secondWorker = createAffiliateProductImportWorker(
-        new OutboxEventDeliveryRepositorySql(secondWorkerDb),
+      secondWorker = createBullMqAffiliateProductImportConsumer(
+        new SqlOutboxEventDeliveryRepository(secondWorkerDb),
         createGatedHandler(secondWorkerDb),
         queueName,
       )
@@ -145,18 +145,21 @@ describe('affiliate product import idempotency (integration)', () => {
     let worker: Worker | undefined
 
     try {
-      queue = createAffiliateProductionImportQueue(queueName)
-      const repository = new OutboxEventDeliveryRepositorySql(db)
+      queue = createAffiliateProductImportQueue(queueName)
+      const repository = new SqlOutboxEventDeliveryRepository(db)
       let markAttempts = 0
       const repositoryThatFailsOnce: OutboxEventDeliveryRepository = {
         findByEventId: (id) => repository.findByEventId(id),
+        findPendingEnqueues: (limit) => repository.findPendingEnqueues(limit),
         markAsProcessed: async (id) => {
           markAttempts += 1
           if (markAttempts === 1) throw new Error('processed_at temporarily unavailable')
           await repository.markAsProcessed(id)
         },
+        registerEnqueueFailure: async (_, _m) => {},
+        markAsEnqueued: async (_) => {},
       }
-      worker = createAffiliateProductImportWorker(
+      worker = createBullMqAffiliateProductImportConsumer(
         repositoryThatFailsOnce,
         handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
         queueName,
@@ -202,7 +205,7 @@ function createEvent(
 }
 
 async function publishEvent(db: PgAdapter, event: AffiliateProductImportRequested): Promise<void> {
-  await new OutboxIntegrationEventPublisherSql(db).publish(event)
+  await new SqlOutboxIntegrationEventPublisher(db).publish(event)
 }
 
 async function expectSingleProductAndMapping(

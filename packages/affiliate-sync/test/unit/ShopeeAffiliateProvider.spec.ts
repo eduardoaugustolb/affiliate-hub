@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import type { HttpClient, HttpRequestOptions } from '@affiliate-hub/shared-kernel'
-import { ShopeeAffiliateProvider } from '../../src/adapters/ShopeeAffiliateProvider'
+import { ShopeeAffiliateProvider } from '../../src/infrastructure/providers/shopee/ShopeeAffiliateProvider'
 
 describe('ShopeeAffiliateProvider', () => {
   it('signs and sends the documented GraphQL short-link request through HttpClient', async () => {

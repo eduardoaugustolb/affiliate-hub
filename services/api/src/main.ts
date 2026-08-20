@@ -25,8 +25,6 @@ import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from './adapters/database/PgAdapter'
 import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
 import { HonoHttpServer } from './adapters/http/HonoHttpServer'
-import { BullMqAffiliateProductImportJobQueue } from './adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { createAffiliateProductionImportQueue } from './adapters/queue/createAffiliateProductImportQueue'
 import { env } from './env'
 import { requireAuthentication } from './http/middlewares/RequireAuthentication'
 import { type CatalogUseCases, registerCatalogRoutes } from './http/routes/catalogRoutes'
@@ -59,11 +57,6 @@ export function createServer(): HttpServer {
   const argon2Hasher = new Argon2Hasher()
   const tokenGenerator = new CryptoTokenGenerator()
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
-
-  const affiliateProductionImportQueue = createAffiliateProductionImportQueue()
-  const affiliateProductImportJobQueue = new BullMqAffiliateProductImportJobQueue(
-    affiliateProductionImportQueue,
-  )
 
   const catalogUseCases: CatalogUseCases = {
     registerProduct: new RegisterProduct(productRepository, idGenerator),

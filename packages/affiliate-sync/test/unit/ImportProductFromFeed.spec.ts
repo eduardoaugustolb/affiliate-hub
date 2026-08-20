@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test'
+import type { OutboxEventDeliveryRepository } from '../../src'
 import type { AffiliateProductImportJobQueue } from '../../src/application/ports/AffiliateProductImportJobQueue'
 import type { IntegrationEventPublisher } from '../../src/application/ports/IntegrationEventPublisher'
 import { ImportProductFromFeed } from '../../src/application/use-cases/ImportProductFromFeed'
@@ -10,7 +11,19 @@ describe('ImportProductFromFeed', () => {
       publish: async (event) => void events.push(event),
     }
     const queue: AffiliateProductImportJobQueue = { enqueue: async () => undefined }
-    const useCase = new ImportProductFromFeed(publisher, queue, { generate: () => 'event-123' })
+    const eventDelivery: OutboxEventDeliveryRepository = {
+      findByEventId: async (_) => null,
+      findPendingEnqueues: async () => [],
+      markAsEnqueued: async () => undefined,
+      registerEnqueueFailure: async () => undefined,
+      markAsProcessed: async () => undefined,
+    }
+    const useCase = new ImportProductFromFeed(
+      publisher,
+      queue,
+      { generate: () => 'event-123' },
+      eventDelivery,
+    )
 
     const output = await useCase.execute({
       externalProductId: 'shopee-1',

@@ -1,8 +1,8 @@
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
-import type { IntegrationEventPublisher } from '../application/ports/IntegrationEventPublisher'
+import type { IntegrationEventPublisher } from '../../../application/ports/IntegrationEventPublisher'
 
-export class OutboxIntegrationEventPublisherSql implements IntegrationEventPublisher {
+export class SqlOutboxIntegrationEventPublisher implements IntegrationEventPublisher {
   constructor(private readonly db: DatabaseConnection) {}
 
   async publish(event: AffiliateProductImportRequested): Promise<void> {

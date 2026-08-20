@@ -2,6 +2,7 @@ import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
 import type { AffiliateProductImportJobQueue } from '../ports/AffiliateProductImportJobQueue'
 import type { IntegrationEventPublisher } from '../ports/IntegrationEventPublisher'
+import type { OutboxEventDeliveryRepository } from '../ports/OutboxEventDeliveryRepository'
 export interface ImportProductFromFeedInput {
   externalProductId: string
   name: string
@@ -21,6 +22,7 @@ export class ImportProductFromFeed
     private readonly outbox: IntegrationEventPublisher,
     private readonly productImport: AffiliateProductImportJobQueue,
     private readonly idGenerator: IdGenerator,
+    private readonly eventDelivery: OutboxEventDeliveryRepository,
   ) {}
 
   async execute(input: ImportProductFromFeedInput): Promise<ImportProductFromFeedOutput> {
@@ -34,9 +36,12 @@ export class ImportProductFromFeed
     await this.outbox.publish(event)
     try {
       await this.productImport.enqueue(eventId)
-      return { eventId, queuedImmediately: true }
-    } catch (_) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      await this.eventDelivery.registerEnqueueFailure(eventId, message)
       return { eventId, queuedImmediately: false }
     }
+    await this.eventDelivery.markAsEnqueued(eventId)
+    return { eventId, queuedImmediately: true }
   }
 }

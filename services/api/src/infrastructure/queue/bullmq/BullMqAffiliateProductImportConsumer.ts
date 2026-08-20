@@ -1,11 +1,11 @@
 import type { OutboxEventDeliveryRepository } from '@affiliate-hub/affiliate-sync'
 import { Worker } from 'bullmq'
-import { EVENT_NAME } from '../adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { configureBullMq } from '../adapters/queue/configureBullMq'
-import { env } from '../env'
-import type { AffiliateProductImportRequestedHandler } from './handlers/handleAffiliateProductImportRequested'
+import { env } from '../../../env'
+import type { AffiliateProductImportRequestedHandler } from '../../event-handlers/handleAffiliateProductImportRequested'
+import { EVENT_NAME } from './BullMqAffiliateProductImportJobQueue'
+import { configureBullMq } from './configureBullMq'
 
-export function createAffiliateProductImportWorker(
+export function createBullMqAffiliateProductImportConsumer(
   deliveryRepository: OutboxEventDeliveryRepository,
   handler: AffiliateProductImportRequestedHandler,
   queueName = EVENT_NAME,

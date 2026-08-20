@@ -7,8 +7,13 @@ import {
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
 
+type AffiliateProductImportRequestedEvent = Pick<
+  OutboxEventForDelivery,
+  'eventId' | 'name' | 'payload'
+>
+
 export type AffiliateProductImportRequestedHandler = (
-  event: OutboxEventForDelivery,
+  event: AffiliateProductImportRequestedEvent,
 ) => Promise<void>
 
 export function handleAffiliateProductImportRequested(

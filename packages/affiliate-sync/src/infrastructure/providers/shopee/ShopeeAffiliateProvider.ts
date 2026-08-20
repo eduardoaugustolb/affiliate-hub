@@ -1,6 +1,9 @@
 import type { HttpClient } from '@affiliate-hub/shared-kernel'
-import type { AffiliateProduct, AffiliateProvider } from '../application/ports/AffiliateProvider'
-import { AffiliateLink } from '../domain/AffiliateLink'
+import type {
+  AffiliateProduct,
+  AffiliateProvider,
+} from '../../../application/ports/AffiliateProvider'
+import { AffiliateLink } from '../../../domain/AffiliateLink'
 
 const generateShortLinkMutation = `mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {
   generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {

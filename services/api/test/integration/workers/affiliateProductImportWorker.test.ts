@@ -2,16 +2,16 @@ import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import {
   ImportProductFromFeed,
-  OutboxEventDeliveryRepositorySql,
-  OutboxIntegrationEventPublisherSql,
+  SqlOutboxEventDeliveryRepository,
+  SqlOutboxIntegrationEventPublisher,
 } from '@affiliate-hub/affiliate-sync'
 import type { Queue, Worker } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
-import { BullMqAffiliateProductImportJobQueue } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { createAffiliateProductionImportQueue } from '../../../src/adapters/queue/createAffiliateProductImportQueue'
-import { createAffiliateProductImportWorker } from '../../../src/workers/createAffiliateProductImportWorker'
-import { handleAffiliateProductImportRequested } from '../../../src/workers/handlers/handleAffiliateProductImportRequested'
+import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
+import { createBullMqAffiliateProductImportConsumer } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportConsumer'
+import { BullMqAffiliateProductImportJobQueue } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
+import { createAffiliateProductImportQueue } from '../../../src/infrastructure/queue/bullmq/createAffiliateProductImportQueue'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
@@ -26,9 +26,9 @@ describe('affiliate product import worker (integration)', () => {
     let worker: Worker | undefined
 
     try {
-      queue = createAffiliateProductionImportQueue(queueName)
-      worker = createAffiliateProductImportWorker(
-        new OutboxEventDeliveryRepositorySql(db),
+      queue = createAffiliateProductImportQueue(queueName)
+      worker = createBullMqAffiliateProductImportConsumer(
+        new SqlOutboxEventDeliveryRepository(db),
         handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
         queueName,
       )
@@ -36,9 +36,10 @@ describe('affiliate product import worker (integration)', () => {
       await queue.obliterate({ force: true })
 
       const importProductFromFeed = new ImportProductFromFeed(
-        new OutboxIntegrationEventPublisherSql(db),
+        new SqlOutboxIntegrationEventPublisher(db),
         new BullMqAffiliateProductImportJobQueue(queue),
         new IdGeneratorBun(),
+        new SqlOutboxEventDeliveryRepository(db),
       )
       const output = await importProductFromFeed.execute({
         externalProductId,

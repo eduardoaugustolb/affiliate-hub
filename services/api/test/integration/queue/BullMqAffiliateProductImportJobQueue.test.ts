@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
 import type { Queue } from 'bullmq'
-import { BullMqAffiliateProductImportJobQueue } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { createAffiliateProductionImportQueue } from '../../../src/adapters/queue/createAffiliateProductImportQueue'
+import { BullMqAffiliateProductImportJobQueue } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
+import { createAffiliateProductImportQueue } from '../../../src/infrastructure/queue/bullmq/createAffiliateProductImportQueue'
 
 describe('BullMqAffiliateProductImportJobQueue (integration)', () => {
   let queue: Queue | undefined
@@ -16,7 +16,7 @@ describe('BullMqAffiliateProductImportJobQueue (integration)', () => {
   })
 
   it('creates only one Redis job when the same event is enqueued twice', async () => {
-    queue = createAffiliateProductionImportQueue(`affiliate-product-import-test-${randomUUID()}`)
+    queue = createAffiliateProductImportQueue(`affiliate-product-import-test-${randomUUID()}`)
     await queue.waitUntilReady()
     await queue.obliterate({ force: true })
     const jobQueue = new BullMqAffiliateProductImportJobQueue(queue)

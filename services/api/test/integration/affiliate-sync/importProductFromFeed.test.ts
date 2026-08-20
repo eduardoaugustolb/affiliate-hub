@@ -3,207 +3,158 @@ import { randomUUID } from 'node:crypto'
 import {
   type AffiliateProductImportJobQueue,
   ImportProductFromFeed,
-  OutboxIntegrationEventPublisherSql,
+  ReconcilePendingOutboxEnqueues,
+  SqlOutboxEventDeliveryRepository,
+  SqlOutboxIntegrationEventPublisher,
 } from '@affiliate-hub/affiliate-sync'
 import type { Queue } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
-import { BullMqAffiliateProductImportJobQueue } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
-import { createAffiliateProductionImportQueue } from '../../../src/adapters/queue/createAffiliateProductImportQueue'
-import { handleAffiliateProductImportRequested } from '../../../src/workers/handlers/handleAffiliateProductImportRequested'
-import { OutboxDispatcher } from '../../../src/workers/OutboxDispatcher'
+import { BullMqAffiliateProductImportJobQueue } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
+import { createAffiliateProductImportQueue } from '../../../src/infrastructure/queue/bullmq/createAffiliateProductImportQueue'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
 
 describe('ImportProductFromFeed (integration)', () => {
-  it('persists, dispatches, imports and idempotently reprocesses an affiliate product', async () => {
-    const marker = `INTEGRATION-AFFILIATE-${randomUUID()}`
-    const externalProductId = `shopee-${marker}`
-    const db = new PgAdapter(DATABASE_URL)
-
-    try {
-      const publisher = new OutboxIntegrationEventPublisherSql(db)
-      const importProductFromFeed = new ImportProductFromFeed(
-        publisher,
-        { enqueue: async () => undefined },
-        new IdGeneratorBun(),
-      )
-      const dispatcher = new OutboxDispatcher(db, {
-        AffiliateProductImportRequested: handleAffiliateProductImportRequested(
-          db,
-          new IdGeneratorBun(),
-        ),
-      })
-
-      const first = await importProductFromFeed.execute({
-        externalProductId,
-        name: marker,
-        category: 'streetwear',
-        provider: 'shopee',
-      })
-
-      await dispatchUntilProcessed(db, dispatcher, first.eventId)
-
-      const firstRows = await db.query<{
-        event_id: string
-        processed_at: Date | null
-        product_id: string
-        product_name: string
-      }>(
-        `select event_id, processed_at, imports.product_id, products.name as product_name
-         from outbox_events
-         join affiliate_product_imports as imports on imports.external_product_id = $1
-         join products on products.id = imports.product_id
-         where event_id = $2`,
-        [externalProductId, first.eventId],
-      )
-
-      expect(firstRows).toHaveLength(1)
-      expect(firstRows[0]?.processed_at).not.toBeNull()
-      expect(firstRows[0]?.product_name).toBe(marker)
-
-      const second = await importProductFromFeed.execute({
-        externalProductId,
-        name: marker,
-        category: 'streetwear',
-        provider: 'shopee',
-      })
-      await dispatchUntilProcessed(db, dispatcher, second.eventId)
-
-      const products = await db.query<{ count: string }>(
-        'select count(*)::text as count from products where name = $1',
-        [marker],
-      )
-      const mappings = await db.query<{ count: string }>(
-        'select count(*)::text as count from affiliate_product_imports where external_product_id = $1',
-        [externalProductId],
-      )
-      const secondEvent = await db.query<{ processed_at: Date | null }>(
-        'select processed_at from outbox_events where event_id = $1',
-        [second.eventId],
-      )
-
-      expect(products[0]?.count).toBe('1')
-      expect(mappings[0]?.count).toBe('1')
-      expect(secondEvent[0]?.processed_at).not.toBeNull()
-    } finally {
-      await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
-      await db.query('delete from affiliate_product_imports where external_product_id = $1', [
-        externalProductId,
-      ])
-      await db.query('delete from products where name = $1', [marker])
-      await db.close()
-    }
-  })
-
-  it('persists the event in PostgreSQL and creates its job in Redis', async () => {
+  it('persists the event, creates a Redis job and records the enqueue state', async () => {
     const marker = `INTEGRATION-AFFILIATE-QUEUE-${randomUUID()}`
-    const externalProductId = `shopee-${marker}`
     const db = new PgAdapter(DATABASE_URL)
     let queue: Queue | undefined
 
     try {
-      queue = createAffiliateProductionImportQueue(`affiliate-product-import-test-${randomUUID()}`)
+      queue = createAffiliateProductImportQueue(`affiliate-product-import-test-${randomUUID()}`)
       await queue.waitUntilReady()
       await queue.obliterate({ force: true })
-
-      const importProductFromFeed = new ImportProductFromFeed(
-        new OutboxIntegrationEventPublisherSql(db),
+      const useCase = new ImportProductFromFeed(
+        new SqlOutboxIntegrationEventPublisher(db),
         new BullMqAffiliateProductImportJobQueue(queue),
         new IdGeneratorBun(),
+        new SqlOutboxEventDeliveryRepository(db),
       )
-      const output = await importProductFromFeed.execute({
-        externalProductId,
+
+      const output = await useCase.execute({
+        externalProductId: `shopee-${marker}`,
         name: marker,
         category: 'streetwear',
         provider: 'shopee',
       })
-
-      const events = await db.query<{ event_id: string; name: string }>(
-        'select event_id, name from outbox_events where event_id = $1',
+      const rows = await db.query<{
+        enqueued_at: Date | null
+        enqueue_attempts: number
+        last_enqueue_error: string | null
+      }>(
+        'select enqueued_at, enqueue_attempts, last_enqueue_error from outbox_events where event_id = $1',
         [output.eventId],
       )
-      const job = await queue.getJob(output.eventId)
 
       expect(output.queuedImmediately).toBe(true)
-      expect(events).toEqual([
-        { event_id: output.eventId, name: 'AffiliateProductImportRequested' },
+      expect((await queue.getJob(output.eventId))?.data).toEqual({ eventId: output.eventId })
+      expect(rows).toEqual([
+        { enqueued_at: expect.any(Date), enqueue_attempts: 0, last_enqueue_error: null },
       ])
-      expect(job?.data).toEqual({ eventId: output.eventId })
     } finally {
-      if (queue) {
-        await queue.obliterate({ force: true })
-        await queue.close()
-      }
+      await queue?.obliterate({ force: true })
+      await queue?.close()
       await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
       await db.close()
     }
   })
 
-  it('persists the event and reports deferred delivery when Redis is unavailable', async () => {
+  it('keeps the event recoverable and records the Redis error when enqueue fails', async () => {
     const marker = `INTEGRATION-AFFILIATE-REDIS-DOWN-${randomUUID()}`
-    const externalProductId = `shopee-${marker}`
     const db = new PgAdapter(DATABASE_URL)
-    let queue: Queue | undefined
+    const unavailableQueue: AffiliateProductImportJobQueue = {
+      enqueue: async () => {
+        throw new Error('Redis is unavailable')
+      },
+    }
 
     try {
-      queue = createAffiliateProductionImportQueue(`affiliate-product-import-test-${randomUUID()}`)
-      await queue.waitUntilReady()
-      await queue.obliterate({ force: true })
-
-      const unavailableQueue: AffiliateProductImportJobQueue = {
-        enqueue: async () => {
-          throw new Error('Redis is unavailable')
-        },
-      }
-      const importProductFromFeed = new ImportProductFromFeed(
-        new OutboxIntegrationEventPublisherSql(db),
+      const useCase = new ImportProductFromFeed(
+        new SqlOutboxIntegrationEventPublisher(db),
         unavailableQueue,
         new IdGeneratorBun(),
+        new SqlOutboxEventDeliveryRepository(db),
       )
-      const output = await importProductFromFeed.execute({
-        externalProductId,
+
+      const output = await useCase.execute({
+        externalProductId: `shopee-${marker}`,
+        name: marker,
+        category: 'streetwear',
+        provider: 'shopee',
+      })
+      const rows = await db.query<{
+        enqueued_at: Date | null
+        enqueue_attempts: number
+        last_enqueue_error: string | null
+      }>(
+        'select enqueued_at, enqueue_attempts, last_enqueue_error from outbox_events where event_id = $1',
+        [output.eventId],
+      )
+
+      expect(output.queuedImmediately).toBe(false)
+      expect(rows).toEqual([
+        { enqueued_at: null, enqueue_attempts: 1, last_enqueue_error: 'Redis is unavailable' },
+      ])
+    } finally {
+      await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
+      await db.close()
+    }
+  })
+
+  it('re-enqueues an event after Redis becomes available again', async () => {
+    const marker = `INTEGRATION-AFFILIATE-RECOVERY-${randomUUID()}`
+    const db = new PgAdapter(DATABASE_URL)
+    let queue: Queue | undefined
+    const unavailableQueue: AffiliateProductImportJobQueue = {
+      enqueue: async () => {
+        throw new Error('Redis is unavailable')
+      },
+    }
+
+    try {
+      const deliveryRepository = new SqlOutboxEventDeliveryRepository(db)
+      const useCase = new ImportProductFromFeed(
+        new SqlOutboxIntegrationEventPublisher(db),
+        unavailableQueue,
+        new IdGeneratorBun(),
+        deliveryRepository,
+      )
+      const output = await useCase.execute({
+        externalProductId: `shopee-${marker}`,
         name: marker,
         category: 'streetwear',
         provider: 'shopee',
       })
 
-      const events = await db.query<{ event_id: string }>(
-        'select event_id from outbox_events where event_id = $1',
+      queue = createAffiliateProductImportQueue(`affiliate-product-import-test-${randomUUID()}`)
+      await queue.waitUntilReady()
+      await queue.obliterate({ force: true })
+      const reconciliation = await new ReconcilePendingOutboxEnqueues(
+        deliveryRepository,
+        new BullMqAffiliateProductImportJobQueue(queue),
+      ).execute()
+      const rows = await db.query<{
+        enqueued_at: Date | null
+        enqueue_attempts: number
+        last_enqueue_error: string | null
+      }>(
+        'select enqueued_at, enqueue_attempts, last_enqueue_error from outbox_events where event_id = $1',
         [output.eventId],
       )
 
-      expect(events).toEqual([{ event_id: output.eventId }])
-      expect(await queue.getJob(output.eventId)).toBeUndefined()
-      expect(output.queuedImmediately).toBe(false)
+      expect(reconciliation.enqueued).toBeGreaterThanOrEqual(1)
+      expect(reconciliation.failed).toBe(0)
+      expect((await queue.getJob(output.eventId))?.data).toEqual({ eventId: output.eventId })
+      expect(rows).toEqual([
+        { enqueued_at: expect.any(Date), enqueue_attempts: 1, last_enqueue_error: null },
+      ])
     } finally {
-      if (queue) {
-        await queue.obliterate({ force: true })
-        await queue.close()
-      }
+      await queue?.obliterate({ force: true })
+      await queue?.close()
       await db.query('delete from outbox_events where payload::text like $1', [`%${marker}%`])
       await db.close()
     }
   })
 })
-
-async function dispatchUntilProcessed(
-  db: PgAdapter,
-  dispatcher: OutboxDispatcher,
-  eventId: string,
-): Promise<void> {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    await dispatcher.dispatchOne()
-    const rows = await db.query<{ processed_at: Date | null }>(
-      'select processed_at from outbox_events where event_id = $1',
-      [eventId],
-    )
-    if (rows[0]?.processed_at) return
-  }
-  const rows = await db.query<{ last_error: string | null }>(
-    'select last_error from outbox_events where event_id = $1',
-    [eventId],
-  )
-  throw new Error(`Outbox event ${eventId} was not processed: ${rows[0]?.last_error}`)
-}

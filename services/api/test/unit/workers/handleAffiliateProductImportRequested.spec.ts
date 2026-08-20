@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
-import { handleAffiliateProductImportRequested } from '../../../src/workers/handlers/handleAffiliateProductImportRequested'
+import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
 
 class IdGeneratorFake implements IdGenerator {
   generate(): string {

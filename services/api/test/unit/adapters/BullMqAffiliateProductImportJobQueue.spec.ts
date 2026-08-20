@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import type { Queue } from 'bullmq'
-import { BullMqAffiliateProductImportJobQueue } from '../../../src/adapters/queue/BullMqAffiliateProductImportJobQueue'
+import { BullMqAffiliateProductImportJobQueue } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
 
 interface AddedJob {
   name: string
