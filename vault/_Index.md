@@ -5,7 +5,7 @@ tags:
   - home
 status: living
 created: 2026-08-06
-updated: 2026-08-10
+updated: 2026-08-20
 aliases: [Home, Índice, MOC Principal]
 ---
 
@@ -82,7 +82,10 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
   Domínio/aplicação implementados e testados; faltam adapters concretos,
   `RegisterUser`/`UpdateUser`/`DeleteUser`, wiring HTTP e a criptografia de
   e-mail exigida pela LGPD (ver abaixo).
-- [ ] AffiliateSync (Fase 2, bloqueado em confirmar acesso à Shopee Affiliate API)
+- [x] Base de entrega de AffiliateSync: outbox, BullMQ com Redis, worker
+  separado, idempotência de Catalog e recuperação de falha de enqueue.
+- [ ] Sincronização de feed da Shopee, bloqueada na operação e no schema de
+  feed homologados pela API.
 - [ ] Conformidade com a LGPD, ver [[09-Compliance/LGPD]] e
       [[02-Decisions/ADR-0013-lgpd-criptografia-de-email|ADR-0013]]
       (criptografia de e-mail em repouso, direitos do titular, checklist
@@ -90,4 +93,4 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 
 ---
 
-*Última atualização: 2026-08-10*
+*Última atualização: 2026-08-20*

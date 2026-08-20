@@ -4,7 +4,7 @@ tags:
   - architecture
 status: living
 created: 2026-08-06
-updated: 2026-08-13
+updated: 2026-08-20
 ---
 
 # Matriz de Portas ↔ Adapters
@@ -18,8 +18,11 @@ de uma porta" (ver [[08-DoD/Definition-of-Done]]).
 | `ProductRepository` | [[03-Modules/Catalog\|Catalog]] | `ProductRepositoryDatabase` |
 | `EventPublisher` | [[03-Modules/Catalog\|Catalog]] | `OutboxPublisherDatabase` |
 | `AffiliateProvider` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `ShopeeAffiliateProvider` (futuro: `SheinAffiliateProvider`) |
-| `TaskScheduler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `RailwayCronScheduler` |
-| `IntegrationEventPublisher` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `OutboxIntegrationEventPublisher` (pendente; grava em `outbox_events`) |
+| `TaskScheduler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `IntervalTaskScheduler` |
+| `IntegrationEventPublisher` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `SqlOutboxIntegrationEventPublisher` |
+| `AffiliateProductImportJobQueue` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `BullMqAffiliateProductImportJobQueue` |
+| `OutboxEventDeliveryRepository` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `SqlOutboxEventDeliveryRepository` |
+| `AffiliateProductImportRequestedEventHandler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `handleAffiliateProductImportRequested` |
 | `HttpClient` | Transversal (usado por AffiliateSync hoje) | `FetchHttpClientAdapter` (Bun `fetch`) |
 | `BackgroundRemover` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `RembgBackgroundRemover` |
 | `ImageRenderer` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `SatoriImageRenderer` |
@@ -38,19 +41,40 @@ de uma porta" (ver [[08-DoD/Definition-of-Done]]).
 | `Cipher` | Transversal (usado por IdentityAccess hoje, LGPD cross-módulo) | `CipherAdapter` |
 | `KeyedHasher` | Transversal (usado por IdentityAccess hoje, token e lookup de e-mail, cada um com sua própria chave) | `HmacKeyedHasher`: substitui o antigo `TokenHasher` |
 
+## Estrutura atual de AffiliateSync
+
+`AffiliateSync` usa uma divisão explícita entre aplicação e infraestrutura:
+
+```text
+packages/affiliate-sync/src/application
+  ports/       contratos usados pelos casos de uso
+  use-cases/   ImportProductFromFeed, DeliverAffiliateProductImport,
+               ReconcilePendingOutboxEnqueues
+packages/affiliate-sync/src/infrastructure
+  persistence/sql/  adapters SQL da outbox
+  providers/shopee/ provider externo
+services/api/src/infrastructure
+  queue/bullmq/     adapter de saída e consumer de entrada
+  event-handlers/   integração do evento com Catalog
+  scheduling/       adapter de agendamento
+```
+
+O consumer BullMQ é uma entrada concreta, não uma porta de aplicação. Ele
+adapta `job.data.eventId` para `DeliverAffiliateProductImport`; por isso uma
+troca de transporte não altera o caso de uso de entrega.
+
 ## Onde cada adapter mora
 
 Regra pra decidir o diretório de um adapter novo, evita a pasta de
 composition root virar depósito genérico conforme o sistema cresce:
 
 - **Porta pertence a um módulo específico** (`ProductRepository`,
-  `UserRepository`, `ClickLog`, `BroadcastQueue`, etc.) → adapter mora
-  **dentro do próprio pacote**: `packages/<módulo>/src/adapters/`. Padrão já
-  seguido por `ProductRepositorySql` ([[03-Modules/Catalog\|Catalog]]) e
-  `ClickLogSql` ([[03-Modules/LinkRedirect\|LinkRedirect]]), os adapters de
-  [[03-Modules/IdentityAccess\|IdentityAccess]] (`UserRepositorySql`,
-  `SessionRepositorySql`, `PasswordHasherBun` etc.) seguem o mesmo lugar
-  quando forem implementados.
+  `UserRepository`, `ClickLog`, `BroadcastQueue`, etc.) → o adapter mora
+  dentro do pacote dono. Para código novo que tenha dependência tecnológica
+  explícita, usar `packages/<módulo>/src/infrastructure/<categoria>/`; o
+  padrão anterior `src/adapters/` permanece nos módulos ainda não migrados.
+  Exemplo atual: os adapters SQL da outbox de AffiliateSync vivem em
+  `packages/affiliate-sync/src/infrastructure/persistence/sql/`.
 - **Porta é transversal** (declarada em `shared-kernel`, sem módulo dono:
   `HttpServer`, `HttpRuntimeAdapter`, `DatabaseConnection`, `IdGenerator`,
   `HttpClient`, `Cipher`) → adapter mora em `services/api/src/adapters/`,
@@ -104,9 +128,11 @@ composition root virar depósito genérico conforme o sistema cresce:
 > correspondente em teste, o módulo ainda não passa no
 > [[08-DoD/Definition-of-Done|DoD]].
 
-> [!warning] Outbox não é dispatcher
+> [!warning] Outbox não é entrega
 >
-> Gravar em `outbox_events` não entrega um evento por si só. A infraestrutura
-> precisa de um worker/dispatcher que leia registros pendentes, chame o
-> handler do módulo destinatário e só então marque o registro como processado.
-> Os handlers precisam ser idempotentes, pois uma entrega pode ser repetida.
+> Gravar em `outbox_events` não entrega um evento por si só. No fluxo atual,
+> o caso de uso tenta criar imediatamente o job Redis e o worker BullMQ chama
+> `DeliverAffiliateProductImport`. O reconciliador trata somente tentativas
+> de enqueue que falharam. A conclusão em `processed_at` acontece apenas
+> depois do handler. O handler precisa ser idempotente porque a entrega pode
+> ser repetida.

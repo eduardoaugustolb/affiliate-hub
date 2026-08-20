@@ -4,20 +4,27 @@ tags:
   - architecture
 status: accepted
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-20
 ---
 
 # Topologia de Deploy (Railway)
 
 | Serviço (Railway) | Contém | Padrão de execução | Custo |
 |---|---|---|---|
-| `api` | [[03-Modules/Catalog\|Catalog]], [[03-Modules/LinkRedirect\|LinkRedirect]], [[03-Modules/CommentAssist\|CommentAssist]], [[03-Modules/IdentityAccess\|IdentityAccess]] | HTTP sob demanda | Baixo |
-| `sync-worker` | [[03-Modules/AffiliateSync\|AffiliateSync]] | Cron periódico (3 em 3 dias) | Quase zero |
+| `api` | HTTP e composição dos módulos | `bun run start` | Baixo |
+| `affiliate-import-worker` | Consumo BullMQ de [[03-Modules/AffiliateSync\|AffiliateSync]] e integração com Catalog | `bun run worker`, sempre ativo | Baixo |
 | `broadcast-worker` | [[03-Modules/Broadcast\|Broadcast]] (inclui processo Baileys) | Sempre ativo (WebSocket persistente) | Fixo, mas baixo (piso de custo do sistema) |
 | `template-svc` | [[03-Modules/MediaTemplate\|MediaTemplate]] | HTTP sob demanda / fila | Baixo |
 
-Cada linha da tabela é um pacote de workspace com seu próprio `main.ts`
-(composition root), ver [[02-Decisions/ADR-0005-bun-workspaces-monorepo]].
+O processo HTTP e o worker pertencem hoje ao mesmo pacote
+`services/api`, porém são entrypoints distintos: `src/main.ts` e
+`src/entrypoints/worker/main.ts`. Compartilhar o pacote não os transforma no
+mesmo processo. HTTP persiste a outbox e pede o job; o worker consome o job,
+chama `DeliverAffiliateProductImport` e encerra a entrega.
+
+O worker atual também agenda a reconciliação de enqueue a cada cinco minutos.
+Esse agendamento não é o mecanismo normal de entrega e não deve introduzir
+latência em uma importação com Redis disponível.
 
 ## Banco e Storage
 

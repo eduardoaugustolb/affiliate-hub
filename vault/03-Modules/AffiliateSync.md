@@ -3,113 +3,128 @@ title: "Módulo 2: AffiliateSync"
 tags:
   - module
   - module/affiliate-sync
-status: accepted
+status: implemented
 created: 2026-08-06
-updated: 2026-08-13
+updated: 2026-08-20
 ---
 
-# AffiliateSync (Integração Shopee)
+# AffiliateSync
 
 ## Responsabilidade
 
-Buscar produtos/comissões na Shopee Affiliate Open API (GraphQL + HMAC-SHA256),
-gerar/atualizar links de afiliado e subIds a cada 3 dias.
+`AffiliateSync` recebe um produto já normalizado por um provider, registra a
+intenção de importá-lo e solicita sua entrega assíncrona ao `Catalog`. Também
+é dono das portas usadas para providers de afiliados e para a entrega da sua
+outbox. Ele não cria `Product` diretamente e não importa casos de uso do
+`Catalog`.
 
-## Casos de Uso
+## Entrada de importação
 
-- `SyncAffiliateLinks`: para cada produto ativo, busca link fresco na
-  Shopee, atualiza a entidade `AffiliateLink` associada ao produto.
-- `ImportProductFromFeed`: normaliza um produto vindo do provider e publica
-  uma solicitação de importação para o [[Catalog]]. Não chama
-  `RegisterProduct`, nem acessa `ProductRepository`.
-
-### Contrato de `ImportProductFromFeed`
-
-O input é o produto já normalizado na fronteira do provider, nunca o payload
-bruto específico da Shopee:
+`ImportProductFromFeed` recebe dados de domínio, nunca um payload bruto da
+Shopee:
 
 ```ts
 interface ImportProductFromFeedInput {
   externalProductId: string
   name: string
+  provider: string
   category: 'streetwear' | 'perfume'
 }
 
 interface ImportProductFromFeedOutput {
   eventId: string
+  queuedImmediately: boolean
 }
 ```
 
-Ao aceitar o comando, o caso de uso publica o evento de integração
-`AffiliateProductImportRequested`, cujo payload contém exatamente o input e
-cujo contrato mora em um pacote compartilhado de contratos (não em
-`affiliate-sync` nem em `catalog`). O `eventId` confirma que o evento foi
-gravado de forma durável; não representa um `productId`, que só existirá após
-o processamento pelo Catalog.
+O retorno não contém `productId`: o produto ainda será criado de forma
+assíncrona. O evento foi aceito quando sua outbox foi persistida. Portanto,
+`queuedImmediately: false` significa somente que Redis não recebeu o job
+naquela tentativa; não significa perda do evento.
 
-## Comunicação com Catalog
-
-`AffiliateSync` e `Catalog` não importam casos de uso, entidades ou
-repositórios um do outro. A sequência é assíncrona:
+## Fluxo completo
 
 ```text
 ImportProductFromFeed
-  -> IntegrationEventPublisher
-  -> outbox_events
-  -> worker/dispatcher
-  -> handler do Catalog
-  -> RegisterProduct
+  -> grava AffiliateProductImportRequested em outbox_events
+  -> pede enqueue(eventId) pela porta AffiliateProductImportJobQueue
+  -> sucesso: marca enqueued_at
+  -> falha: incrementa enqueue_attempts e grava last_enqueue_error
+
+BullMQ / Redis
+  -> job { eventId }, jobId = eventId
+
+BullMqAffiliateProductImportConsumer
+  -> adapta job.data.eventId
+  -> DeliverAffiliateProductImport.execute({ eventId })
+
+DeliverAffiliateProductImport
+  -> lê a outbox
+  -> valida AffiliateProductImportRequested
+  -> chama AffiliateProductImportRequestedEventHandler
+  -> marca processed_at após sucesso
+
+handler de integração da API
+  -> chama RegisterProduct e AffiliateProductImportRegistrySql em transação
 ```
 
-O handler é uma entrada do Catalog no serviço de composição. Ele consome
-`AffiliateProductImportRequested` e executa o seu próprio `RegisterProduct`;
-isso mantém o acoplamento na infraestrutura, fora dos dois módulos.
+O consumer BullMQ não lê PostgreSQL e não chama Catalog diretamente.
+`DeliverAffiliateProductImport` é o caso de uso que contém essa entrega; ele
+não conhece BullMQ, Redis nem a classe `Worker`. Outro transporte pode chamar
+o mesmo caso de uso com um `eventId`.
 
-O consumidor deve ser idempotente: persiste uma associação única
-`externalProductId -> productId` antes de considerar o evento processado.
-Reentregas do mesmo evento não podem criar outro produto.
+## Portas e implementações
 
-## Portas
+| Porta | Função | Implementação atual |
+| --- | --- | --- |
+| `AffiliateProvider` | Buscar links e produtos do provider | `ShopeeAffiliateProvider` |
+| `IntegrationEventPublisher` | Persistir o evento de integração | `SqlOutboxIntegrationEventPublisher` |
+| `AffiliateProductImportJobQueue` | Solicitar `enqueue(eventId)` | `BullMqAffiliateProductImportJobQueue` |
+| `OutboxEventDeliveryRepository` | Ler, registrar tentativa e concluir evento | `SqlOutboxEventDeliveryRepository` |
+| `AffiliateProductImportRequestedEventHandler` | Processar o evento já lido | `handleAffiliateProductImportRequested` |
+| `TaskScheduler` | Agendar reconciliação | `IntervalTaskScheduler` |
 
-- `AffiliateProvider`: porta de domínio própria (**não** "ShopeeClient"!).
-  Métodos como `findLink(externalProductId)`, `listUpdatedProducts()`.
-  Isso é o ponto-chave: se amanhã for adicionado Shein ou Mercado Livre como
-  fonte, é só escrever um novo adapter `SheinAffiliateProvider implements AffiliateProvider`,
-  nenhum caso de uso muda.
-- `TaskScheduler`: porta para dispor a rotina periódica (cron), abstrai o
-  agendador real (Railway Cron, etc.)
-- `IntegrationEventPublisher`: porta para gravar um evento de integração de
-  forma durável. O caso de uso depende somente dela, não da tabela de outbox
-  nem do consumidor.
-- `HttpClient`: reaproveitada (ver [[02-Decisions/ADR-0003-http-client-port]])
-  pelo `ShopeeAffiliateProvider` pra fazer a chamada GraphQL.
+As portas e os casos de uso vivem em `packages/affiliate-sync/src/application`.
+As implementações SQL vivem em
+`packages/affiliate-sync/src/infrastructure/persistence/sql`. BullMQ, Redis,
+o handler que integra Catalog e o entrypoint do processo ficam em
+`services/api/src/infrastructure` e `services/api/src/entrypoints`.
 
-## Adapters
+## Recuperação de falha no Redis
 
-- `ShopeeAffiliateProvider implements AffiliateProvider` (GraphQL + HMAC-SHA256,
-  chamadas feitas através da porta `HttpClient`, nunca `fetch` direto)
-- `RailwayCronScheduler implements TaskScheduler`
-- `OutboxIntegrationEventPublisher implements IntegrationEventPublisher`:
-  grava o evento em `outbox_events`; o adapter pode ser compartilhado
-  estruturalmente entre módulos, sem compartilhar a porta de domínio.
+O caminho saudável não faz polling. Depois de persistir a outbox,
+`ImportProductFromFeed` tenta o enqueue imediatamente. Só se essa chamada
+falhar o evento fica com `enqueued_at IS NULL`.
 
-## Outbox e consumidor
+O processo worker agenda `ReconcilePendingOutboxEnqueues` a cada cinco
+minutos. O caso de uso procura apenas eventos com:
 
-A outbox atual registra `name`, `payload` e `occurred_at`, mas ainda não tem
-um consumidor. Antes de ativar este fluxo, ela precisa ganhar identificador
-único do evento e estado de processamento, no mínimo `processed_at`. Um
-worker deve buscar eventos pendentes, entregar cada um ao handler adequado e
-preencher `processed_at` somente após sucesso. Falhas permanecem pendentes
-para nova tentativa.
+```sql
+enqueued_at IS NULL AND processed_at IS NULL
+```
 
-## Domínio
+Ele tenta novamente criar o job e não executa handler nem altera
+`processed_at`. Isso separa recuperação de disponibilidade do caminho normal
+de baixa latência.
 
-`AffiliateLink`: value object/entidade associada a `Product`, guarda a URL
-vigente + timestamp de última sincronização. Reatribuição de link é
-comportamento explícito (`affiliateLink.update(newUrl)`), não substituição
-de campo cru.
+## Idempotência no Catalog
 
-## Risco Conhecido
+BullMQ oferece entrega pelo menos uma vez. A identidade da importação é
+`(provider, externalProductId)`, persistida em `affiliate_product_imports`.
+O handler verifica essa identidade antes e durante a transação. Uma violação
+de unicidade concorrente é tratada como sucesso apenas quando o vínculo já
+existe. Assim, reentregas e dois workers concorrentes não criam dois produtos.
 
-Acesso ao Shopee Affiliate Open API depende de aprovação/nível de afiliado:
-validar antes de iniciar este módulo. Ver [[06-Risks/Riscos-Conhecidos]].
+## Provider Shopee
+
+`ShopeeAffiliateProvider` usa `HttpClient`, constrói a mutation GraphQL de
+short-link e assina a requisição com SHA-256. `listUpdatedProducts()` falha
+explicitamente até haver operação de feed homologada pela Shopee. Não deve
+retornar lista vazia, pois isso esconderia uma sincronização quebrada.
+
+## Ver também
+
+[[AffiliateSync-Guia-Linear]] · [[Catalog]] ·
+[[04-Infrastructure/Ports-Adapters-Matrix]] ·
+[[04-Infrastructure/Deploy-Topology]] ·
+[[Shopee-Affiliate-Open-API]]

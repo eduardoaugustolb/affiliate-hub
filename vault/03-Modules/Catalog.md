@@ -5,7 +5,7 @@ tags:
   - module/catalog
 status: implemented
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-20
 ---
 
 # Catalog (Gestão de Produtos)
@@ -55,7 +55,8 @@ link, no QR e no overlay da imagem. Igualdade por valor, não por referência.
 
 Arquivos em `packages/catalog/src/application/use-cases/`.
 
-- `RegisterProduct`: recebe dados vindos da sincronização Shopee, cria em `draft`.
+- `RegisterProduct`: recebe dados normalizados, cria em `draft`. Ele é usado
+  pelo handler de importação, mas não conhece AffiliateSync, BullMQ ou outbox.
 - `ApproveProductMedia`: curadoria humana aprova uma foto já existente no
   produto, opcionalmente atribui template e tenta ativar (`tryActivate`).
 - `DeactivateProduct`: soft delete; publica `ProductDeactivated`.
@@ -68,26 +69,39 @@ Arquivos em `packages/catalog/src/application/ports/`.
 - `ProductRepository` (persistência): ver [[01-Architecture/Repository-Pattern]]
 - `EventPublisher` (porta para publicar `ProductActivated`, `ProductDeactivated`,
   consumida pelos módulos [[Broadcast]] e [[LinkRedirect]] sem acoplamento direto)
+- `AffiliateProductImportRegistry`: porta que preserva a identidade da origem
+  externa por `(provider, externalProductId)`.
 
 ## Adapters
 
 Arquivos em `packages/catalog/src/adapters/`.
 
-- `ProductRepositoryDatabase implements ProductRepository`: recebe
+- `ProductRepositorySql implements ProductRepository`: recebe
   `DatabaseConnection` injetada, não conhece Postgres nem nenhum outro banco
   especificamente (ver [[02-Decisions/ADR-0002-database-connection-sem-orm]])
-- `OutboxPublisherDatabase implements EventPublisher`: tabela de outbox
+- `OutboxPublisherSql implements EventPublisher`: tabela de outbox
   acessada via `DatabaseConnection`, evita depender de feature específica de
   um banco
+- `AffiliateProductImportRegistrySql implements AffiliateProductImportRegistry`:
+  consulta e salva `affiliate_product_imports` usando provider e identificador
+  externo.
 
 ## Infraestrutura
 
-Migration própria em `packages/catalog/migrations/` (tabela `products` +
-`outbox_events`), tracking table isolada (`tableName: 'catalog_migrations'`
-no `knexfile.ts`, ver achado documentado em [[LinkRedirect]]).
+Migration própria em `packages/catalog/migrations/`. Além de `products` e
+`outbox_events`, Catalog mantém `affiliate_product_imports`. A chave primária
+é `(provider, external_product_id)` e `product_id` é único. Essa estrutura
+impede que reentregas de um mesmo produto externo criem produtos duplicados.
+
+O handler de integração está em
+`services/api/src/infrastructure/event-handlers/handleAffiliateProductImportRequested.ts`.
+Ele abre uma transação, verifica o registry, executa `RegisterProduct` e salva
+o vínculo. Em uma corrida, só trata a violação de unicidade como sucesso depois
+de reler o vínculo existente.
 
 ## Ver também
 
 [[02-Decisions/ADR-0007-postgres-via-supabase-hosting]] ·
 [[07-NFR/Requisitos-Nao-Funcionais]] (nunca deleção física) ·
-[[04-Infrastructure/Ports-Adapters-Matrix]]
+[[04-Infrastructure/Ports-Adapters-Matrix]] · [[Catalog-Guia-Linear]] ·
+[[AffiliateSync]]
