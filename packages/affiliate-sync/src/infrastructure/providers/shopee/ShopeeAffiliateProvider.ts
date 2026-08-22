@@ -9,7 +9,7 @@ import type {
 } from '../../../application/ports/AffiliateProvider'
 import { AffiliateLink } from '../../../domain/AffiliateLink'
 
-const generateShortLinkMutation = `mutation GenerateShortLink($originUrl: String!, $subIds: [String]) {
+const generateShortLinkMutation = `mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {
   generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {
     shortLink
   }

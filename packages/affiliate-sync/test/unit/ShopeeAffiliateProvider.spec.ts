@@ -31,9 +31,9 @@ describe('ShopeeAffiliateProvider', () => {
       options: {
         headers: {
           Authorization:
-            'SHA256 Credential=credential, Timestamp=1786622400, Signature=74f7b6ae1b78481629ac109c91862a675e8d2e904d34f39ba272b9743541d659',
+            'SHA256 Credential=credential, Timestamp=1786622400, Signature=62b7a58006a14e83c6ab944be671ad24f0f0bd9f544b824717551feec3f8ad75',
         },
-        body: '{"query":"mutation GenerateShortLink($originUrl: String!, $subIds: [String]) {\\n  generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {\\n    shortLink\\n  }\\n}","variables":{"originUrl":"https://shopee.example/product/shop/item","subIds":["affiliate-hub"]}}',
+        body: '{"query":"mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {\\n  generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {\\n    shortLink\\n  }\\n}","variables":{"originUrl":"https://shopee.example/product/shop/item","subIds":["affiliate-hub"]}}',
       },
     })
   })
