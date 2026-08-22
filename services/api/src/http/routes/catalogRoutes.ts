@@ -2,13 +2,13 @@ import type {
   ApproveProductMedia,
   DeactivateProduct,
   ListProductsForCuration,
-  RegisterProduct,
+  RegisterManualProduct,
 } from '@affiliate-hub/catalog'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
 import { mapErrorToHttp } from '../ErrorMapper'
 
 export interface CatalogUseCases {
-  registerProduct: RegisterProduct
+  registerManualProduct: RegisterManualProduct
   approveProductMedia: ApproveProductMedia
   deactivateProduct: DeactivateProduct
   listProductsForCuration: ListProductsForCuration
@@ -17,7 +17,7 @@ export interface CatalogUseCases {
 export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogUseCases): void {
   httpServer.post('/products', async (request, response) => {
     try {
-      const output = await useCases.registerProduct.execute(request.body as never)
+      const output = await useCases.registerManualProduct.execute(request.body as never)
       response.status(201).sendJson({ message: 'Product created successfully', ...output })
     } catch (error) {
       mapErrorToHttp(error, response)

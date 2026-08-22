@@ -78,6 +78,7 @@ export class Product {
 
   assignAffiliateLink(url: string): void {
     this.ensureNotRemoved()
+    Product.validateAffiliateLinkUrl(url)
     this.affiliateLinkUrl = url
     this.touch()
   }
@@ -143,5 +144,18 @@ export class Product {
 
   private touch(): void {
     this.updatedAt = new Date()
+  }
+
+  private static validateAffiliateLinkUrl(value: string): void {
+    let url: URL
+    try {
+      url = new URL(value)
+    } catch {
+      throw new DomainError('Affiliate link must be a valid URL')
+    }
+
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new DomainError('Affiliate link must use HTTP or HTTPS')
+    }
   }
 }

@@ -5,7 +5,7 @@ tags:
   - module/catalog
 status: implemented
 created: 2026-08-06
-updated: 2026-08-20
+updated: 2026-08-22
 ---
 
 # Catalog (Gestão de Produtos)
@@ -13,7 +13,7 @@ updated: 2026-08-20
 > [!success] Implementado
 > Pacote `packages/catalog`. 13 testes unitários (fakes) + 3 arquivos de
 > integração contra Postgres real em `services/api/test/integration/catalog/`.
-> Rotas HTTP registradas em `services/api/src/http/catalogRoutes.ts`.
+> Rotas HTTP registradas em `services/api/src/http/routes/catalogRoutes.ts`.
 
 ## Responsabilidade
 
@@ -57,6 +57,10 @@ Arquivos em `packages/catalog/src/application/use-cases/`.
 
 - `RegisterProduct`: recebe dados normalizados, cria em `draft`. Ele é usado
   pelo handler de importação, mas não conhece AffiliateSync, BullMQ ou outbox.
+- `RegisterManualProduct`: recebe nome, categoria e o link de afiliado já
+  gerado pelo administrador. Cria o produto em `draft` e associa o link na
+  mesma operação. É o fluxo usado por `POST /products`; não passa por
+  AffiliateSync, outbox, Redis ou worker.
 - `ApproveProductMedia`: curadoria humana aprova uma foto já existente no
   produto, opcionalmente atribui template e tenta ativar (`tryActivate`).
 - `DeactivateProduct`: soft delete; publica `ProductDeactivated`.

@@ -18,6 +18,11 @@ export { DeactivateProduct } from './application/use-cases/DeactivateProduct'
 export type { ListProductsForCurationOutput } from './application/use-cases/ListProductsForCuration'
 export { ListProductsForCuration } from './application/use-cases/ListProductsForCuration'
 export type {
+  RegisterManualProductInput,
+  RegisterManualProductOutput,
+} from './application/use-cases/RegisterManualProduct'
+export { RegisterManualProduct } from './application/use-cases/RegisterManualProduct'
+export type {
   RegisterProductInput,
   RegisterProductOutput,
 } from './application/use-cases/RegisterProduct'

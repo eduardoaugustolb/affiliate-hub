@@ -4,7 +4,7 @@ import {
   ListProductsForCuration,
   OutboxPublisherSql,
   ProductRepositorySql,
-  RegisterProduct,
+  RegisterManualProduct,
 } from '@affiliate-hub/catalog'
 import {
   AuthenticateUser,
@@ -62,7 +62,7 @@ export function createServer(): HttpServer {
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
 
   const catalogUseCases: CatalogUseCases = {
-    registerProduct: new RegisterProduct(productRepository, idGenerator),
+    registerManualProduct: new RegisterManualProduct(productRepository, idGenerator),
     approveProductMedia: new ApproveProductMedia(productRepository, eventPublisher),
     deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
     listProductsForCuration: new ListProductsForCuration(productRepository),

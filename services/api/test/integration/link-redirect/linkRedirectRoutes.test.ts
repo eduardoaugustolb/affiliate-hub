@@ -61,15 +61,14 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume Redirect', category: 'perfume' }),
+      body: JSON.stringify({
+        name: 'Perfume Redirect',
+        category: 'perfume',
+        affiliateLinkUrl: 'https://example.com/redirect-target',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
-
-    await db.query('update products set affiliate_link_url = $1 where id = $2', [
-      'https://example.com/redirect-target',
-      productId,
-    ])
 
     const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
 
@@ -95,10 +94,16 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume No Link', category: 'perfume' }),
+      body: JSON.stringify({
+        name: 'Perfume No Link',
+        category: 'perfume',
+        affiliateLinkUrl: 'https://example.com/temporary-link',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
+
+    await db.query('update products set affiliate_link_url = null where id = $1', [productId])
 
     const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
 

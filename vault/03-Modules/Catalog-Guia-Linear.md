@@ -4,7 +4,7 @@ tags:
   - module/catalog
   - guide
 created: 2026-08-20
-updated: 2026-08-20
+updated: 2026-08-22
 ---
 
 # Guia linear: Catalog
@@ -13,11 +13,20 @@ updated: 2026-08-20
 a curadoria e a identidade de produtos importados. Não sabe como BullMQ ou
 Redis funcionam.
 
-## 1. Cadastro normal
+## 1. Cadastro manual pelo painel
 
-`RegisterProduct` cria um `Product` em estado `draft` por meio de
-`ProductRepository`. A entidade decide suas próprias transições: por exemplo,
-um produto não pode ficar `active` sem mídia aprovada e link afiliado válido.
+O formulário protegido chama `POST /products` com `name`, `category` e
+`affiliateLinkUrl`. A rota executa `RegisterManualProduct`, que cria um
+`Product` em estado `draft` e associa o link informado pelo administrador.
+
+O link precisa ser uma URL HTTP ou HTTPS. O produto continua em `draft` até
+que uma foto seja adicionada e aprovada. A entidade decide suas próprias
+transições: por exemplo, um produto não pode ficar `active` sem mídia aprovada
+e link afiliado válido.
+
+`RegisterProduct` permanece separado para a entrada de importação assíncrona.
+Ele aceita somente os dados que podem existir no evento externo e não conhece
+o formulário administrativo.
 
 ## 2. Entrada de importação assíncrona
 
