@@ -2,6 +2,7 @@ export { ApplicationError } from './errors/ApplicationError'
 export { BadRequestError } from './errors/BadRequestError'
 export { ConflictError } from './errors/ConflictError'
 export { DomainError } from './errors/DomainError'
+export { ExternalServiceError } from './errors/ExternalServiceError'
 export { NotFoundError } from './errors/NotFoundError'
 export { UnauthorizedError } from './errors/UnauthorizedError'
 

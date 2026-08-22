@@ -1,4 +1,8 @@
-import type { HttpClient } from '@affiliate-hub/shared-kernel'
+import {
+  BadRequestError,
+  ExternalServiceError,
+  type HttpClient,
+} from '@affiliate-hub/shared-kernel'
 import type {
   AffiliateProduct,
   AffiliateProvider,
@@ -60,16 +64,18 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
       .update(`${this.config.appId}${timestamp}${payload}${this.config.secret}`)
       .digest('hex')
 
-    const response = await this.httpClient.post<GenerateShortLinkResponse>(
-      SHOPEE_AFFILIATE_API_URL,
-      {
+    let response: Awaited<ReturnType<typeof this.httpClient.post<GenerateShortLinkResponse>>>
+    try {
+      response = await this.httpClient.post<GenerateShortLinkResponse>(SHOPEE_AFFILIATE_API_URL, {
         headers: {
           Authorization: `SHA256 Credential=${this.config.appId}, Timestamp=${timestamp}, Signature=${signature}`,
           'Content-Type': 'application/json',
         },
         body: payload,
-      },
-    )
+      })
+    } catch (error) {
+      throw new ExternalServiceError('Shopee Affiliate API is unavailable', { cause: error })
+    }
 
     const shortLink = response.body.data?.generateShortLink?.shortLink
     if (response.status < 200 || response.status >= 300 || !shortLink) {
@@ -77,7 +83,7 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
         ?.map((error) => error.message)
         .filter(Boolean)
         .join('; ')
-      throw new Error(
+      throw new ExternalServiceError(
         `Shopee Affiliate API did not generate a short link${detail ? `: ${detail}` : ''}`,
       )
     }
@@ -92,9 +98,14 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
   }
 
   private static validateOriginUrl(value: string): void {
-    const url = new URL(value)
+    let url: URL
+    try {
+      url = new URL(value)
+    } catch {
+      throw new BadRequestError('Shopee product URL must be a valid HTTP or HTTPS URL')
+    }
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      throw new Error('Shopee product URL must use HTTP or HTTPS')
+      throw new BadRequestError('Shopee product URL must use HTTP or HTTPS')
     }
   }
 }

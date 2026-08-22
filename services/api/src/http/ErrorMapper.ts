@@ -7,6 +7,7 @@ import {
   BadRequestError,
   ConflictError,
   DomainError,
+  ExternalServiceError,
   type HttpResponse,
   HttpStatus,
   NotFoundError,
@@ -43,6 +44,11 @@ export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
 
   if (error instanceof UnauthorizedError) {
     response.status(HttpStatus.UNAUTHORIZED).sendJson({ message: 'Unauthorized' })
+    return
+  }
+
+  if (error instanceof ExternalServiceError) {
+    response.status(HttpStatus.BAD_GATEWAY).sendJson({ message: error.message })
     return
   }
 

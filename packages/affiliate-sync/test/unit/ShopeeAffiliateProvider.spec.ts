@@ -70,4 +70,39 @@ describe('ShopeeAffiliateProvider', () => {
       provider.generateShortLink('https://shopee.example/missing-product'),
     ).rejects.toThrow('Shopee Affiliate API did not generate a short link: invalid product')
   })
+
+  it('rejects malformed product URLs as a bad request before calling Shopee', async () => {
+    let requestCount = 0
+    const provider = new ShopeeAffiliateProvider(
+      {
+        get: async <Body>() => ({ status: 200, body: {} as Body }),
+        post: async <Body>() => {
+          requestCount += 1
+          return { status: 200, body: {} as Body }
+        },
+      },
+      { appId: 'credential', secret: 'secret' },
+    )
+
+    await expect(provider.generateShortLink('not a URL')).rejects.toThrow(
+      'Shopee product URL must be a valid HTTP or HTTPS URL',
+    )
+    expect(requestCount).toBe(0)
+  })
+
+  it('reports provider unavailability without exposing request credentials', async () => {
+    const provider = new ShopeeAffiliateProvider(
+      {
+        get: async <Body>() => ({ status: 200, body: {} as Body }),
+        post: async () => {
+          throw new Error('network failure')
+        },
+      },
+      { appId: 'credential', secret: 'secret' },
+    )
+
+    await expect(provider.generateShortLink('https://shopee.example/product')).rejects.toThrow(
+      'Shopee Affiliate API is unavailable',
+    )
+  })
 })
