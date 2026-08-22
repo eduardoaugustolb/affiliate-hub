@@ -11,8 +11,8 @@ export const envSchema = z
     PII_ENCRYPTION_KEY: z.string(),
     EMAIL_LOOKUP_HMAC_KEY: z.string(),
     SESSION_TOKEN_HMAC_KEY: z.string(),
-    SHOPEE_APP_ID: z.string(),
-    SHOPEE_PASSWORD: z.string(),
+    SHOPEE_APP_ID: z.string().min(1).optional(),
+    SHOPEE_PASSWORD: z.string().min(1).optional(),
   })
   .superRefine((value, context) => {
     const fields = ['SHOPEE_APP_ID', 'SHOPEE_PASSWORD'] as const
