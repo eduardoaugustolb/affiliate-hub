@@ -16,26 +16,24 @@ describe('ShopeeAffiliateProvider', () => {
       },
     }
     const provider = new ShopeeAffiliateProvider(httpClient, {
-      apiUrl: 'https://open-api.affiliate.shopee.example/graphql',
-      credential: 'credential',
+      appId: 'credential',
       secret: 'secret',
-      productUrlTemplate: 'https://shopee.example/product/{externalProductId}',
       subIds: ['affiliate-hub'],
       now: () => new Date('2026-08-13T12:00:00.000Z'),
     })
 
-    const link = await provider.findLink('shop/item')
+    const link = await provider.generateShortLink('https://shopee.example/product/shop/item')
 
     expect(link?.toString()).toBe('https://shopee.ee/a')
     expect(requests).toHaveLength(1)
     expect(requests[0]).toMatchObject({
-      url: 'https://open-api.affiliate.shopee.example/graphql',
+      url: 'https://open-api.affiliate.shopee.com.br/graphql',
       options: {
         headers: {
           Authorization:
-            'SHA256 Credential=credential, Signature=7b717e41b79985c1934dbbdcc666350d0550892a074d2c6b1503550f0fe3b64a, Timestamp=1786622400',
+            'SHA256 Credential=credential, Timestamp=1786622400, Signature=74f7b6ae1b78481629ac109c91862a675e8d2e904d34f39ba272b9743541d659',
         },
-        body: '{"query":"mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {\\n  generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {\\n    shortLink\\n  }\\n}","variables":{"originUrl":"https://shopee.example/product/shop%2Fitem","subIds":["affiliate-hub"]}}',
+        body: '{"query":"mutation GenerateShortLink($originUrl: String!, $subIds: [String]) {\\n  generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {\\n    shortLink\\n  }\\n}","variables":{"originUrl":"https://shopee.example/product/shop/item","subIds":["affiliate-hub"]}}',
       },
     })
   })
@@ -46,10 +44,8 @@ describe('ShopeeAffiliateProvider', () => {
       post: async <Body>() => ({ status: 200, body: {} as Body }),
     }
     const provider = new ShopeeAffiliateProvider(httpClient, {
-      apiUrl: 'https://example.com/graphql',
-      credential: 'credential',
+      appId: 'credential',
       secret: 'secret',
-      productUrlTemplate: 'https://example.com/{externalProductId}',
     })
 
     await expect(provider.listUpdatedProducts()).rejects.toThrow(
@@ -66,14 +62,12 @@ describe('ShopeeAffiliateProvider', () => {
       }),
     }
     const provider = new ShopeeAffiliateProvider(httpClient, {
-      apiUrl: 'https://example.com/graphql',
-      credential: 'credential',
+      appId: 'credential',
       secret: 'secret',
-      productUrlTemplate: 'https://example.com/{externalProductId}',
     })
 
-    await expect(provider.findLink('missing-product')).rejects.toThrow(
-      'Shopee Affiliate API did not generate a short link: invalid product',
-    )
+    await expect(
+      provider.generateShortLink('https://shopee.example/missing-product'),
+    ).rejects.toThrow('Shopee Affiliate API did not generate a short link: invalid product')
   })
 })

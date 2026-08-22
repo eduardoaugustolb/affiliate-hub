@@ -5,7 +5,7 @@ import type {
 } from '../../../application/ports/AffiliateProvider'
 import { AffiliateLink } from '../../../domain/AffiliateLink'
 
-const generateShortLinkMutation = `mutation GenerateShortLink($originUrl: String!, $subIds: [String!]) {
+const generateShortLinkMutation = `mutation GenerateShortLink($originUrl: String!, $subIds: [String]) {
   generateShortLink(input: { originUrl: $originUrl, subIds: $subIds }) {
     shortLink
   }
@@ -21,13 +21,13 @@ interface GenerateShortLinkResponse {
 }
 
 export interface ShopeeAffiliateProviderConfig {
-  apiUrl: string
-  credential: string
+  appId: string
   secret: string
-  productUrlTemplate: string
   subIds?: string[]
   now?: () => Date
 }
+
+const SHOPEE_AFFILIATE_API_URL = 'https://open-api.affiliate.shopee.com.br/graphql'
 
 /**
  * Adapter for the documented Affiliate GraphQL short-link mutation.
@@ -43,36 +43,33 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
     private readonly httpClient: HttpClient,
     private readonly config: ShopeeAffiliateProviderConfig,
   ) {
-    if (!config.productUrlTemplate.includes('{externalProductId}')) {
-      throw new Error('Shopee productUrlTemplate must include {externalProductId}')
-    }
     if (config.subIds && config.subIds.length > 5) {
       throw new Error('Shopee supports at most five subIds')
     }
     this.now = config.now ?? (() => new Date())
   }
 
-  async findLink(externalProductId: string): Promise<AffiliateLink | undefined> {
-    const originUrl = this.config.productUrlTemplate.replace(
-      '{externalProductId}',
-      encodeURIComponent(externalProductId),
-    )
+  async generateShortLink(originUrl: string): Promise<AffiliateLink> {
+    ShopeeAffiliateProvider.validateOriginUrl(originUrl)
     const payload = JSON.stringify({
       query: generateShortLinkMutation,
       variables: { originUrl, subIds: this.config.subIds ?? [] },
     })
     const timestamp = Math.floor(this.now().getTime() / 1_000).toString()
     const signature = new Bun.CryptoHasher('sha256')
-      .update(`${this.config.credential}${timestamp}${payload}${this.config.secret}`)
+      .update(`${this.config.appId}${timestamp}${payload}${this.config.secret}`)
       .digest('hex')
 
-    const response = await this.httpClient.post<GenerateShortLinkResponse>(this.config.apiUrl, {
-      headers: {
-        Authorization: `SHA256 Credential=${this.config.credential}, Signature=${signature}, Timestamp=${timestamp}`,
-        'Content-Type': 'application/json',
+    const response = await this.httpClient.post<GenerateShortLinkResponse>(
+      SHOPEE_AFFILIATE_API_URL,
+      {
+        headers: {
+          Authorization: `SHA256 Credential=${this.config.appId}, Timestamp=${timestamp}, Signature=${signature}`,
+          'Content-Type': 'application/json',
+        },
+        body: payload,
       },
-      body: payload,
-    })
+    )
 
     const shortLink = response.body.data?.generateShortLink?.shortLink
     if (response.status < 200 || response.status >= 300 || !shortLink) {
@@ -92,5 +89,12 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
     throw new Error(
       'Shopee product feed is not configured: obtain the approved feed GraphQL operation and response schema before enabling sync',
     )
+  }
+
+  private static validateOriginUrl(value: string): void {
+    const url = new URL(value)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error('Shopee product URL must use HTTP or HTTPS')
+    }
   }
 }

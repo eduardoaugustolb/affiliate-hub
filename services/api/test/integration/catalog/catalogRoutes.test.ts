@@ -33,7 +33,14 @@ describe('Catalog HTTP routes (integration)', () => {
         passwordHash: await passwordHasher.hash('integration-password'),
       }),
     )
-    const httpServer = createServer()
+    const httpServer = createServer({
+      affiliateLinkGenerator: {
+        async generateAffiliateLink(productUrl: string): Promise<string> {
+          if (productUrl === 'invalid') return 'javascript:alert(1)'
+          return `https://s.shopee.com.br/generated?source=${encodeURIComponent(productUrl)}`
+        },
+      },
+    })
     await httpServer.listen(TEST_PORT)
     const login = await fetch(`${BASE_URL}/session`, {
       method: 'POST',
@@ -56,14 +63,14 @@ describe('Catalog HTTP routes (integration)', () => {
     }
   })
 
-  it('POST /products creates a draft product with the affiliate link entered by the administrator', async () => {
+  it('POST /products creates a draft product with an affiliate link generated from the original Shopee URL', async () => {
     const response = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
       body: JSON.stringify({
         name: 'Oversized Hoodie',
         category: 'streetwear',
-        affiliateLinkUrl: 'https://s.shopee.com.br/oversized-hoodie',
+        productUrl: 'https://shopee.com.br/oversized-hoodie',
       }),
     })
     const body = (await response.json()) as { message: string; productId: string }
@@ -77,7 +84,9 @@ describe('Catalog HTTP routes (integration)', () => {
       'select affiliate_link_url from products where id = $1',
       [body.productId],
     )
-    expect(rows[0]?.affiliate_link_url).toBe('https://s.shopee.com.br/oversized-hoodie')
+    expect(rows[0]?.affiliate_link_url).toBe(
+      'https://s.shopee.com.br/generated?source=https%3A%2F%2Fshopee.com.br%2Foversized-hoodie',
+    )
   })
 
   it('GET /products/curation lists drafts just created', async () => {
@@ -87,7 +96,7 @@ describe('Catalog HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Cap',
         category: 'streetwear',
-        affiliateLinkUrl: 'https://s.shopee.com.br/cap',
+        productUrl: 'https://shopee.com.br/cap',
       }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
@@ -108,7 +117,7 @@ describe('Catalog HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Perfume X',
         category: 'perfume',
-        affiliateLinkUrl: 'https://s.shopee.com.br/perfume-x',
+        productUrl: 'https://shopee.com.br/perfume-x',
       }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
@@ -141,7 +150,7 @@ describe('Catalog HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Bucket Hat',
         category: 'streetwear',
-        affiliateLinkUrl: 'https://s.shopee.com.br/bucket-hat',
+        productUrl: 'https://shopee.com.br/bucket-hat',
       }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
@@ -172,14 +181,14 @@ describe('Catalog HTTP routes (integration)', () => {
     expect(body.message).toContain('DOES-NOT-EXIST')
   })
 
-  it('POST /products maps an invalid affiliate link to 400', async () => {
+  it('POST /products maps an invalid link returned by the provider to 400', async () => {
     const response = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
       body: JSON.stringify({
         name: 'Perfume Y',
         category: 'perfume',
-        affiliateLinkUrl: 'javascript:alert(1)',
+        productUrl: 'invalid',
       }),
     })
     const body = (await response.json()) as { message: string }

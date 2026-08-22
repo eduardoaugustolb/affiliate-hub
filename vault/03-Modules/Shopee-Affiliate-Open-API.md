@@ -174,6 +174,25 @@ Os valores exibidos para `shopType` são `ALL`, `SHOPEE_MALL_CB`,
 5. Manter fixtures sanitizadas e testes de contrato para detectar alterações de
    schema do fornecedor.
 
+## Fluxo manual do MVP
+
+O MVP não descobre nem importa produtos por feed. No formulário administrativo,
+o operador informa a URL original de um produto Shopee. O fluxo é:
+
+```text
+POST /products { name, category, productUrl }
+  → RegisterManualProduct
+  → AffiliateLinkGenerator.generateAffiliateLink(productUrl)
+  → ShopeeAffiliateProvider.generateShortLink(productUrl)
+  → mutation generateShortLink na Shopee
+  → Product draft com somente o shortLink retornado
+```
+
+`RegisterManualProduct` pertence ao Catalog e depende apenas da porta
+`AffiliateLinkGenerator`. O adapter concreto Shopee pertence ao
+AffiliateSync e é conectado em `services/api/src/main.ts`. Assim, Catalog não
+importa código Shopee, e a troca de fornecedor fica limitada à composição.
+
 ## Checklist de produção
 
 - [ ] AppId e secret provisionados no secret manager.

@@ -16,13 +16,15 @@ Redis funcionam.
 ## 1. Cadastro manual pelo painel
 
 O formulário protegido chama `POST /products` com `name`, `category` e
-`affiliateLinkUrl`. A rota executa `RegisterManualProduct`, que cria um
-`Product` em estado `draft` e associa o link informado pelo administrador.
+`productUrl`, a URL original do produto Shopee. A rota executa
+`RegisterManualProduct`, que pede a geração do short link à porta
+`AffiliateLinkGenerator`, cria um `Product` em estado `draft` e associa o
+link retornado pela Shopee.
 
-O link precisa ser uma URL HTTP ou HTTPS. O produto continua em `draft` até
-que uma foto seja adicionada e aprovada. A entidade decide suas próprias
-transições: por exemplo, um produto não pode ficar `active` sem mídia aprovada
-e link afiliado válido.
+O link devolvido precisa ser uma URL HTTP ou HTTPS. O produto continua em
+`draft` até que uma foto seja adicionada e aprovada. A entidade decide suas
+próprias transições: por exemplo, um produto não pode ficar `active` sem mídia
+aprovada e link afiliado válido.
 
 `RegisterProduct` permanece separado para a entrada de importação assíncrona.
 Ele aceita somente os dados que podem existir no evento externo e não conhece

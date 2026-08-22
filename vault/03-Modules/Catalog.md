@@ -57,10 +57,10 @@ Arquivos em `packages/catalog/src/application/use-cases/`.
 
 - `RegisterProduct`: recebe dados normalizados, cria em `draft`. Ele é usado
   pelo handler de importação, mas não conhece AffiliateSync, BullMQ ou outbox.
-- `RegisterManualProduct`: recebe nome, categoria e o link de afiliado já
-  gerado pelo administrador. Cria o produto em `draft` e associa o link na
-  mesma operação. É o fluxo usado por `POST /products`; não passa por
-  AffiliateSync, outbox, Redis ou worker.
+- `RegisterManualProduct`: recebe nome, categoria e a URL original do produto
+  Shopee. Pede a geração do link à porta `AffiliateLinkGenerator`, cria o
+  produto em `draft` e associa somente o short link retornado. É o fluxo usado
+  por `POST /products`; não usa outbox, Redis ou worker.
 - `ApproveProductMedia`: curadoria humana aprova uma foto já existente no
   produto, opcionalmente atribui template e tenta ativar (`tryActivate`).
 - `DeactivateProduct`: soft delete; publica `ProductDeactivated`.

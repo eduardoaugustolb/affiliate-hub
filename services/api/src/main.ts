@@ -1,4 +1,6 @@
+import { ShopeeAffiliateProvider } from '@affiliate-hub/affiliate-sync'
 import {
+  type AffiliateLinkGenerator,
   ApproveProductMedia,
   DeactivateProduct,
   ListProductsForCuration,
@@ -26,6 +28,7 @@ import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
 import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from './adapters/database/PgAdapter'
 import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
+import { FetchHttpClient } from './adapters/http/FetchHttpClient'
 import { HonoHttpServer } from './adapters/http/HonoHttpServer'
 import { env } from './env'
 import { requireAuthentication } from './http/middlewares/RequireAuthentication'
@@ -38,7 +41,11 @@ import {
 import { registerSessionRoutes, type SessionUseCases } from './http/routes/sessionRoutes'
 import { registerUserRoutes, type UserUseCases } from './http/routes/userRoutes'
 
-export function createServer(): HttpServer {
+export interface ServerDependencies {
+  affiliateLinkGenerator?: AffiliateLinkGenerator
+}
+
+export function createServer(dependencies: ServerDependencies = {}): HttpServer {
   const runtime = new BunRuntimeServer()
 
   const databaseUrl = env.DATABASE_URL
@@ -52,6 +59,8 @@ export function createServer(): HttpServer {
   const eventPublisher = new OutboxPublisherSql(db)
   const clickLog = new ClickLogSql(db)
   const idGenerator = new IdGeneratorBun()
+  const affiliateLinkGenerator =
+    dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
 
   const sessionRepository = new SessionRepositorySql(db)
   const cipher = new CipherAdapter(Buffer.from(env.PII_ENCRYPTION_KEY, 'base64url'))
@@ -62,7 +71,11 @@ export function createServer(): HttpServer {
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
 
   const catalogUseCases: CatalogUseCases = {
-    registerManualProduct: new RegisterManualProduct(productRepository, idGenerator),
+    registerManualProduct: new RegisterManualProduct(
+      productRepository,
+      idGenerator,
+      affiliateLinkGenerator,
+    ),
     approveProductMedia: new ApproveProductMedia(productRepository, eventPublisher),
     deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
     listProductsForCuration: new ListProductsForCuration(productRepository),
@@ -114,6 +127,27 @@ export function createServer(): HttpServer {
   registerUserRoutes(httpServer, userUseCases)
   registerAdminRoutes(httpServer, adminUseCases)
   return httpServer
+}
+
+function createShopeeAffiliateLinkGenerator(): AffiliateLinkGenerator {
+  if (!env.SHOPEE_APP_ID || !env.SHOPEE_PASSWORD) {
+    return {
+      async generateAffiliateLink(): Promise<string> {
+        throw new Error('Shopee Affiliate API is not configured')
+      },
+    }
+  }
+
+  const provider = new ShopeeAffiliateProvider(new FetchHttpClient(), {
+    appId: env.SHOPEE_APP_ID,
+    secret: env.SHOPEE_PASSWORD,
+  })
+
+  return {
+    async generateAffiliateLink(productUrl: string): Promise<string> {
+      return (await provider.generateShortLink(productUrl)).toString()
+    },
+  }
 }
 
 async function main(): Promise<void> {

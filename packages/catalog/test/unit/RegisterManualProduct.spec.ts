@@ -3,15 +3,27 @@ import { RegisterManualProduct } from '../../src/application/use-cases/RegisterM
 import { IdGeneratorFake } from './doubles/IdGeneratorFake'
 import { ProductRepositoryFake } from './doubles/ProductRepositoryFake'
 
+class AffiliateLinkGeneratorFake {
+  constructor(private readonly affiliateLinkUrl: string) {}
+
+  async generateAffiliateLink(): Promise<string> {
+    return this.affiliateLinkUrl
+  }
+}
+
 describe('RegisterManualProduct', () => {
-  it('creates a draft product with the affiliate link entered by the administrator', async () => {
+  it('creates a draft product with the affiliate link generated from the product URL', async () => {
     const productRepository = new ProductRepositoryFake()
-    const useCase = new RegisterManualProduct(productRepository, new IdGeneratorFake())
+    const useCase = new RegisterManualProduct(
+      productRepository,
+      new IdGeneratorFake(),
+      new AffiliateLinkGeneratorFake('https://s.shopee.com.br/affiliate-link'),
+    )
 
     const output = await useCase.execute({
       name: 'Oversized Hoodie',
       category: 'streetwear',
-      affiliateLinkUrl: 'https://s.shopee.com.br/affiliate-link',
+      productUrl: 'https://shopee.com.br/product/123',
     })
 
     const savedProduct = await productRepository.findById(output.productId)
@@ -21,15 +33,19 @@ describe('RegisterManualProduct', () => {
     })
   })
 
-  it('rejects an affiliate link that is not an HTTP URL', async () => {
+  it('rejects an invalid link returned by the affiliate provider', async () => {
     const productRepository = new ProductRepositoryFake()
-    const useCase = new RegisterManualProduct(productRepository, new IdGeneratorFake())
+    const useCase = new RegisterManualProduct(
+      productRepository,
+      new IdGeneratorFake(),
+      new AffiliateLinkGeneratorFake('javascript:alert(1)'),
+    )
 
     await expect(
       useCase.execute({
         name: 'Oversized Hoodie',
         category: 'streetwear',
-        affiliateLinkUrl: 'javascript:alert(1)',
+        productUrl: 'https://shopee.com.br/product/123',
       }),
     ).rejects.toThrow('Affiliate link must use HTTP or HTTPS')
 

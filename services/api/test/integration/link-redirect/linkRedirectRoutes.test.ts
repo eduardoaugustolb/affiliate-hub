@@ -33,7 +33,13 @@ describe('LinkRedirect HTTP routes (integration)', () => {
         passwordHash: await passwordHasher.hash('integration-password'),
       }),
     )
-    const httpServer = createServer()
+    const httpServer = createServer({
+      affiliateLinkGenerator: {
+        async generateAffiliateLink(): Promise<string> {
+          return 'https://example.com/redirect-target'
+        },
+      },
+    })
     await httpServer.listen(TEST_PORT)
     const login = await fetch(`${BASE_URL}/session`, {
       method: 'POST',
@@ -64,7 +70,7 @@ describe('LinkRedirect HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Perfume Redirect',
         category: 'perfume',
-        affiliateLinkUrl: 'https://example.com/redirect-target',
+        productUrl: 'https://shopee.com.br/perfume-redirect',
       }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
@@ -97,7 +103,7 @@ describe('LinkRedirect HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Perfume No Link',
         category: 'perfume',
-        affiliateLinkUrl: 'https://example.com/temporary-link',
+        productUrl: 'https://shopee.com.br/perfume-no-link',
       }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
