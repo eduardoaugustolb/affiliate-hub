@@ -1,11 +1,16 @@
-import { InvalidCredentialsError } from '@affiliate-hub/identity-access'
+import {
+  InitialSetupAlreadyCompletedError,
+  InvalidCredentialsError,
+} from '@affiliate-hub/identity-access'
 import {
   ApplicationError,
   BadRequestError,
+  ConflictError,
   DomainError,
   type HttpResponse,
   HttpStatus,
   NotFoundError,
+  UnauthorizedError,
 } from '@affiliate-hub/shared-kernel'
 
 export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
@@ -24,10 +29,28 @@ export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
     return
   }
 
+  if (error instanceof InitialSetupAlreadyCompletedError) {
+    response.status(HttpStatus.CONFLICT).sendJson({
+      message: error.message,
+    })
+    return
+  }
+
+  if (error instanceof ConflictError) {
+    response.status(HttpStatus.CONFLICT).sendJson({ message: error.message })
+    return
+  }
+
+  if (error instanceof UnauthorizedError) {
+    response.status(HttpStatus.UNAUTHORIZED).sendJson({ message: 'Unauthorized' })
+    return
+  }
+
   if (error instanceof DomainError || error instanceof ApplicationError) {
     response.status(HttpStatus.BAD_REQUEST).sendJson({ message: error.message })
     return
   }
+
   response.status(HttpStatus.INTERNAL_SERVER_ERROR).sendJson({
     message: 'Unexpected internal error',
   })

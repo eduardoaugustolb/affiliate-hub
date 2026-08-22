@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
+import type { DatabaseConnection, TransactionOptions } from '@affiliate-hub/shared-kernel'
 import { SessionRepositorySql } from '../../src/adapters/SessionRepositorySQL'
 import { Session } from '../../src/domain/Session'
 
@@ -18,8 +18,14 @@ function databaseWithResponses(responses: unknown[][]): {
       calls.push({ sql, params })
       return (responses.shift() ?? []) as Row[]
     },
-    transaction: async <Result>(callback: (connection: DatabaseConnection) => Promise<Result>) =>
-      callback(db),
+    transaction: async <Result>(
+      optionsOrCallback: TransactionOptions | ((connection: DatabaseConnection) => Promise<Result>),
+      maybeCallback?: (connection: DatabaseConnection) => Promise<Result>,
+    ) => {
+      const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback
+      if (!callback) throw new Error('Transaction callback is required')
+      return callback(db)
+    },
   }
 
   return { db, calls }
@@ -75,7 +81,7 @@ describe('SessionRepositorySql', () => {
   })
 
   it('rehydrates an active session found by id', async () => {
-    const expiresAt = new Date('2026-08-20T12:00:00.000Z')
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1_000)
     const { db } = databaseWithResponses([
       [{ id: 'SESSION-1', token_hash: 'token-hash', user_id: 'USER-1', expires_at: expiresAt }],
     ])

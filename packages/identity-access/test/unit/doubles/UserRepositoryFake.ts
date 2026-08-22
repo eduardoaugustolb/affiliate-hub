@@ -9,6 +9,10 @@ export class UserRepositoryFake implements UserRepository {
     this.users.set(user.getId(), user)
   }
 
+  async hasAnyUser(): Promise<boolean> {
+    return this.users.size > 0
+  }
+
   async findById(id: string): Promise<User | null> {
     return this.users.get(id) ?? null
   }

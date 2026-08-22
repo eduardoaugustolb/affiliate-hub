@@ -127,15 +127,15 @@ describe('Session HTTP routes (integration)', () => {
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
     if (!sessionCookie) throw new Error('Session cookie was not set')
 
-    const unauthenticatedUpdate = await fetch(`${BASE_URL}/users/me/update`, {
-      method: 'POST',
+    const unauthenticatedUpdate = await fetch(`${BASE_URL}/users/me`, {
+      method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name: 'Jane Doe' }),
     })
     expect(unauthenticatedUpdate.status).toBe(401)
 
-    const update = await fetch(`${BASE_URL}/users/me/update`, {
-      method: 'POST',
+    const update = await fetch(`${BASE_URL}/users/me`, {
+      method: 'PATCH',
       headers: { 'content-type': 'application/json', cookie: sessionCookie },
       body: JSON.stringify({ name: 'Jane Doe' }),
     })

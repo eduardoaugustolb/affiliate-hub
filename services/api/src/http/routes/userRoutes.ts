@@ -20,7 +20,16 @@ function getAuthenticatedUser(context: Record<string, unknown>): AuthenticatedUs
 }
 
 export function registerUserRoutes(httpServer: HttpServer, useCases: UserUseCases): void {
-  httpServer.post('/users/me/update', async (request, response) => {
+  httpServer.post('/users', async (request, response) => {
+    try {
+      const user = getAuthenticatedUser(request.context)
+      return user
+    } catch (error) {
+      mapErrorToHttp(error, response)
+    }
+  })
+
+  httpServer.patch('/users/me', async (request, response) => {
     try {
       const user = getAuthenticatedUser(request.context)
       const { email, name } = request.body as Record<string, string | undefined>
@@ -33,7 +42,7 @@ export function registerUserRoutes(httpServer: HttpServer, useCases: UserUseCase
     }
   })
 
-  httpServer.post('/users/me/delete', async (request, response) => {
+  httpServer.delete('/users/me', async (request, response) => {
     try {
       const user = getAuthenticatedUser(request.context)
       await useCases.deleteUser.execute({ userId: user.id })

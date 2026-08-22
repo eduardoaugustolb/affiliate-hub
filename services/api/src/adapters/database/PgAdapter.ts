@@ -1,4 +1,4 @@
-import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
+import type { DatabaseConnection, TransactionOptions } from '@affiliate-hub/shared-kernel'
 import { SQL as SQLClient } from 'bun'
 
 export class PgAdapter implements DatabaseConnection {
@@ -13,9 +13,41 @@ export class PgAdapter implements DatabaseConnection {
   }
 
   async transaction<Result>(
-    callback: (connection: DatabaseConnection) => Promise<Result>,
+    optionsOrCallback: TransactionOptions | ((connection: DatabaseConnection) => Promise<Result>),
+    maybeCallback?: (connection: DatabaseConnection) => Promise<Result>,
   ): Promise<Result> {
-    return this.sql.begin(async (transaction) => callback(new PgAdapter(transaction)))
+    const options = typeof optionsOrCallback === 'function' ? {} : optionsOrCallback
+
+    const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback
+
+    if (!callback) throw new Error('Transaction callback is required')
+
+    const attempts = (options.maxRetries ?? 0) + 1
+
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        const execute = (transaction: SQLClient) => callback(new PgAdapter(transaction))
+
+        if (options.isolationLevel === 'serializable') {
+          return await this.sql.begin('isolation level serializable', execute)
+        }
+
+        return await this.sql.begin(execute)
+      } catch (error) {
+        const canRetry =
+          options.isolationLevel === 'serializable' &&
+          this.isSerializationFailure(error) &&
+          attempt < attempts
+
+        if (!canRetry) throw error
+      }
+    }
+
+    throw new Error('Unreachable transaction state')
+  }
+
+  private isSerializationFailure(error: unknown): boolean {
+    return typeof error === 'object' && error !== null && 'code' in error && error.code === '40001'
   }
 
   async connect(): Promise<void> {

@@ -58,6 +58,7 @@ export const HttpStatus = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
+  CONFLICT: 409,
   INTERNAL_SERVER_ERROR: 500,
 } as const
 
@@ -66,6 +67,10 @@ export type HttpStatus = (typeof HttpStatus)[keyof typeof HttpStatus]
 export interface HttpServer {
   get(path: string, handler: RouteHandler): void
   post(path: string, handler: RouteHandler): void
+  put(path: string, handler: RouteHandler): void
+  patch(path: string, handler: RouteHandler): void
+  delete(path: string, handler: RouteHandler): void
+
   listen(port: number): Promise<void>
   use(path: string, middleware: Middleware): void
   stop(): Promise<void>

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'bun:test'
-import type { Cipher, DatabaseConnection, KeyedHasher } from '@affiliate-hub/shared-kernel'
+import type {
+  Cipher,
+  DatabaseConnection,
+  KeyedHasher,
+  TransactionOptions,
+} from '@affiliate-hub/shared-kernel'
 import { UserRepositorySql } from '../../src/adapters/UserRepositorySQL'
 import { Email } from '../../src/domain/Email'
 import { User } from '../../src/domain/User'
@@ -14,8 +19,14 @@ function databaseWithResponses(responses: unknown[][]): {
       queries.push({ sql, params })
       return (responses.shift() ?? []) as Row[]
     },
-    transaction: async <Result>(callback: (connection: DatabaseConnection) => Promise<Result>) =>
-      callback(db),
+    transaction: async <Result>(
+      optionsOrCallback: TransactionOptions | ((connection: DatabaseConnection) => Promise<Result>),
+      maybeCallback?: (connection: DatabaseConnection) => Promise<Result>,
+    ) => {
+      const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback
+      if (!callback) throw new Error('Transaction callback is required')
+      return callback(db)
+    },
   }
 
   return { db, queries }

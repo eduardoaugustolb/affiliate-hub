@@ -100,9 +100,12 @@ Implementados na composition root (`services/api/src/adapters/crypto/`):
   `400`.
 - `requireAuthentication` valida a sessão uma vez, guarda a view do usuário
   em `request.context.authenticatedUser` e protege `/products` e `/users/*`.
-- `POST /users/me/update` atualiza nome e/ou e-mail da própria conta.
-- `POST /users/me/delete` elimina a própria conta; as sessões relacionadas
+- `PATCH /users/me` atualiza nome e/ou e-mail da própria conta.
+- `DELETE /users/me` elimina a própria conta; as sessões relacionadas
   são removidas pelo cascade do banco.
+- `POST /admin/setup` existe para criar a primeira conta e abrir sua sessão.
+  Ele usa `SetupInitialUser` e uma transação serializável, descritos em
+  [[IdentityAccess-Setup-Inicial]].
 
 ## Mecanismo (auth caseira)
 
@@ -161,3 +164,6 @@ garantia de transferência internacional aplicável, se houver.
 3. **Deploy**: aplicar e verificar as migrations `users` e `sessions` com a
 `DATABASE_URL` do ambiente Railway antes de abrir o painel. As migrations foram
 aplicadas e verificadas no Postgres local em `2026-08-12`.
+4. **Setup inicial concorrente**: `SetupInitialUser` executa a consulta, a
+  criação da conta e a criação da sessão em uma transação serializável. Os
+  limites arquiteturais e os testes estão em [[IdentityAccess-Setup-Inicial]].

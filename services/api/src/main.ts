@@ -11,8 +11,10 @@ import {
   CryptoTokenGenerator,
   DeleteUser,
   GetAuthenticatedUser,
+  IdentityAccessUnitOfWorkSql,
   Logout,
   SessionRepositorySql,
+  SetupInitialUser,
   UpdateUser,
   UserRepositorySql,
 } from '@affiliate-hub/identity-access'
@@ -27,6 +29,7 @@ import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
 import { HonoHttpServer } from './adapters/http/HonoHttpServer'
 import { env } from './env'
 import { requireAuthentication } from './http/middlewares/RequireAuthentication'
+import { type AdminUseCases, registerAdminRoutes } from './http/routes/adminRoutes'
 import { type CatalogUseCases, registerCatalogRoutes } from './http/routes/catalogRoutes'
 import {
   type LinkRedirectUseCases,
@@ -91,6 +94,16 @@ export function createServer(): HttpServer {
     deleteUser: new DeleteUser(userRepository),
   }
 
+  const adminUseCases: AdminUseCases = {
+    setupInitialUser: new SetupInitialUser(
+      new IdentityAccessUnitOfWorkSql(db, cipher, new HmacKeyedHasher(env.EMAIL_LOOKUP_HMAC_KEY)),
+      idGenerator,
+      argon2Hasher,
+      tokenGenerator,
+      new HmacKeyedHasher(env.SESSION_TOKEN_HMAC_KEY),
+    ),
+  }
+
   const httpServer = new HonoHttpServer(runtime)
   httpServer.use('/products', requireAuthentication(sessionUseCases.getAuthenticatedUser))
   httpServer.use('/products/*', requireAuthentication(sessionUseCases.getAuthenticatedUser))
@@ -99,6 +112,7 @@ export function createServer(): HttpServer {
   registerLinkRedirectRoutes(httpServer, linkRedirectUseCases)
   registerSessionRoutes(httpServer, sessionUseCases)
   registerUserRoutes(httpServer, userUseCases)
+  registerAdminRoutes(httpServer, adminUseCases)
   return httpServer
 }
 

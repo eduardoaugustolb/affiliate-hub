@@ -34,6 +34,18 @@ export class HonoHttpServer implements HttpServer {
     this.app.post(path, (context) => this.execute(handler, context))
   }
 
+  put(path: string, handler: RouteHandler): void {
+    this.app.put(path, (context) => this.execute(handler, context))
+  }
+
+  patch(path: string, handler: RouteHandler): void {
+    this.app.patch(path, (context) => this.execute(handler, context))
+  }
+
+  delete(path: string, handler: RouteHandler): void {
+    this.app.delete(path, (context) => this.execute(handler, context))
+  }
+
   async listen(port: number): Promise<void> {
     this.runningServer = await this.runtime.serve(this.app.fetch, {
       port,

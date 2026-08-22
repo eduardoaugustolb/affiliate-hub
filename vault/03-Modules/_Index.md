@@ -47,6 +47,7 @@ implantado (ver [[04-Infrastructure/Deploy-Topology]]).
 
 [[AffiliateSync-Guia-Linear|Guia linear de implementação do AffiliateSync]] ·
 [[Catalog-Guia-Linear|Guia linear de implementação do Catalog]] ·
+[[IdentityAccess-Setup-Inicial|Setup inicial concorrente do painel]] ·
 [[Shopee-Affiliate-Open-API|Referência técnica da Shopee Affiliate Open API]] ·
 [[02-Decisions/ADR-0005-bun-workspaces-monorepo|ADR-0005]], como isso vira
 fronteira de pacote de workspace, não só convenção.
