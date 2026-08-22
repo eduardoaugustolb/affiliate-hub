@@ -51,4 +51,25 @@ describe('RegisterManualProduct', () => {
 
     expect(await productRepository.findById('PRODUCT-1')).toBeNull()
   })
+
+  it('rejects an invalid original product URL before invoking the affiliate provider', async () => {
+    const productRepository = new ProductRepositoryFake()
+    let providerCalled = false
+    const useCase = new RegisterManualProduct(productRepository, new IdGeneratorFake(), {
+      async generateAffiliateLink(): Promise<string> {
+        providerCalled = true
+        return 'https://s.shopee.com.br/affiliate-link'
+      },
+    })
+
+    await expect(
+      useCase.execute({
+        name: 'Oversized Hoodie',
+        category: 'streetwear',
+        productUrl: 'not a URL',
+      }),
+    ).rejects.toThrow('Shopee product URL must be a valid HTTP or HTTPS URL')
+
+    expect(providerCalled).toBe(false)
+  })
 })
