@@ -4,7 +4,7 @@ import {
   userResponseSchema,
 } from '@affiliate-hub/contracts'
 import type { DeleteUser, UpdateUser } from '@affiliate-hub/identity-access'
-import { type HttpServer, HttpStatus } from '@affiliate-hub/shared-kernel'
+import { type HttpServer, HttpStatus, type RouteHandler } from '@affiliate-hub/shared-kernel'
 import { mapErrorToHttp } from '../ErrorMapper'
 import { parse } from '../parse'
 
@@ -58,7 +58,7 @@ export function registerUserRoutes(httpServer: HttpServer, useCases: UserUseCase
     }
   })
 
-  httpServer.post('/users/me/update', async (request, response) => {
+  const updateUser: RouteHandler = async (request, response) => {
     try {
       const user = getAuthenticatedUser(request.context)
       const body = parse(updateUserBodySchema, request.body)
@@ -67,7 +67,10 @@ export function registerUserRoutes(httpServer: HttpServer, useCases: UserUseCase
     } catch (error) {
       mapErrorToHttp(error, response)
     }
-  })
+  }
+
+  httpServer.post('/users/me/update', updateUser)
+  httpServer.patch('/users/me', updateUser)
 
   httpServer.post('/users/me/delete', async (request, response) => {
     try {

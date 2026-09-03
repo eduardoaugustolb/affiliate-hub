@@ -1,7 +1,11 @@
-import { InvalidCredentialsError } from '@affiliate-hub/identity-access'
+import {
+  InitialSetupAlreadyCompletedError,
+  InvalidCredentialsError,
+} from '@affiliate-hub/identity-access'
 import {
   ApplicationError,
   BadRequestError,
+  ConflictError,
   DomainError,
   type HttpResponse,
   HttpStatus,
@@ -19,6 +23,13 @@ export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
   }
   if (error instanceof NotFoundError) {
     response.status(HttpStatus.NOT_FOUND).sendJson({ code: 'NOT_FOUND', message: error.message })
+    return
+  }
+  if (error instanceof ConflictError || error instanceof InitialSetupAlreadyCompletedError) {
+    response.status(HttpStatus.CONFLICT).sendJson({
+      code: 'CONFLICT',
+      message: error.message,
+    })
     return
   }
   if (error instanceof BadRequestError) {

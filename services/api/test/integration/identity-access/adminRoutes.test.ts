@@ -103,6 +103,7 @@ describe('Admin setup HTTP route (integration)', () => {
 
     expect(secondSetup.status).toBe(409)
     expect(await secondSetup.json()).toEqual({
+      code: 'CONFLICT',
       message: 'Initial setup has already been completed',
     })
   })
@@ -115,7 +116,10 @@ describe('Admin setup HTTP route (integration)', () => {
     })
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ message: 'Missing required fields' })
+    expect(await response.json()).toEqual({
+      code: 'BAD_REQUEST',
+      message: 'Missing required fields',
+    })
     expect(await userRepository.hasAnyUser()).toBe(false)
   })
 })
