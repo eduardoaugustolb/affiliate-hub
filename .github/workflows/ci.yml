@@ -23,9 +23,19 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/drops_do_frost
+      REDIS_URL: redis://localhost:6379
       TZ: UTC
       PII_ENCRYPTION_KEY: MrKoZ96JWNqVn49In2Q-qXnXh3foWd2UhMZV5Vhehv0
       EMAIL_LOOKUP_HMAC_KEY: L1MyXuM7fp0ag1R6YpZvfvuI84Fj-hv48ZkWTk2wVAQ
