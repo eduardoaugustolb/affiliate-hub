@@ -62,8 +62,6 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   const idGenerator = new IdGeneratorBun()
   const affiliateLinkGenerator =
     dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
-  const affiliateLinkGenerator =
-    dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
 
   const sessionRepository = new SessionRepositorySql(db)
   const cipher = new CipherAdapter(Buffer.from(env.PII_ENCRYPTION_KEY, 'base64url'))
