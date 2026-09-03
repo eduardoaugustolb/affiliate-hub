@@ -46,6 +46,21 @@ jobs:
       - name: Typecheck (todos os pacotes)
         run: bun run typecheck
 
+      - name: Validar regra de dependência
+        run: bun run architecture:check
+
+      - name: Testes unitários — catalog
+        run: bun test
+        working-directory: packages/catalog
+
+      - name: Testes unitários — link-redirect
+        run: bun test
+        working-directory: packages/link-redirect
+
+      - name: Testes unitários — identity-access
+        run: bun test
+        working-directory: packages/identity-access
+
       - name: Migrar banco — catalog
         run: bunx knex --knexfile knexfile.ts migrate:latest
         working-directory: packages/catalog

@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
+    "architecture:check": "bun run scripts/checkArchitecture.ts",
     "lint": "biome check .",
     "format": "biome check --write .",
     "db:migrate": "bun run scripts/migrate.ts",
