@@ -37,7 +37,7 @@ describe('Catalog HTTP routes (integration)', () => {
     const httpServer = createServer({
       affiliateLinkGenerator: {
         async generateAffiliateLink(productUrl: string): Promise<string> {
-          if (productUrl === 'invalid') return 'javascript:alert(1)'
+          if (productUrl.endsWith('/invalid')) return 'javascript:alert(1)'
           return `https://s.shopee.com.br/generated?source=${encodeURIComponent(productUrl)}`
         },
       },
@@ -189,7 +189,7 @@ describe('Catalog HTTP routes (integration)', () => {
       body: JSON.stringify({
         name: 'Perfume Y',
         category: 'perfume',
-        productUrl: 'invalid',
+        productUrl: 'https://shopee.com.br/invalid',
       }),
     })
     const body = (await response.json()) as { message: string }
