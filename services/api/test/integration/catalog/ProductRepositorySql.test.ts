@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { Product, ProductRepositorySql } from '@affiliate-hub/catalog'
+import { Product } from '@affiliate-hub/catalog'
+import { ProductRepositorySql } from '@affiliate-hub/catalog/adapters'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 
 const DATABASE_URL =

@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'bun:test'
 import { randomUUID } from 'node:crypto'
+import { DeliverAffiliateProductImport, ImportProductFromFeed } from '@affiliate-hub/affiliate-sync'
 import {
-  DeliverAffiliateProductImport,
-  ImportProductFromFeed,
   SqlOutboxEventDeliveryRepository,
   SqlOutboxIntegrationEventPublisher,
-} from '@affiliate-hub/affiliate-sync'
+} from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { Queue, Worker } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'

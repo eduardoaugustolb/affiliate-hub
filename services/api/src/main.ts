@@ -1,38 +1,42 @@
-import { ShopeeAffiliateProvider } from '@affiliate-hub/affiliate-sync'
+import { ShopeeAffiliateProvider } from '@affiliate-hub/affiliate-sync/infrastructure'
 import {
   type AffiliateLinkGenerator,
   ApproveProductMedia,
-  CatalogUnitOfWorkSql,
   DeactivateProduct,
   ListProductsForCuration,
-  ProductRepositorySql,
   RegisterManualProduct,
+  RegisterProduct,
 } from '@affiliate-hub/catalog'
+import { CatalogUnitOfWorkSql, ProductRepositorySql } from '@affiliate-hub/catalog/adapters'
 import {
   AuthenticateUser,
-  CryptoTokenGenerator,
   DeleteUser,
   GetAuthenticatedUser,
-  IdentityAccessUnitOfWorkSql,
   Logout,
-  SessionRepositorySql,
   SetupInitialUser,
   UpdateUser,
-  UserRepositorySql,
 } from '@affiliate-hub/identity-access'
+import {
+  CryptoTokenGenerator,
+  IdentityAccessUnitOfWorkSql,
+  SessionRepositorySql,
+  UserRepositorySql,
+} from '@affiliate-hub/identity-access/adapters'
 import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
-import { Argon2Hasher } from './adapters/crypto/Argon2Hasher'
 import { CatalogPublishedProductReader } from './adapters/catalog/CatalogPublishedProductReader'
+import { Argon2Hasher } from './adapters/crypto/Argon2Hasher'
 import { CipherAdapter } from './adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
 import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from './adapters/database/PgAdapter'
 import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
+import { FetchHttpClient } from './adapters/http/FetchHttpClient'
 import { HonoHttpServer } from './adapters/http/HonoHttpServer'
 import { env } from './env'
 import { requireAuthentication } from './http/middlewares/RequireAuthentication'
 import { requireCsrf } from './http/middlewares/RequireCsrf'
+import { type AdminUseCases, registerAdminRoutes } from './http/routes/adminRoutes'
 import { type CatalogUseCases, registerCatalogRoutes } from './http/routes/catalogRoutes'
 import {
   type LinkRedirectUseCases,
@@ -40,7 +44,6 @@ import {
 } from './http/routes/linkRedirectRoutes'
 import { registerSessionRoutes, type SessionUseCases } from './http/routes/sessionRoutes'
 import { registerUserRoutes, type UserUseCases } from './http/routes/userRoutes'
-import { type AdminUseCases, registerAdminRoutes } from './http/routes/adminRoutes'
 
 export interface ServerDependencies {
   affiliateLinkGenerator?: AffiliateLinkGenerator
@@ -71,6 +74,7 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
 
   const catalogUseCases: CatalogUseCases = {
+    registerProduct: new RegisterProduct(productRepository, idGenerator),
     registerManualProduct: new RegisterManualProduct(
       productRepository,
       idGenerator,
@@ -172,7 +176,7 @@ function createShopeeAffiliateLinkGenerator(): AffiliateLinkGenerator {
 
 async function main(): Promise<void> {
   const httpServer = createServer()
-  const port = Number(process.env.PORT ?? 3000)
+  const port = env.PORT
   await httpServer.listen(port)
 }
 

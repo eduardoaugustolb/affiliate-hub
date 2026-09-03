@@ -1,8 +1,8 @@
 import {
   DeliverAffiliateProductImport,
   ReconcilePendingOutboxEnqueues,
-  SqlOutboxEventDeliveryRepository,
 } from '@affiliate-hub/affiliate-sync'
+import { SqlOutboxEventDeliveryRepository } from '@affiliate-hub/affiliate-sync/infrastructure'
 import { IdGeneratorBun } from '../../adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../adapters/database/PgAdapter'
 import { env } from '../../env'

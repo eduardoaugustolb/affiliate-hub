@@ -1,9 +1,9 @@
 import type { OutboxEventForDelivery } from '@affiliate-hub/affiliate-sync'
+import { RegisterProduct } from '@affiliate-hub/catalog'
 import {
   AffiliateProductImportRegistrySql,
   ProductRepositorySql,
-  RegisterProduct,
-} from '@affiliate-hub/catalog'
+} from '@affiliate-hub/catalog/adapters'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
 

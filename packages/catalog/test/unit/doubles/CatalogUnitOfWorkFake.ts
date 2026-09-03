@@ -1,10 +1,10 @@
 import type {
   CatalogTransactionScope,
   CatalogUnitOfWork,
-} from '../../src/application/ports/CatalogUnitOfWork'
-import type { EventPublisher } from '../../src/application/ports/EventPublisher'
-import type { ProductRepository } from '../../src/application/ports/ProductRepository'
-import type { ProductSnapshot } from '../../src/domain/Product'
+} from '../../../src/application/ports/CatalogUnitOfWork'
+import type { EventPublisher } from '../../../src/application/ports/EventPublisher'
+import type { ProductRepository } from '../../../src/application/ports/ProductRepository'
+import type { ProductSnapshot } from '../../../src/domain/Product'
 
 type SnapshotRepository = ProductRepository & {
   snapshots(): ReadonlyArray<ProductSnapshot>

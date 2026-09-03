@@ -17,6 +17,10 @@
     "./domain": {
       "types": "./src/domain/index.ts",
       "import": "./src/domain/index.ts"
+    },
+    "./infrastructure": {
+      "types": "./src/infrastructure/index.ts",
+      "import": "./src/infrastructure/index.ts"
     }
   },
   "scripts": {

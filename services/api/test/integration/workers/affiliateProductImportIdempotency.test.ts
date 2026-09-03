@@ -3,9 +3,11 @@ import { randomUUID } from 'node:crypto'
 import {
   DeliverAffiliateProductImport,
   type OutboxEventDeliveryRepository,
+} from '@affiliate-hub/affiliate-sync'
+import {
   SqlOutboxEventDeliveryRepository,
   SqlOutboxIntegrationEventPublisher,
-} from '@affiliate-hub/affiliate-sync'
+} from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { Queue, Worker } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'

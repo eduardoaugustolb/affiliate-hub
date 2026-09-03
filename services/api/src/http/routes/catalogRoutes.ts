@@ -2,6 +2,7 @@ import type {
   ApproveProductMedia,
   DeactivateProduct,
   ListProductsForCuration,
+  RegisterManualProduct,
   RegisterProduct,
 } from '@affiliate-hub/catalog'
 import {
@@ -18,6 +19,7 @@ import { parse } from '../parse'
 
 export interface CatalogUseCases {
   registerProduct: RegisterProduct
+  registerManualProduct?: RegisterManualProduct
   approveProductMedia: ApproveProductMedia
   deactivateProduct: DeactivateProduct
   listProductsForCuration: ListProductsForCuration
@@ -26,9 +28,20 @@ export interface CatalogUseCases {
 export function registerCatalogRoutes(httpServer: HttpServer, useCases: CatalogUseCases): void {
   httpServer.post('/products', async (request, response) => {
     try {
-      const output = await useCases.registerProduct.execute(
-        parse(registerProductBodySchema, request.body),
-      )
+      const input = parse(registerProductBodySchema, request.body)
+      let output: { productId: string }
+      if (input.productUrl !== undefined) {
+        if (!useCases.registerManualProduct) {
+          throw new Error('Manual product registration is not configured')
+        }
+        output = await useCases.registerManualProduct.execute({
+          name: input.name,
+          category: input.category,
+          productUrl: input.productUrl,
+        })
+      } else {
+        output = await useCases.registerProduct.execute(input)
+      }
       response.status(201).sendJson(
         parse(productCreatedResponseSchema, {
           message: 'Product created successfully',

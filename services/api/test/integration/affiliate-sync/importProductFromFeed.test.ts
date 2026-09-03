@@ -4,9 +4,11 @@ import {
   type AffiliateProductImportJobQueue,
   ImportProductFromFeed,
   ReconcilePendingOutboxEnqueues,
+} from '@affiliate-hub/affiliate-sync'
+import {
   SqlOutboxEventDeliveryRepository,
   SqlOutboxIntegrationEventPublisher,
-} from '@affiliate-hub/affiliate-sync'
+} from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { Queue } from 'bullmq'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'

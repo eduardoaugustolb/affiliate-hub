@@ -83,7 +83,7 @@ Todas as variáveis são obrigatórias (validadas com zod em `services/api/src/e
 | Variável | Descrição |
 |---|---|
 | `DATABASE_URL` | URL de conexão com o Postgres |
-| `PORT` | Porta do HTTP server (padrão 3000) |
+| `PORT` | Porta do HTTP server (padrão 3001) |
 | `TZ` | Timezone da aplicação (ex.: `UTC`) |
 | `PII_ENCRYPTION_KEY` | Chave AES-256-GCM (base64url, 32 bytes) para e-mail em repouso |
 | `EMAIL_LOOKUP_HMAC_KEY` | Chave HMAC para o lookup de e-mail (LGPD) |

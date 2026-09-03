@@ -1,3 +1,4 @@
+export * from './events/AffiliateProductImportRequested'
 export * from './http/auth'
 export * from './http/catalog'
 export * from './http/common'

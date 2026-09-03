@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
-import { User, UserRepositorySql } from '@affiliate-hub/identity-access'
+import { User } from '@affiliate-hub/identity-access'
+import { UserRepositorySql } from '@affiliate-hub/identity-access/adapters'
 import { Argon2Hasher } from '../../../src/adapters/crypto/Argon2Hasher'
 import { CipherAdapter } from '../../../src/adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from '../../../src/adapters/crypto/HmacKeyedHasher'

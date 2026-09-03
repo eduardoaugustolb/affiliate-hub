@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { ProtectedRoute } from "@/features/auth/components/ProtectedRoute";
-import { useSession } from "@/features/auth/session/SessionProvider";
+import { Button } from '@/components/ui/button'
+import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute'
+import { useSession } from '@/features/auth/session/SessionProvider'
 
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <Dashboard />
     </ProtectedRoute>
-  );
+  )
 }
 
 function Dashboard() {
-  const { user, logout } = useSession();
+  const { user, logout } = useSession()
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-5xl flex-col gap-8 p-8">
       <header className="flex items-center justify-between border-b pb-4">
@@ -32,5 +32,5 @@ function Dashboard() {
         </p>
       </section>
     </main>
-  );
+  )
 }

@@ -5,6 +5,7 @@ export const registerProductBodySchema = z
   .object({
     name: z.string().trim().min(1),
     category: z.enum(['streetwear', 'perfume']),
+    productUrl: z.string().trim().min(1).optional(),
   })
   .strict()
 export const approveProductMediaBodySchema = z

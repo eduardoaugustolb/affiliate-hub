@@ -38,7 +38,7 @@ export class HonoHttpServer implements HttpServer {
       '*',
       cors({
         origin: (origin) => (allowedOrigins.includes(origin) ? origin : undefined),
-        allowMethods: ['GET', 'POST', 'OPTIONS'],
+        allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Accept', 'X-CSRF-Token'],
         credentials: true,
         maxAge: 600,

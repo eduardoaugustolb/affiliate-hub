@@ -1,4 +1,4 @@
-import type { PublishedProductReader } from '../../src/application/ports/PublishedProductReader'
+import type { PublishedProductReader } from '../../../src/application/ports/PublishedProductReader'
 
 export class PublishedProductReaderFake implements PublishedProductReader {
   readonly links = new Map<string, string>()

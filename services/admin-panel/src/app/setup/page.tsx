@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useState } from "react";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { type FormEvent, type ReactNode, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -11,59 +11,52 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { setup } from "@/features/auth/api/authApi";
-import { type SetupInput, setupSchema } from "@/features/auth/schemas/auth";
-import { ApiError } from "@/lib/api/errors";
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { setup } from '@/features/auth/api/authApi'
+import { type SetupInput, setupSchema } from '@/features/auth/schemas/auth'
+import { ApiError } from '@/lib/api/errors'
 
 export default function SetupAdminPage() {
-  const router = useRouter();
+  const router = useRouter()
   const [values, setValues] = useState<SetupInput>({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof SetupInput, string>>
-  >({});
-  const [apiError, setApiError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+    name: '',
+    email: '',
+    password: '',
+  })
+  const [errors, setErrors] = useState<Partial<Record<keyof SetupInput, string>>>({})
+  const [apiError, setApiError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const result = setupSchema.safeParse(values);
+    event.preventDefault()
+    const result = setupSchema.safeParse(values)
     if (!result.success) {
-      const nextErrors: Partial<Record<keyof SetupInput, string>> = {};
+      const nextErrors: Partial<Record<keyof SetupInput, string>> = {}
       for (const issue of result.error.issues) {
-        const field = issue.path[0] as keyof SetupInput;
-        if (!nextErrors[field]) nextErrors[field] = issue.message;
+        const field = issue.path[0] as keyof SetupInput
+        if (!nextErrors[field]) nextErrors[field] = issue.message
       }
-      setErrors(nextErrors);
-      return;
+      setErrors(nextErrors)
+      return
     }
-    setErrors({});
-    setApiError("");
-    setSubmitting(true);
+    setErrors({})
+    setApiError('')
+    setSubmitting(true)
     try {
-      await setup(result.data);
-      router.replace("/login?setup=complete");
+      await setup(result.data)
+      router.replace('/login?setup=complete')
     } catch (error) {
       setApiError(
-        error instanceof ApiError
-          ? error.message
-          : "Não foi possível concluir o cadastro.",
-      );
+        error instanceof ApiError ? error.message : 'Não foi possível concluir o cadastro.',
+      )
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
   return (
-    <AuthCard
-      title="Configurar administrador"
-      description="Crie o primeiro acesso ao painel."
-    >
+    <AuthCard title="Configurar administrador" description="Crie o primeiro acesso ao painel.">
       <form onSubmit={submit} className="space-y-4" noValidate>
         <AuthField
           label="Nome"
@@ -94,17 +87,17 @@ export default function SetupAdminPage() {
           </p>
         )}
         <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? "Criando..." : "Criar acesso"}
+          {submitting ? 'Criando...' : 'Criar acesso'}
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">
-        Já possui acesso?{" "}
+        Já possui acesso?{' '}
         <Link className="underline" href="/login">
           Entrar
         </Link>
       </p>
     </AuthCard>
-  );
+  )
 }
 
 function AuthCard({
@@ -112,9 +105,9 @@ function AuthCard({
   description,
   children,
 }: {
-  title: string;
-  description: string;
-  children: ReactNode;
+  title: string
+  description: string
+  children: ReactNode
 }) {
   return (
     <main className="flex min-h-svh items-center justify-center p-4">
@@ -127,7 +120,7 @@ function AuthCard({
         <CardFooter />
       </Card>
     </main>
-  );
+  )
 }
 
 function AuthField({
@@ -136,14 +129,14 @@ function AuthField({
   value,
   onChange,
   error,
-  type = "text",
+  type = 'text',
 }: {
-  label: string;
-  name: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  type?: string;
+  label: string
+  name: string
+  value: string
+  onChange: (value: string) => void
+  error?: string
+  type?: string
 }) {
   return (
     <div className="space-y-1">
@@ -158,7 +151,7 @@ function AuthField({
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${name}-error` : undefined}
-        autoComplete={name === "password" ? "new-password" : name}
+        autoComplete={name === 'password' ? 'new-password' : name}
       />
       {error && (
         <p id={`${name}-error`} className="text-sm text-destructive">
@@ -166,5 +159,5 @@ function AuthField({
         </p>
       )}
     </div>
-  );
+  )
 }
