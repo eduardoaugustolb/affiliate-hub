@@ -15,7 +15,7 @@ import { BunRuntimeServer } from '../../../src/adapters/http/BunRuntimeServer'
 import { HonoHttpServer } from '../../../src/adapters/http/HonoHttpServer'
 import { registerAdminRoutes } from '../../../src/http/routes/adminRoutes'
 
-let nextPort = 3058
+let nextPort = 3070
 
 class IdentityAccessUnitOfWorkFake implements IdentityAccessUnitOfWork {
   constructor(private readonly scope: IdentityAccessTransactionScope) {}
