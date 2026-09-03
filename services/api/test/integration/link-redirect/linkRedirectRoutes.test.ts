@@ -76,6 +76,12 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
 
+    await db.query('update products set status = $1, affiliate_link_url = $2 where id = $3', [
+      'active',
+      'https://example.com/redirect-target',
+      productId,
+    ])
+
     const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
 
     expect(response.status).toBe(302)
@@ -86,6 +92,31 @@ describe('LinkRedirect HTTP routes (integration)', () => {
       [productId],
     )
     expect(rows).toHaveLength(1)
+  })
+
+  it('GET /p/:id returns 404 for a deactivated product even when its link is still present', async () => {
+    const created = await fetch(`${BASE_URL}/products`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...authHeaders },
+      body: JSON.stringify({ name: 'Perfume Inactive', category: 'perfume' }),
+    })
+    const { productId } = (await created.json()) as { message: string; productId: string }
+    insertedIds.push(productId)
+
+    await db.query('update products set status = $1, affiliate_link_url = $2 where id = $3', [
+      'inactive',
+      'https://example.com/stale-target',
+      productId,
+    ])
+
+    const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(404)
+    const rows = await db.query<{ product_id: string }>(
+      'select product_id from click_logs where product_id = $1',
+      [productId],
+    )
+    expect(rows).toHaveLength(0)
   })
 
   it('GET /p/:id maps NotFoundError to 404 when the product does not exist', async () => {

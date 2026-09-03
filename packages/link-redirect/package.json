@@ -12,7 +12,6 @@
     "db:rollback": "knex migrate:rollback"
   },
   "dependencies": {
-    "@affiliate-hub/catalog": "workspace:*",
     "@affiliate-hub/shared-kernel": "workspace:*"
   },
   "devDependencies": {

@@ -29,6 +29,7 @@ de uma porta" (ver [[08-DoD/Definition-of-Done]]).
 | `FileStorage` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `CloudflareR2Storage` |
 | `QRCodeGenerator` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `QRCodeNpmAdapter` |
 | `HttpServer` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `HonoAdapter` |
+| `PublishedProductReader` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `CatalogPublishedProductReader` (composition root) |
 | `ClickLog` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `ClickLogDatabase` |
 | `BroadcastQueue` | [[03-Modules/Broadcast\|Broadcast]] | `BroadcastQueueDatabase` (futuro: Redis/BullMQ) |
 | `MessagingClient` | [[03-Modules/Broadcast\|Broadcast]] | `BaileysMessagingAdapter` |

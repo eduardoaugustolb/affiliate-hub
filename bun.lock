@@ -65,7 +65,6 @@
       "name": "@affiliate-hub/link-redirect",
       "version": "0.1.0",
       "dependencies": {
-        "@affiliate-hub/catalog": "workspace:*",
         "@affiliate-hub/shared-kernel": "workspace:*",
       },
       "devDependencies": {
