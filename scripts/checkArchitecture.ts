@@ -4,7 +4,8 @@ import { join, relative } from 'node:path'
 const root = new URL('..', import.meta.url).pathname
 const packagesRoot = join(root, 'packages')
 const contextPackages = ['affiliate-sync', 'catalog', 'identity-access', 'link-redirect']
-const forbiddenInfrastructure = /(^|\/)(adapters|infrastructure)(\/|$)|^(pg|knex|hono|elysia|fastify)(\/|$)/
+const forbiddenInfrastructure =
+  /(^|\/)(adapters|infrastructure)(\/|$)|^(pg|knex|hono|elysia|fastify)(\/|$)/
 const packageImport = /^@affiliate-hub\/([^/]+)/
 
 async function sourceFiles(directory: string): Promise<string[]> {
@@ -19,9 +20,9 @@ async function sourceFiles(directory: string): Promise<string[]> {
 }
 
 function importsFrom(source: string): string[] {
-  return [...source.matchAll(/(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g)].map(
-    (match) => match[1]!,
-  )
+  return [...source.matchAll(/(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g)]
+    .map((match) => match[1])
+    .filter((specifier): specifier is string => specifier !== undefined)
 }
 
 const violations: string[] = []
@@ -33,14 +34,20 @@ for (const packageName of contextPackages) {
     for (const specifier of imports) {
       const packageMatch = packageImport.exec(specifier)
       const importedPackage = packageMatch?.[1]
-      if (layer === 'domain' && (forbiddenInfrastructure.test(specifier) || (importedPackage && importedPackage !== 'shared-kernel'))) {
+      if (
+        layer === 'domain' &&
+        (forbiddenInfrastructure.test(specifier) ||
+          (importedPackage && importedPackage !== 'shared-kernel'))
+      ) {
         violations.push(`${relative(root, file)}: domain cannot import ${specifier}`)
       }
       if (layer === 'application' && forbiddenInfrastructure.test(specifier)) {
         violations.push(`${relative(root, file)}: application cannot import ${specifier}`)
       }
       if (contextPackages.includes(importedPackage ?? '') && importedPackage !== packageName) {
-        violations.push(`${relative(root, file)}: context ${packageName} cannot import ${specifier}`)
+        violations.push(
+          `${relative(root, file)}: context ${packageName} cannot import ${specifier}`,
+        )
       }
     }
   }
@@ -51,7 +58,9 @@ try {
   for (const file of await sourceFiles(adminPanel)) {
     for (const specifier of importsFrom(await readFile(file, 'utf8'))) {
       if (specifier.startsWith('@affiliate-hub/')) {
-        violations.push(`${relative(root, file)}: admin-panel cannot import backend package ${specifier}`)
+        violations.push(
+          `${relative(root, file)}: admin-panel cannot import backend package ${specifier}`,
+        )
       }
     }
   }

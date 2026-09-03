@@ -73,5 +73,25 @@ jobs:
         run: bunx knex --knexfile knexfile.ts migrate:latest
         working-directory: packages/identity-access
 
+      - name: Testes de integração — api
+        run: bun run test:integration
+        working-directory: services/api
+
+      - name: Lint — admin panel
+        run: bun run lint
+        working-directory: services/admin-panel
+
+      - name: Typecheck — admin panel
+        run: bun run typecheck
+        working-directory: services/admin-panel
+
+      - name: Testes de contrato e fluxos — admin panel
+        run: bun test
+        working-directory: services/admin-panel
+
+      - name: Build — admin panel
+        run: bun run build
+        working-directory: services/admin-panel
+
       - name: Testes completos e cobertura mínima
         run: bun run test:coverage
