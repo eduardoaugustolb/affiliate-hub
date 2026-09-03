@@ -2,6 +2,7 @@ import type {
   ApproveProductMedia,
   DeactivateProduct,
   ListProductsForCuration,
+  RegisterManualProduct,
   RegisterProduct,
 } from '@affiliate-hub/catalog'
 import {
@@ -18,6 +19,7 @@ import { parse } from '../parse'
 
 export interface CatalogUseCases {
   registerProduct: RegisterProduct
+  registerManualProduct?: RegisterManualProduct
   approveProductMedia: ApproveProductMedia
   deactivateProduct: DeactivateProduct
   listProductsForCuration: ListProductsForCuration
