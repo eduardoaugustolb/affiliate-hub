@@ -2,9 +2,9 @@ import { ShopeeAffiliateProvider } from '@affiliate-hub/affiliate-sync'
 import {
   type AffiliateLinkGenerator,
   ApproveProductMedia,
+  CatalogUnitOfWorkSql,
   DeactivateProduct,
   ListProductsForCuration,
-  OutboxPublisherSql,
   ProductRepositorySql,
   RegisterManualProduct,
 } from '@affiliate-hub/catalog'
@@ -55,9 +55,11 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
 
   const db = new PgAdapter(databaseUrl)
   const productRepository = new ProductRepositorySql(db)
-  const eventPublisher = new OutboxPublisherSql(db)
+  const catalogUnitOfWork = new CatalogUnitOfWorkSql(db)
   const clickLog = new ClickLogSql(db)
   const idGenerator = new IdGeneratorBun()
+  const affiliateLinkGenerator =
+    dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
   const affiliateLinkGenerator =
     dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
 
@@ -75,8 +77,8 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
       idGenerator,
       affiliateLinkGenerator,
     ),
-    approveProductMedia: new ApproveProductMedia(productRepository, eventPublisher),
-    deactivateProduct: new DeactivateProduct(productRepository, eventPublisher),
+    approveProductMedia: new ApproveProductMedia(catalogUnitOfWork),
+    deactivateProduct: new DeactivateProduct(catalogUnitOfWork),
     listProductsForCuration: new ListProductsForCuration(productRepository),
   }
 

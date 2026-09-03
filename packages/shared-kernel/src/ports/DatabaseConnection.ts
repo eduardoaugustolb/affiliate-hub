@@ -8,7 +8,6 @@ export interface DatabaseConnection {
   transaction<Result>(
     callback: (connection: DatabaseConnection) => Promise<Result>,
   ): Promise<Result>
-
   transaction<Result>(
     options: TransactionOptions,
     callback: (connection: DatabaseConnection) => Promise<Result>,

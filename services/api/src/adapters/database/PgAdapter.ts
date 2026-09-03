@@ -8,7 +8,7 @@ export class PgAdapter implements DatabaseConnection {
     this.sql = typeof connection === 'string' ? new SQLClient(connection) : connection
   }
 
-  async query<Row = unknown>(query: string, params: unknown[] = []) {
+  async query<Row = unknown>(query: string, params: unknown[] = []): Promise<Row[]> {
     return (await this.sql.unsafe(query, params as never[])) as unknown as Row[]
   }
 
@@ -17,28 +17,23 @@ export class PgAdapter implements DatabaseConnection {
     maybeCallback?: (connection: DatabaseConnection) => Promise<Result>,
   ): Promise<Result> {
     const options = typeof optionsOrCallback === 'function' ? {} : optionsOrCallback
-
     const callback = typeof optionsOrCallback === 'function' ? optionsOrCallback : maybeCallback
 
     if (!callback) throw new Error('Transaction callback is required')
 
     const attempts = (options.maxRetries ?? 0) + 1
-
-    for (let attempt = 1; attempt <= attempts; attempt++) {
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
       try {
         const execute = (transaction: SQLClient) => callback(new PgAdapter(transaction))
-
         if (options.isolationLevel === 'serializable') {
           return await this.sql.begin('isolation level serializable', execute)
         }
-
         return await this.sql.begin(execute)
       } catch (error) {
         const canRetry =
           options.isolationLevel === 'serializable' &&
           this.isSerializationFailure(error) &&
           attempt < attempts
-
         if (!canRetry) throw error
       }
     }

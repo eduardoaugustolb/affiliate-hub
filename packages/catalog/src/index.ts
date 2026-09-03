@@ -1,8 +1,13 @@
 export { AffiliateProductImportRegistrySql } from './adapters/AffiliateProductImportRegistrySql'
+export { CatalogUnitOfWorkSql } from './adapters/CatalogUnitOfWorkSql'
 export { OutboxPublisherSql } from './adapters/OutboxPublisherSql'
 export { ProductRepositorySql } from './adapters/ProductRepositorySql'
 export type { AffiliateLinkGenerator } from './application/ports/AffiliateLinkGenerator'
 export type { AffiliateProductImportRegistry } from './application/ports/AffiliateProductImportRegistry'
+export type {
+  CatalogTransactionScope,
+  CatalogUnitOfWork,
+} from './application/ports/CatalogUnitOfWork'
 export type { DomainEvent, EventPublisher } from './application/ports/EventPublisher'
 export { ProductActivated, ProductDeactivated } from './application/ports/EventPublisher'
 export type { ProductRepository } from './application/ports/ProductRepository'
