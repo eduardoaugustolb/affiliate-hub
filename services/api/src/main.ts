@@ -7,6 +7,7 @@ import {
   OutboxPublisherSql,
   ProductRepositorySql,
   RegisterManualProduct,
+  RegisterProduct,
 } from '@affiliate-hub/catalog'
 import {
   AuthenticateUser,
@@ -23,6 +24,7 @@ import {
 import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
 import { Argon2Hasher } from './adapters/crypto/Argon2Hasher'
+import { FetchHttpClient } from './adapters/http/FetchHttpClient'
 import { CipherAdapter } from './adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
 import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
@@ -70,6 +72,7 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
 
   const catalogUseCases: CatalogUseCases = {
+    registerProduct: new RegisterProduct(productRepository, idGenerator),
     registerManualProduct: new RegisterManualProduct(
       productRepository,
       idGenerator,
