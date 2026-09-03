@@ -12,7 +12,9 @@ export function requireAuthentication(getAuthenticatedUser: GetAuthenticatedUser
       request.context.authenticatedUser = user
       await next()
     } catch {
-      response.status(HttpStatus.UNAUTHORIZED).sendJson({ message: 'Unauthorized' })
+      response
+        .status(HttpStatus.UNAUTHORIZED)
+        .sendJson({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
     }
   }
 }

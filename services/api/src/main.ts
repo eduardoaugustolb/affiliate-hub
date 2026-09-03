@@ -28,11 +28,10 @@ import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
 import { IdGeneratorBun } from './adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from './adapters/database/PgAdapter'
 import { BunRuntimeServer } from './adapters/http/BunRuntimeServer'
-import { FetchHttpClient } from './adapters/http/FetchHttpClient'
 import { HonoHttpServer } from './adapters/http/HonoHttpServer'
 import { env } from './env'
 import { requireAuthentication } from './http/middlewares/RequireAuthentication'
-import { type AdminUseCases, registerAdminRoutes } from './http/routes/adminRoutes'
+import { requireCsrf } from './http/middlewares/RequireCsrf'
 import { type CatalogUseCases, registerCatalogRoutes } from './http/routes/catalogRoutes'
 import {
   type LinkRedirectUseCases,
@@ -40,6 +39,7 @@ import {
 } from './http/routes/linkRedirectRoutes'
 import { registerSessionRoutes, type SessionUseCases } from './http/routes/sessionRoutes'
 import { registerUserRoutes, type UserUseCases } from './http/routes/userRoutes'
+import { type AdminUseCases, registerAdminRoutes } from './http/routes/adminRoutes'
 
 export interface ServerDependencies {
   affiliateLinkGenerator?: AffiliateLinkGenerator
@@ -54,7 +54,6 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   }
 
   const db = new PgAdapter(databaseUrl)
-
   const productRepository = new ProductRepositorySql(db)
   const eventPublisher = new OutboxPublisherSql(db)
   const clickLog = new ClickLogSql(db)
@@ -109,18 +108,35 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
 
   const adminUseCases: AdminUseCases = {
     setupInitialUser: new SetupInitialUser(
-      new IdentityAccessUnitOfWorkSql(db, cipher, new HmacKeyedHasher(env.EMAIL_LOOKUP_HMAC_KEY)),
+      new IdentityAccessUnitOfWorkSql(db, cipher, emailLookupHasher),
       idGenerator,
       argon2Hasher,
       tokenGenerator,
-      new HmacKeyedHasher(env.SESSION_TOKEN_HMAC_KEY),
+      sessionTokenHasher,
     ),
   }
 
-  const httpServer = new HonoHttpServer(runtime)
-  httpServer.use('/products', requireAuthentication(sessionUseCases.getAuthenticatedUser))
-  httpServer.use('/products/*', requireAuthentication(sessionUseCases.getAuthenticatedUser))
-  httpServer.use('/users/*', requireAuthentication(sessionUseCases.getAuthenticatedUser))
+  const allowedOrigins = new Set(
+    env.API_ALLOWED_ORIGINS.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  )
+  if (env.NODE_ENV === 'production' && allowedOrigins.size === 0) {
+    throw new Error('API_ALLOWED_ORIGINS must contain at least one origin in production')
+  }
+
+  const httpServer = new HonoHttpServer(runtime, { allowedOrigins: [...allowedOrigins] })
+  const authentication = requireAuthentication(sessionUseCases.getAuthenticatedUser)
+  const csrf = requireCsrf(allowedOrigins)
+  httpServer.use('/products', authentication)
+  httpServer.use('/products/*', authentication)
+  httpServer.use('/users', authentication)
+  httpServer.use('/users/*', authentication)
+  httpServer.use('/products', csrf)
+  httpServer.use('/products/*', csrf)
+  httpServer.use('/users', csrf)
+  httpServer.use('/users/*', csrf)
+  httpServer.use('/session/logout', csrf)
   registerCatalogRoutes(httpServer, catalogUseCases)
   registerLinkRedirectRoutes(httpServer, linkRedirectUseCases)
   registerSessionRoutes(httpServer, sessionUseCases)

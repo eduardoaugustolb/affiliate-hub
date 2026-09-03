@@ -1,80 +1,46 @@
-import {
-  InitialSetupAlreadyCompletedError,
-  InvalidCredentialsError,
-} from '@affiliate-hub/identity-access'
+import { InvalidCredentialsError } from '@affiliate-hub/identity-access'
 import {
   ApplicationError,
   BadRequestError,
-  ConflictError,
   DomainError,
-  ExternalServiceError,
   type HttpResponse,
   HttpStatus,
   NotFoundError,
-  UnauthorizedError,
 } from '@affiliate-hub/shared-kernel'
+import { ZodError } from 'zod'
 
 export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
-  if (isErrorOfType(error, NotFoundError, 'NotFoundError')) {
-    response.status(HttpStatus.NOT_FOUND).sendJson({ message: errorMessage(error) })
-    return
-  }
-
-  if (isErrorOfType(error, BadRequestError, 'BadRequestError')) {
-    response.status(HttpStatus.BAD_REQUEST).sendJson({ message: errorMessage(error) })
-    return
-  }
-
-  if (isErrorOfType(error, InvalidCredentialsError, 'InvalidCredentialsError')) {
-    response.status(HttpStatus.UNAUTHORIZED).sendJson({ message: 'Unauthorized' })
-    return
-  }
-
-  if (
-    isErrorOfType(error, InitialSetupAlreadyCompletedError, 'InitialSetupAlreadyCompletedError')
-  ) {
-    response.status(HttpStatus.CONFLICT).sendJson({
-      message: errorMessage(error),
+  if (error instanceof ZodError) {
+    response.status(HttpStatus.BAD_REQUEST).sendJson({
+      code: 'VALIDATION_ERROR',
+      message: 'Request payload is invalid',
     })
     return
   }
-
-  if (isErrorOfType(error, ConflictError, 'ConflictError')) {
-    response.status(HttpStatus.CONFLICT).sendJson({ message: errorMessage(error) })
+  if (error instanceof NotFoundError) {
+    response.status(HttpStatus.NOT_FOUND).sendJson({ code: 'NOT_FOUND', message: error.message })
     return
   }
-
-  if (isErrorOfType(error, UnauthorizedError, 'UnauthorizedError')) {
-    response.status(HttpStatus.UNAUTHORIZED).sendJson({ message: 'Unauthorized' })
+  if (error instanceof BadRequestError) {
+    response
+      .status(HttpStatus.BAD_REQUEST)
+      .sendJson({ code: 'BAD_REQUEST', message: error.message })
     return
   }
-
-  if (isErrorOfType(error, ExternalServiceError, 'ExternalServiceError')) {
-    response.status(HttpStatus.BAD_GATEWAY).sendJson({ message: errorMessage(error) })
+  if (error instanceof InvalidCredentialsError) {
+    response
+      .status(HttpStatus.UNAUTHORIZED)
+      .sendJson({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
     return
   }
-
-  if (
-    isErrorOfType(error, DomainError, 'DomainError') ||
-    isErrorOfType(error, ApplicationError, 'ApplicationError')
-  ) {
-    response.status(HttpStatus.BAD_REQUEST).sendJson({ message: errorMessage(error) })
+  if (error instanceof DomainError || error instanceof ApplicationError) {
+    response
+      .status(HttpStatus.BAD_REQUEST)
+      .sendJson({ code: 'DOMAIN_ERROR', message: error.message })
     return
   }
-
   response.status(HttpStatus.INTERNAL_SERVER_ERROR).sendJson({
+    code: 'INTERNAL_ERROR',
     message: 'Unexpected internal error',
   })
-}
-
-function isErrorOfType<T extends Error>(
-  error: unknown,
-  errorClass: new (...args: never[]) => T,
-  name: string,
-): boolean {
-  return error instanceof errorClass || (error instanceof Error && error.name === name)
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Unexpected internal error'
 }

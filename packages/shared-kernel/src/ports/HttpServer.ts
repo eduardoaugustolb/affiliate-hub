@@ -1,4 +1,5 @@
 export interface HttpRequest {
+  method: string
   params: Record<string, string>
   query: Record<string, string>
   cookies: Record<string, string>

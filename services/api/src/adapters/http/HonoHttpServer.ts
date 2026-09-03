@@ -12,6 +12,7 @@ import {
 } from '@affiliate-hub/shared-kernel'
 import { type Context, Hono } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import { cors } from 'hono/cors'
 
 const REQUEST_CONTEXT_KEY = 'httpRequest'
 
@@ -25,7 +26,25 @@ interface ResponseState {
 export class HonoHttpServer implements HttpServer {
   private runningServer: RunningServer | undefined
   private readonly app = new Hono()
-  constructor(private readonly runtime: HttpRuntimeAdapter) {}
+  constructor(
+    private readonly runtime: HttpRuntimeAdapter,
+    options: { allowedOrigins?: readonly string[] } = {},
+  ) {
+    const allowedOrigins = [...(options.allowedOrigins ?? [])]
+    if (allowedOrigins.includes('*')) {
+      throw new Error('Wildcard CORS origin cannot be used with credentials')
+    }
+    this.app.use(
+      '*',
+      cors({
+        origin: (origin) => (allowedOrigins.includes(origin) ? origin : undefined),
+        allowMethods: ['GET', 'POST', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Accept', 'X-CSRF-Token'],
+        credentials: true,
+        maxAge: 600,
+      }),
+    )
+  }
   get(path: string, handler: RouteHandler): void {
     this.app.get(path, (context) => this.execute(handler, context))
   }
@@ -144,6 +163,7 @@ export class HonoHttpServer implements HttpServer {
     if (existing) return existing
 
     const request: HttpRequest = {
+      method: context.req.method,
       context: {},
       params: context.req.param(),
       query: context.req.query(),

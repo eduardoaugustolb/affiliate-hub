@@ -66,6 +66,7 @@ export class BunNativeHttpServer implements HttpServer {
     }
 
     const httpRequest: HttpRequest = {
+      method: request.method,
       context: {},
       params: {},
       query: Object.fromEntries(url.searchParams),

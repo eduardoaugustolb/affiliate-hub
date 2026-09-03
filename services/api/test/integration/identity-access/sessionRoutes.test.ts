@@ -60,6 +60,7 @@ describe('Session HTTP routes (integration)', () => {
       getAuthenticatedUser,
       logout: new Logout(sessionRepository, keyedHasher),
     })
+    server.use('/users', requireAuthentication(getAuthenticatedUser))
     server.use('/users/*', requireAuthentication(getAuthenticatedUser))
     registerUserRoutes(server, {
       updateUser: new UpdateUser(userRepository),
@@ -87,14 +88,38 @@ describe('Session HTTP routes (integration)', () => {
     })
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ message: 'Email and password are required' })
+    expect(await response.json()).toEqual({
+      code: 'VALIDATION_ERROR',
+      message: 'Request payload is invalid',
+    })
   })
 
   it('returns 401 when a session cookie is missing', async () => {
     const response = await fetch(`${BASE_URL}/session`)
 
     expect(response.status).toBe(401)
-    expect(await response.json()).toEqual({ message: 'Unauthorized' })
+    expect(await response.json()).toEqual({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
+  })
+
+  it('protects the exact /users path and returns its JSON contract', async () => {
+    const unauthorized = await fetch(`${BASE_URL}/users`)
+    expect(unauthorized.status).toBe(401)
+    expect(await unauthorized.json()).toEqual({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
+
+    const login = await fetch(`${BASE_URL}/session`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'jane@example.com', password: 'valid-password' }),
+    })
+    const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
+    if (!sessionCookie) throw new Error('Session cookie was not set')
+
+    const authorized = await fetch(`${BASE_URL}/users`, { headers: { cookie: sessionCookie } })
+    expect(authorized.status).toBe(200)
+    expect(await authorized.json()).toEqual({
+      message: 'User retrieved successfully',
+      user: { id: 'USER-1', email: 'jane@example.com', name: 'Jane' },
+    })
   })
 
   it('shares the authenticated user with protected handlers', async () => {
@@ -185,6 +210,9 @@ describe('Session HTTP routes (integration)', () => {
       headers: { cookie: sessionCookie },
     })
     expect(invalidatedSession.status).toBe(401)
-    expect(await invalidatedSession.json()).toEqual({ message: 'Unauthorized' })
+    expect(await invalidatedSession.json()).toEqual({
+      code: 'UNAUTHORIZED',
+      message: 'Unauthorized',
+    })
   })
 })
