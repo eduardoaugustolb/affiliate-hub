@@ -53,7 +53,7 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
     if (!sessionCookie)
       throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
-    authHeaders = { cookie: sessionCookie }
+    authHeaders = { cookie: sessionCookie, origin: 'http://localhost:3000' }
   })
 
   afterEach(async () => {
