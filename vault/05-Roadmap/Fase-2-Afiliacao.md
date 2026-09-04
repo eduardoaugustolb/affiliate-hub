@@ -4,7 +4,7 @@ tags:
   - roadmap
 status: accepted
 created: 2026-08-06
-updated: 2026-08-20
+updated: 2026-09-03
 ---
 
 # Fase 2: Afiliação
@@ -27,5 +27,5 @@ de iniciar, ver [[06-Risks/Riscos-Conhecidos]].
 - `outbox_events` registra `enqueued_at`, `enqueue_attempts`,
   `last_enqueue_error` e `processed_at`. O reconciliador de cinco minutos
   recupera somente falhas anteriores de enqueue no Redis.
-- Pacote `link-redirect`: `HonoAdapter`, `ClickLogDatabase`,
-  rota de redirecionamento 302 no serviço `api`.
+- Pacote `link-redirect`: `HonoHttpServer`, `ClickLogSql`, rota de
+  redirecionamento 302 no serviço `api`; QR code permanece no roadmap..

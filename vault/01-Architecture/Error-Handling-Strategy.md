@@ -20,7 +20,7 @@ Erros de domínio/aplicação são tipados e distintos de erros de infraestrutur
 
 ## Mapeador de erro na borda
 
-Cada adapter de entrada (`HonoAdapter`, `QueueConsumer`, comando de
+Cada adapter de entrada (`HonoHttpServer`, `QueueConsumer`, comando de
 cron) tem um `ErrorMapper` que traduz esses erros tipados pro formato
 apropriado daquela borda:
 

@@ -3,12 +3,16 @@ title: "Módulo 6: CommentAssist"
 tags:
   - module
   - module/comment-assist
-status: accepted
+status: roadmap
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-09-03
 ---
 
 # CommentAssist (Apoio a Comentário no TikTok)
+
+> [!warning] Roadmap
+> Não há pacote nem caso de uso implementado para este contexto. Os itens
+> abaixo são capacidade planejada e não estão disponíveis na API atual.
 
 ## Responsabilidade
 

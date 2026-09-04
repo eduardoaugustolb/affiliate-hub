@@ -4,7 +4,7 @@ tags:
   - roadmap
 status: accepted
 created: 2026-08-06
-updated: 2026-08-10
+updated: 2026-09-03
 ---
 
 # Fase 1: Fundação
@@ -23,12 +23,11 @@ curadoria. Sem essas duas peças, nenhum outro módulo tem o que consumir.
   ver [[01-Architecture/Rich-Domain-Model]]), application (`RegisterProduct`,
   `ApproveProductMedia`, `DeactivateProduct`, `ListProductsForCuration`) e
   ports.
-- `ProductRepositoryDatabase` + `PgAdapter` + migration via Knex.
+- `ProductRepositorySql` + `PgAdapter` + migration via Knex.
 - [[03-Modules/IdentityAccess|IdentityAccess]], auth caseira (ver
-  [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase|ADR-0011]]). Domínio e
-  aplicação prontos; adapters, wiring HTTP e criptografia de e-mail (LGPD)
-  ainda pendentes, plano sequenciado completo em
-  [[03-Modules/IdentityAccess#Plano de Implementação]], não repetido aqui.
+  [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase|ADR-0011]]) com domínio,
+  aplicação, adapters SQL/cripto e wiring HTTP implementados. A conformidade
+  operacional da LGPD permanece acompanhada em [[09-Compliance/LGPD]].
 - Serviço `api` deployável com composition root mínimo.
 
 ## Ver também

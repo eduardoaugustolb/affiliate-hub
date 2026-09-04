@@ -5,7 +5,7 @@ tags:
   - module/catalog
 status: implemented
 created: 2026-08-06
-updated: 2026-08-22
+updated: 2026-09-03
 ---
 
 # Catalog (Gestão de Produtos)
@@ -26,9 +26,9 @@ Fonte de verdade dos produtos: cadastro, curadoria de mídia, ciclo de vida
 
 Arquivo: `packages/catalog/src/domain/Product.ts`.
 
-Campos: id (`ProductId`), nome, categoria (streetwear/perfume),
-status (`draft | active | inactive`), `mediaType`
-(`catalog | lifestyle`), `assignedTemplate`, timestamps.
+Campos: `id` (`string`), nome, categoria (streetwear/perfume), status
+(`draft | active | inactive`), `mediaType` (`catalog | lifestyle`),
+`assignedTemplate`, fotos, link de afiliado e timestamps.
 
 **Invariante que a entidade impõe a si mesma** (não o caso de uso): produto
 não pode ser publicado (`active`) sem ter ao menos uma foto aprovada e link de
@@ -44,12 +44,12 @@ Produto **nunca é deletado fisicamente**, `deactivate()` só transita pra
 `inactive` e preenche `removedAt`. Isso evita 404 em posts antigos e preserva
 analytics.
 
-### Value Object `ProductId`
+### Identificador do produto
 
-Arquivo: `packages/catalog/src/domain/ProductId.ts`.
-
-Código curto tipo `BBA-QES-MZN`, gerado uma vez, imutável, é a chave usada no
-link, no QR e no overlay da imagem. Igualdade por valor, não por referência.
+Não existe um value object `ProductId` no código atual. O identificador é uma
+`string`, gerada na borda por `IdGenerator` e persistida pelo Catalog. Um código
+curto para link, QR ou overlay permanece como possibilidade de roadmap e não
+deve ser descrito como capacidade disponível.
 
 ## Casos de Uso
 
@@ -71,8 +71,9 @@ Arquivos em `packages/catalog/src/application/use-cases/`.
 Arquivos em `packages/catalog/src/application/ports/`.
 
 - `ProductRepository` (persistência): ver [[01-Architecture/Repository-Pattern]]
-- `EventPublisher` (porta para publicar `ProductActivated`, `ProductDeactivated`,
-  consumida pelos módulos [[Broadcast]] e [[LinkRedirect]] sem acoplamento direto)
+- `EventPublisher` (porta para publicar `ProductActivated`, `ProductDeactivated`;
+  consumidores de Broadcast e outras integrações são roadmap e não estão
+  implementados atualmente)
 - `AffiliateProductImportRegistry`: porta que preserva a identidade da origem
   externa por `(provider, externalProductId)`.
 

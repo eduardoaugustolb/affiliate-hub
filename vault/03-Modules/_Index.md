@@ -5,7 +5,7 @@ tags:
   - module
 status: living
 created: 2026-08-06
-updated: 2026-08-20
+updated: 2026-09-03
 ---
 
 # 🧩 Módulos (Bounded Contexts)
@@ -17,25 +17,30 @@ processo, via fila, **nunca** chamando função interna de outro módulo
 diretamente. A fronteira de domínio é a mesma independentemente de onde é
 implantado (ver [[04-Infrastructure/Deploy-Topology]]).
 
-## Os 7 Módulos
+## Módulos e serviços
 
-| # | Módulo | Responsabilidade em uma frase |
+A lista abaixo inclui os bounded contexts previstos e os serviços técnicos
+existentes. O status executável de cada item está em [[Module-Status]].
+
+| Módulo/serviço | Responsabilidade | Status |
 |---|---|---|
-| 1 | [[Catalog]] | Fonte de verdade dos produtos: cadastro, curadoria, ciclo de vida |
-| 2 | [[AffiliateSync]] | Integração com Shopee Affiliate Open API |
-| 3 | [[MediaTemplate]] | Geração de imagem de post a partir de template |
-| 4 | [[LinkRedirect]] | Encurtador próprio + QR code |
-| 5 | [[Broadcast]] | Distribuição automática no grupo de WhatsApp (Baileys) |
-| 6 | [[CommentAssist]] | Apoio manual a resposta de comentário no TikTok |
-| 7 | [[IdentityAccess]] | Autenticação do painel administrativo |
+| [[Catalog]] | Fonte de verdade dos produtos, curadoria e ciclo de vida | implementado |
+| [[AffiliateSync]] | Integração e importação assíncrona de afiliados | implementado; feed pendente |
+| [[IdentityAccess]] | Sessão e gestão de usuários do painel | implementado |
+| [[LinkRedirect]] | Redirecionamento e analytics de cliques | implementado |
+| [[AdminPanel-Status\|Admin Panel]] | Interface web administrativa | em andamento |
+| [[MediaTemplate]] | Geração de imagem de post | roadmap |
+| [[Broadcast]] | Distribuição no WhatsApp | roadmap |
+| [[CommentAssist]] | Apoio a respostas no TikTok | roadmap |
 
 ## Comunicação Entre Módulos
 
 - **Catalog → Broadcast / LinkRedirect**: via `EventPublisher`
   (`ProductActivated`, `ProductDeactivated`), nenhum import direto de classe
-  entre pacotes de módulo.
-- **LinkRedirect / CommentAssist → Catalog**: leitura via `ProductRepository`
-  compartilhado (mesma porta, reaproveitada como dependência de leitura).
+  entre pacotes de módulo. Os consumidores de Broadcast ainda são roadmap.
+- **LinkRedirect → Catalog**: leitura via `PublishedProductReader`, uma porta
+  mínima local ao LinkRedirect; `CatalogPublishedProductReader` faz a tradução
+  na composition root. `CommentAssist` é roadmap e ainda não possui integração.
 - **AffiliateSync → Catalog**: `ImportProductFromFeed` grava
   `AffiliateProductImportRequested` na outbox e solicita o job Redis. O
   consumer entrega apenas `eventId` a `DeliverAffiliateProductImport`, que
@@ -54,4 +59,4 @@ fronteira de pacote de workspace, não só convenção.
 
 ---
 
-*Última atualização: 2026-08-20*
+*Última atualização: 2026-09-03*

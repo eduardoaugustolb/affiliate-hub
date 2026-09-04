@@ -5,7 +5,7 @@ tags:
   - architecture
 status: living
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-09-03
 ---
 
 # 🏛️ Arquitetura
@@ -23,6 +23,7 @@ dependência. Ver [[Dependency-Rule]] pra regra central.
 - [[Use-Case-Pattern]]: `UseCase<Input, Output>`, injeção de porta, não de adapter
 - [[Repository-Pattern]]: porta de persistência definida em termos de domínio
 - [[Error-Handling-Strategy]]: erro tipado + mapeador na borda
+- [[Frontend-Clean-Architecture|Frontend]]: limites do Admin Panel e BFF
 
 ## Critério de Aceite
 
