@@ -48,9 +48,8 @@ de afiliado vigente, registrando o clique.
 - `CatalogPublishedProductReader`: adapter de composição em `services/api`,
   traduz `ProductRepository` de [[Catalog]] para `PublishedProductReader` sem
   expor a dependência ao pacote LinkRedirect.
-- `ClickLogDatabase implements ClickLog`: via `DatabaseConnection`, não
-  conhece Postgres especificamente (ver
-  [[02-Decisions/ADR-0002-database-connection-sem-orm]]).
+- `ClickLogSql implements ClickLog`: via `DatabaseConnection`, não conhece
+  Postgres especificamente (ver [[02-Decisions/ADR-0002-database-connection-sem-orm]]).
 
 ## Domínio
 

@@ -5,7 +5,7 @@ tags:
   - home
 status: living
 created: 2026-08-06
-updated: 2026-08-20
+updated: 2026-09-03
 aliases: [Home, Índice, MOC Principal]
 ---
 
@@ -29,8 +29,9 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
   regra de dependência, modelo de domínio rico, padrões de caso de uso/repositório/erro.
 - 📜 **[[02-Decisions/_Index|Decisões (ADRs)]]**: todo registro de decisão técnica,
   com contexto, alternativas consideradas e status.
-- 🧩 **[[03-Modules/_Index|Módulos (Bounded Contexts)]]**: os 7 contextos delimitados
-  do sistema, cada um com domínio, casos de uso, portas e adapters.
+- 🧩 **[[03-Modules/_Index|Módulos (Bounded Contexts)]]**: contextos delimitados,
+  serviços e o status real de cada capacidade (implementado, em andamento ou
+  roadmap).
 - 🏗️ **[[04-Infrastructure/_Index|Infraestrutura & Deploy]]**: topologia de
   serviços, matriz de portas↔adapters, monorepo.
 - 🗺️ **[[05-Roadmap/_Index|Roadmap]]**: fases de entrega.
@@ -56,7 +57,7 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 | Acesso a banco | Porta `DatabaseConnection`, sem ORM | [[ADR-0002-database-connection-sem-orm]] |
 | HTTP de saída | Porta `HttpClient` | [[ADR-0003-http-client-port]] |
 | Test runner | `bun:test` (unitário + integração) | [[02-Decisions/ADR-0010-bun-test-em-todo-lugar]] |
-| HTTP server | Hono | `HonoAdapter implements HttpServer` |
+| HTTP server | Hono | `HonoHttpServer implements HttpServer` |
 | Organização de código | Monorepo, Bun workspaces | [[ADR-0005-bun-workspaces-monorepo]] |
 | Migrations | Knex (só migration, não query builder) | [[ADR-0006-knex-apenas-para-migrations]] |
 | Banco gerenciado | Postgres hospedado no Supabase | [[ADR-0007-postgres-via-supabase-hosting]] |
@@ -74,14 +75,14 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 - [x] Módulo [[03-Modules/Catalog|Catalog]] implementado (Fase 1): domínio rico, 13 testes
 - [x] Módulo [[03-Modules/LinkRedirect|LinkRedirect]] implementado (Fase 2): 4 testes unitários
       + 3 de integração HTTP
+- [x] Módulo [[03-Modules/IdentityAccess|IdentityAccess]] implementado: sessão,
+      setup inicial, gestão de usuário, adapters SQL/cripto e rotas HTTP
 - [x] Infra local via `docker-compose.yml` (Postgres + DBGate em `http://localhost:8080`)
 - [x] `PgAdapter` com `Bun.SQL` nativo (zero dependência npm de driver Postgres em runtime)
-- [x] `HonoAdapter` como `HttpServer`, com testes HTTP ponta a ponta passando
+- [x] `HonoHttpServer` como `HttpServer`, com testes HTTP ponta a ponta passando
 - [x] Repositório público no GitHub + CI (GitHub Actions), ver [[04-Infrastructure/Deploy-Topology]]
-- [ ] IdentityAccess caseiro (auth própria, ver [[02-Decisions/ADR-0011-auth-caseiro-sem-supabase]]).
-  Domínio/aplicação implementados e testados; faltam adapters concretos,
-  `RegisterUser`/`UpdateUser`/`DeleteUser`, wiring HTTP e a criptografia de
-  e-mail exigida pela LGPD (ver abaixo).
+- [ ] Admin Panel completo: frontend inicial existe, mas os fluxos restantes estão em andamento;
+      ver [[03-Modules/AdminPanel-Status]].
 - [x] Base de entrega de AffiliateSync: outbox, BullMQ com Redis, worker
   separado, idempotência de Catalog e recuperação de falha de enqueue.
 - [ ] Sincronização de feed da Shopee, bloqueada na operação e no schema de
@@ -93,4 +94,4 @@ ser linkada a partir daqui ou de um dos MOCs de seção abaixo.
 
 ---
 
-*Última atualização: 2026-08-20*
+*Última atualização: 2026-09-03*

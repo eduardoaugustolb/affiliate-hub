@@ -31,7 +31,7 @@ editar um caso de uso ou uma entidade de domínio.
 - Um teste de caso de uso exige banco/rede real pra rodar: ver critério em
   [[08-DoD/Definition-of-Done]].
 - Um adapter toma decisão de negócio (`if (product.fotos.length === 0) throw`
-  dentro de um `ProductRepositoryDatabase`, em vez de dentro da entidade).
+  dentro de um `ProductRepositorySql`, em vez de dentro da entidade).
 
 ## Como isso se relaciona com o resto
 

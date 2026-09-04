@@ -25,11 +25,12 @@ packages/
   contracts/        Contratos de integração entre bounded contexts
   config/           Helper de validação de env vars com zod
   catalog/          Fonte de verdade dos produtos (cadastro, curadoria, ciclo de vida)
-  link-redirect/    Encurtador próprio + QR code + log de cliques
+  link-redirect/    Encurtador próprio + log de cliques
   identity-access/  Autenticação por sessão e gestão de usuário (LGPD)
-  affiliate-sync/   Integração e sincronização de catálogos de afiliados
+  affiliate-sync/   Outbox e entrega assíncrona de imports de afiliados
 services/
-  api/              Composition root HTTP e workers (Hono sobre Bun.serve)
+  api/              Composition root HTTP e worker (Hono sobre Bun.serve)
+  admin-panel/      Frontend Next.js do painel (em andamento)
 vault/              Docs de arquitetura, ADRs, módulos e LGPD (Obsidian)
 PRD.md              Product Requirements Document
 ```
@@ -55,12 +56,13 @@ bun install
 cp services/api/.env.example services/api/.env
 
 # 4. Aplica as migrations de todos os módulos
-bunx knex --knexfile knexfile.ts migrate:latest  # em packages/catalog
-bunx knex --knexfile knexfile.ts migrate:latest  # em packages/link-redirect
-bunx knex --knexfile knexfile.ts migrate:latest  # em packages/identity-access
+bun run db:migrate
 
 # 5. Sobe a API em modo watch
-bun run dev  # em services/api
+bun run --filter @affiliate-hub/api dev
+
+# 6. Em outro terminal, sobe o Admin Panel
+bun run --filter admin-panel dev
 ```
 
 ## Comandos
@@ -75,6 +77,14 @@ bun run dev  # em services/api
 | `bun run test:integration` | Testes de integração da API (em `services/api`) |
 | `bun --env-file=services/api/.env run test:coverage` | Suíte completa e bloqueio de cobertura global abaixo de 90% |
 | `bun run bench:http` | Benchmark dos roteadores HTTP (em `services/api`) |
+| `bun run --filter @affiliate-hub/api test:integration` | Testes de integração da API |
+| `bun run --filter admin-panel lint` | Lint do Admin Panel |
+| `bun run --filter admin-panel typecheck` | Typecheck do Admin Panel |
+| `bun run --filter admin-panel test` | Testes do Admin Panel |
+| `bun run --filter admin-panel build` | Build do Admin Panel |
+
+A CI executa esses mesmos comandos, além de `bun run architecture:check`,
+`bun run db:migrate` e `bun run test:coverage`, com Postgres e Redis de serviço.
 
 ## Env vars da API
 

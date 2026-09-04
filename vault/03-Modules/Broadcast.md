@@ -3,12 +3,16 @@ title: "Módulo 5: Broadcast"
 tags:
   - module
   - module/broadcast
-status: accepted
+status: roadmap
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-09-03
 ---
 
 # Broadcast (Grupo de WhatsApp via Baileys)
+
+> [!warning] Roadmap
+> Não há pacote, worker ou adapter de Broadcast implementado atualmente. Esta
+> página registra somente a direção planejada.
 
 ## Responsabilidade
 

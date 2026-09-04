@@ -26,7 +26,7 @@ contrato é Application). Esse é o "princípio de inversão de dependência" na
 
 ## Erro comum a evitar
 
-Colocar lógica de negócio dentro de um adapter (ex.: `ProductRepositoryDatabase`
+Colocar lógica de negócio dentro de um adapter (ex.: `ProductRepositorySql`
 decidindo se um produto pode ser ativado), isso vaza regra de domínio pra
 camada errada. Regra de negócio mora em [[Rich-Domain-Model|entidade ou caso de uso]],
 nunca em adapter.

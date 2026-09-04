@@ -4,7 +4,7 @@ tags:
   - architecture
 status: living
 created: 2026-08-06
-updated: 2026-08-20
+updated: 2026-09-03
 ---
 
 # Matriz de Portas ↔ Adapters
@@ -15,30 +15,34 @@ de uma porta" (ver [[08-DoD/Definition-of-Done]]).
 
 | Porta | Módulo | Adapter(s) concreto(s) |
 |---|---|---|
-| `ProductRepository` | [[03-Modules/Catalog\|Catalog]] | `ProductRepositoryDatabase` |
-| `EventPublisher` | [[03-Modules/Catalog\|Catalog]] | `OutboxPublisherDatabase` |
-| `AffiliateProvider` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `ShopeeAffiliateProvider` (futuro: `SheinAffiliateProvider`) |
+| `ProductRepository` | [[03-Modules/Catalog\|Catalog]] | `ProductRepositorySql` |
+| `EventPublisher` | [[03-Modules/Catalog\|Catalog]] | `OutboxPublisherSql` |
+| `AffiliateProductImportRegistry` | [[03-Modules/Catalog\|Catalog]] | `AffiliateProductImportRegistrySql` |
+| `AffiliateProvider` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `ShopeeAffiliateProvider` |
 | `TaskScheduler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `IntervalTaskScheduler` |
 | `IntegrationEventPublisher` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `SqlOutboxIntegrationEventPublisher` |
 | `AffiliateProductImportJobQueue` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `BullMqAffiliateProductImportJobQueue` |
 | `OutboxEventDeliveryRepository` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `SqlOutboxEventDeliveryRepository` |
 | `AffiliateProductImportRequestedEventHandler` | [[03-Modules/AffiliateSync\|AffiliateSync]] | `handleAffiliateProductImportRequested` |
-| `HttpClient` | Transversal (usado por AffiliateSync hoje) | `FetchHttpClientAdapter` (Bun `fetch`) |
-| `BackgroundRemover` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `RembgBackgroundRemover` |
-| `ImageRenderer` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `SatoriImageRenderer` |
-| `FileStorage` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `CloudflareR2Storage` |
-| `QRCodeGenerator` | [[03-Modules/MediaTemplate\|MediaTemplate]] | `QRCodeNpmAdapter` |
-| `HttpServer` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `HonoAdapter` |
+| `HttpClient` | Transversal (usado por AffiliateSync) | `FetchHttpClient` (Bun `fetch`) |
+| `IdGenerator` | Transversal | `IdGeneratorBun` |
+| `Clock` | Transversal (quando regras temporais forem implementadas) | roadmap |
+
+| `BackgroundRemover` | [[03-Modules/MediaTemplate\|MediaTemplate]] | roadmap |
+| `ImageRenderer` | [[03-Modules/MediaTemplate\|MediaTemplate]] | roadmap |
+| `FileStorage` | [[03-Modules/MediaTemplate\|MediaTemplate]] | roadmap |
+| `QRCodeGenerator` | [[03-Modules/MediaTemplate\|MediaTemplate]] | roadmap |
+| `HttpServer` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `HonoHttpServer` |
 | `PublishedProductReader` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `CatalogPublishedProductReader` (composition root) |
-| `ClickLog` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `ClickLogDatabase` |
-| `BroadcastQueue` | [[03-Modules/Broadcast\|Broadcast]] | `BroadcastQueueDatabase` (futuro: Redis/BullMQ) |
-| `MessagingClient` | [[03-Modules/Broadcast\|Broadcast]] | `BaileysMessagingAdapter` |
-| `SessionStorage` | [[03-Modules/Broadcast\|Broadcast]] | `SessionStorageDatabase` |
-| `UserRepository` | [[03-Modules/IdentityAccess\|IdentityAccess]] | *pendente*: planejado `UserRepositorySql` |
-| `SessionRepository` | [[03-Modules/IdentityAccess\|IdentityAccess]] | *pendente*: planejado `SessionRepositorySql` |
-| `PasswordHasher` | [[03-Modules/IdentityAccess\|IdentityAccess]] | *pendente*: planejado adapter reaproveitável (`Argon2Hasher`), ver seção abaixo |
+| `ClickLog` | [[03-Modules/LinkRedirect\|LinkRedirect]] | `ClickLogSql` |
+| `BroadcastQueue` | [[03-Modules/Broadcast\|Broadcast]] | roadmap |
+| `MessagingClient` | [[03-Modules/Broadcast\|Broadcast]] | roadmap |
+| `SessionStorage` | [[03-Modules/Broadcast\|Broadcast]] | roadmap |
+| `UserRepository` | [[03-Modules/IdentityAccess\|IdentityAccess]] | `UserRepositorySql` |
+| `SessionRepository` | [[03-Modules/IdentityAccess\|IdentityAccess]] | `SessionRepositorySql` |
+| `PasswordHasher` | [[03-Modules/IdentityAccess\|IdentityAccess]] | `Argon2Hasher` (composition root) |
 | `TokenGenerator` | [[03-Modules/IdentityAccess\|IdentityAccess]] | `CryptoTokenGenerator` |
-| `DatabaseConnection` | Transversal (base de todo `*RepositoryDatabase`) | `PgAdapter` |
+| `DatabaseConnection` | Transversal (base dos repositórios SQL) | `PgAdapter` |
 | `Cipher` | Transversal (usado por IdentityAccess hoje, LGPD cross-módulo) | `CipherAdapter` |
 | `KeyedHasher` | Transversal (usado por IdentityAccess hoje, token e lookup de e-mail, cada um com sua própria chave) | `HmacKeyedHasher`: substitui o antigo `TokenHasher` |
 

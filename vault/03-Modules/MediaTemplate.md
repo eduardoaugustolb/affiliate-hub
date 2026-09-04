@@ -3,12 +3,17 @@ title: "Módulo 3: MediaTemplate"
 tags:
   - module
   - module/media-template
-status: accepted
+status: roadmap
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-09-03
 ---
 
 # MediaTemplate (Geração de Imagem)
+
+> [!warning] Roadmap
+> Este bounded context ainda não existe como pacote no monorepo. Os casos de
+> uso, portas e adapters abaixo são desenho aprovado, não capacidades
+> disponíveis na API.
 
 ## Responsabilidade
 

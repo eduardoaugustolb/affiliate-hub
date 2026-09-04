@@ -51,6 +51,10 @@ duplicada em mais de um caso de uso, dado inválido representável (um `Product`
 
 ## O que é uma entidade rica (o padrão do projeto)
 
+> [!note] Exemplo conceitual
+> O trecho abaixo usa `ProductId` apenas para ilustrar um value object. O
+> Catalog atual usa `string` gerada por `IdGenerator`; consulte [[03-Modules/Catalog]].
+
 ```ts
 // ✅ RICH: the entity owns its own invariant
 class Product {
@@ -123,7 +127,7 @@ Código completo e testado: [[03-Modules/Catalog|Módulo Catalog]] →
    [[03-Modules/_Index|nota do módulo]]) vira um `throw new DomainError`
    dentro da entidade**, não um `if` espalhado em caso de uso.
 5. **Repositório nunca reconstrói entidade pulando o factory.** O adapter de
-   persistência (`ProductRepositoryDatabase`) reidrata a entidade a partir da
+   persistência (`ProductRepositorySql`) reidrata a entidade a partir da
    linha do banco chamando um método de reidratação dedicado (ex.:
    `Product.rehydrate(...)`), não `Object.assign`.
 

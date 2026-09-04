@@ -15,7 +15,7 @@ de banco crua.
 
 ## O repositório não conhece o banco
 
-O adapter concreto (`ProductRepositoryDatabase`) **não conhece qual banco está
+O adapter concreto (`ProductRepositorySql`) **não conhece qual banco está
 por trás**, ele recebe a porta `DatabaseConnection` injetada no construtor e
 só sabe montar SQL e chamar `query`. Quem conhece Postgres/MySQL/SQLite é
 exclusivamente o adapter da própria porta `DatabaseConnection`
@@ -23,7 +23,7 @@ exclusivamente o adapter da própria porta `DatabaseConnection`
 
 ```
 ProductRepository (porta de domínio)
-  └── ProductRepositoryDatabase implements ProductRepository
+  └── ProductRepositorySql implements ProductRepository
         constructor(private readonly db: DatabaseConnection) {}
         // usa this.db.query(...), nunca importa 'pg' ou 'postgres.js' diretamente
 
@@ -47,7 +47,7 @@ Ver [[Rich-Domain-Model]].
 ## Sem ORM
 
 Sem query builder/ORM entre o repositório e o banco. SQL é escrito
-explicitamente dentro do adapter `<Entity>RepositoryDatabase`. Migration é
+explicitamente dentro do adapter `<Entity>RepositorySql`. Migration é
 outra responsabilidade, cuidada por Knex, ver
 [[02-Decisions/ADR-0006-knex-apenas-para-migrations|ADR-0006]].
 
