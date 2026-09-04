@@ -1,4 +1,4 @@
-import type { KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
+import type { Clock, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
 import { InvalidCredentialsError } from '../errors/InvalidCredentialsError'
 import type { SessionRepository } from '../ports/SessionRepository'
 import type { UserRepository } from '../ports/UserRepository'
@@ -22,12 +22,14 @@ export class GetAuthenticatedUser
     private readonly userRepository: UserRepository,
     private readonly sessionRepository: SessionRepository,
     private readonly keyedHasher: KeyedHasher,
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: GetAuthenticatedUserInput): Promise<GetAuthenticatedUserOutput> {
     const tokenHash = await this.keyedHasher.hash(input.token)
     const session = await this.sessionRepository.findByTokenHash(tokenHash)
-    if (!session || session.isExpired()) throw new InvalidCredentialsError('Invalid session token')
+    if (!session || session.isExpired(this.clock.now()))
+      throw new InvalidCredentialsError('Invalid session token')
 
     const user = await this.userRepository.findById(session.getUserId())
     if (!user) throw new InvalidCredentialsError('Invalid session token')

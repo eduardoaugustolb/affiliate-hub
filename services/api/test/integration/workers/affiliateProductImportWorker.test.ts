@@ -6,6 +6,7 @@ import {
   SqlOutboxIntegrationEventPublisher,
 } from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { Queue, Worker } from 'bullmq'
+import { SystemClock } from '../../../src/adapters/clock/SystemClock'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
@@ -15,6 +16,7 @@ import { createAffiliateProductImportQueue } from '../../../src/infrastructure/q
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const clock = new SystemClock()
 
 describe('affiliate product import worker (integration)', () => {
   it('delivers a Redis job through the outbox and creates one Catalog product and mapping', async () => {
@@ -30,7 +32,7 @@ describe('affiliate product import worker (integration)', () => {
       worker = createBullMqAffiliateProductImportConsumer(
         new DeliverAffiliateProductImport(
           new SqlOutboxEventDeliveryRepository(db),
-          handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+          handleAffiliateProductImportRequested(db, new IdGeneratorBun(), clock),
         ),
         queueName,
       )
@@ -42,6 +44,7 @@ describe('affiliate product import worker (integration)', () => {
         new BullMqAffiliateProductImportJobQueue(queue),
         new IdGeneratorBun(),
         new SqlOutboxEventDeliveryRepository(db),
+        clock,
       )
       const output = await importProductFromFeed.execute({
         externalProductId,

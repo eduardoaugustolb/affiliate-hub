@@ -8,13 +8,14 @@ import { SessionRepositoryFake } from './doubles/SessionRepositoryFake'
 import { UserRepositoryFake } from './doubles/UserRepositoryFake'
 
 const RAW_TOKEN = 'raw-session-token'
+const clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
 
 function futureDate(): Date {
-  return new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
+  return new Date('2026-09-09T12:00:00.000Z')
 }
 
 function pastDate(): Date {
-  return new Date(Date.now() - 1000)
+  return new Date('2026-08-20T11:59:59.000Z')
 }
 
 async function setup() {
@@ -22,7 +23,7 @@ async function setup() {
   const sessionRepository = new SessionRepositoryFake()
   const keyedHasher = new KeyedHasherFake()
 
-  const useCase = new GetAuthenticatedUser(userRepository, sessionRepository, keyedHasher)
+  const useCase = new GetAuthenticatedUser(userRepository, sessionRepository, keyedHasher, clock)
 
   const user = User.create('USER-1', {
     email: 'jane@example.com',

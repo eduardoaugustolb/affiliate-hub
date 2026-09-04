@@ -1,4 +1,9 @@
-import { BadRequestError, type IdGenerator, type UseCase } from '@affiliate-hub/shared-kernel'
+import {
+  BadRequestError,
+  type Clock,
+  type IdGenerator,
+  type UseCase,
+} from '@affiliate-hub/shared-kernel'
 import { type Category, Product } from '../../domain/Product'
 import type { AffiliateLinkGenerator } from '../ports/AffiliateLinkGenerator'
 import type { ProductRepository } from '../ports/ProductRepository'
@@ -25,6 +30,7 @@ export class RegisterManualProduct
     private readonly productRepository: ProductRepository,
     private readonly idGenerator: IdGenerator,
     private readonly affiliateLinkGenerator: AffiliateLinkGenerator,
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: RegisterManualProductInput): Promise<RegisterManualProductOutput> {
@@ -32,8 +38,9 @@ export class RegisterManualProduct
     const affiliateLinkUrl = await this.affiliateLinkGenerator.generateAffiliateLink(
       input.productUrl,
     )
-    const product = Product.createDraft(this.idGenerator.generate(), input)
-    product.assignAffiliateLink(affiliateLinkUrl)
+    const now = this.clock.now()
+    const product = Product.createDraft(this.idGenerator.generate(), input, now)
+    product.assignAffiliateLink(affiliateLinkUrl, now)
     await this.productRepository.save(product)
     return { productId: product.getId() }
   }

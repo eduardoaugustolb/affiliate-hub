@@ -9,6 +9,8 @@ import { SessionRepositoryFake } from './doubles/SessionRepositoryFake'
 import { TokenGeneratorFake } from './doubles/TokenGeneratorFake'
 import { UserRepositoryFake } from './doubles/UserRepositoryFake'
 
+const clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
+
 async function setup() {
   const userRepository = new UserRepositoryFake()
   const sessionRepository = new SessionRepositoryFake()
@@ -24,6 +26,7 @@ async function setup() {
     tokenGenerator,
     keyedHasher,
     idGenerator,
+    clock,
   )
 
   const user = User.create('USER-1', {
@@ -58,7 +61,7 @@ describe('AuthenticateUser', () => {
     await useCase.execute({ email: 'jane@example.com', password: 'correct-password' })
 
     const sessions = await sessionRepository.listByUserId(user.getId())
-    expect(sessions?.[0]?.isExpired(new Date())).toBe(false)
+    expect(sessions?.[0]?.isExpired(clock.now())).toBe(false)
   })
 
   it('throws InvalidCredentialsError when the email does not exist', async () => {

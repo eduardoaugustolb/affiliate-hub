@@ -1,3 +1,5 @@
+import type { Clock } from '@affiliate-hub/shared-kernel'
+
 type LogValue = string | number | boolean | null | undefined | { [key: string]: LogValue }
 
 type LogFields = Record<string, LogValue>
@@ -5,12 +7,15 @@ type LogFields = Record<string, LogValue>
 export class JsonLogger {
   private baseFields: LogFields
 
-  constructor(baseFields?: LogFields) {
-    this.baseFields = baseFields ?? {}
+  constructor(
+    private readonly clock: Clock,
+    baseFields: LogFields = {},
+  ) {
+    this.baseFields = baseFields
   }
 
   child(baseFields: LogFields): JsonLogger {
-    return new JsonLogger({ ...this.baseFields, ...baseFields })
+    return new JsonLogger(this.clock, { ...this.baseFields, ...baseFields })
   }
 
   info(event: string, fields?: LogFields): void {
@@ -33,7 +38,7 @@ export class JsonLogger {
   private write(level: 'info' | 'warn' | 'error', event: string, fields?: LogFields) {
     console[level](
       JSON.stringify({
-        timestamp: new Date().toISOString(),
+        timestamp: this.clock.now().toISOString(),
         level,
         event,
         ...this.baseFields,

@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'bun:test'
+
+const now = new Date('2026-08-20T12:00:00.000Z')
+
 import { DeactivateProduct } from '../../src/application/use-cases/DeactivateProduct'
 import { Product } from '../../src/domain/Product'
 import { CatalogUnitOfWorkFake } from './doubles/CatalogUnitOfWorkFake'
@@ -9,11 +12,16 @@ describe('DeactivateProduct', () => {
   it('deactivates a product (soft delete) and publishes ProductDeactivated', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft('PRODUCT-1', { name: 'Perfume X', category: 'perfume' })
+    const product = Product.createDraft(
+      'PRODUCT-1',
+      { name: 'Perfume X', category: 'perfume' },
+      now,
+    )
     await productRepository.save(product)
 
     const useCase = new DeactivateProduct(
       new CatalogUnitOfWorkFake(productRepository, eventPublisher),
+      { now: () => now },
     )
     await useCase.execute({ productId: product.getId() })
 
@@ -25,13 +33,18 @@ describe('DeactivateProduct', () => {
   it('does not publish a duplicate event on retry', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft('PRODUCT-RETRY', {
-      name: 'Perfume Retry',
-      category: 'perfume',
-    })
+    const product = Product.createDraft(
+      'PRODUCT-RETRY',
+      {
+        name: 'Perfume Retry',
+        category: 'perfume',
+      },
+      now,
+    )
     await productRepository.save(product)
     const useCase = new DeactivateProduct(
       new CatalogUnitOfWorkFake(productRepository, eventPublisher),
+      { now: () => now },
     )
 
     await useCase.execute({ productId: product.getId() })
@@ -44,7 +57,7 @@ describe('DeactivateProduct', () => {
   it('rolls back the product when outbox persistence fails', async () => {
     const productRepository = new ProductRepositoryFake()
     await productRepository.save(
-      Product.createDraft('PRODUCT-2', { name: 'Perfume Y', category: 'perfume' }),
+      Product.createDraft('PRODUCT-2', { name: 'Perfume Y', category: 'perfume' }, now),
     )
     const failingPublisher: EventPublisherFake = new EventPublisherFake()
     failingPublisher.publish = async () => {
@@ -53,6 +66,7 @@ describe('DeactivateProduct', () => {
 
     const useCase = new DeactivateProduct(
       new CatalogUnitOfWorkFake(productRepository, failingPublisher),
+      { now: () => now },
     )
 
     await expect(useCase.execute({ productId: 'PRODUCT-2' })).rejects.toThrow('outbox unavailable')

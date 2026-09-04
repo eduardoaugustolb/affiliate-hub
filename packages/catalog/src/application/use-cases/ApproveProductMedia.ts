@@ -1,4 +1,4 @@
-import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
+import { type Clock, NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
 import type { ProductStatus } from '../../domain/ProductStatus'
 import type { CatalogUnitOfWork } from '../ports/CatalogUnitOfWork'
 import { ProductActivated } from '../ports/EventPublisher'
@@ -18,7 +18,10 @@ export interface ApproveProductMediaOutput {
 export class ApproveProductMedia
   implements UseCase<ApproveProductMediaInput, ApproveProductMediaOutput>
 {
-  constructor(private readonly unitOfWork: CatalogUnitOfWork) {}
+  constructor(
+    private readonly unitOfWork: CatalogUnitOfWork,
+    private readonly clock: Clock,
+  ) {}
 
   async execute(input: ApproveProductMediaInput): Promise<ApproveProductMediaOutput> {
     return await this.unitOfWork.transaction(async ({ products, events }) => {
@@ -28,18 +31,19 @@ export class ApproveProductMedia
       }
 
       const wasActive = product.getStatus() === 'active'
-      product.approvePhoto(input.photoUrl)
+      const now = this.clock.now()
+      product.approvePhoto(input.photoUrl, now)
       if (input.templateId) {
-        product.assignTemplate(input.templateId)
+        product.assignTemplate(input.templateId, now)
       }
       if (input.tryActivate) {
-        product.activate()
+        product.activate(now)
       }
 
       await products.save(product)
 
       if (!wasActive && product.getStatus() === 'active') {
-        await events.publish(new ProductActivated(product.getId()))
+        await events.publish(new ProductActivated(product.getId(), now))
       }
 
       return { productId: product.getId(), status: product.getStatus() }

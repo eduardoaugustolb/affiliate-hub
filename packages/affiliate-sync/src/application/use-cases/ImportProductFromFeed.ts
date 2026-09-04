@@ -1,5 +1,5 @@
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
-import type { IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
+import type { Clock, IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
 import type { AffiliateProductImportJobQueue } from '../ports/AffiliateProductImportJobQueue'
 import type { IntegrationEventPublisher } from '../ports/IntegrationEventPublisher'
 import type { OutboxEventDeliveryRepository } from '../ports/OutboxEventDeliveryRepository'
@@ -23,6 +23,7 @@ export class ImportProductFromFeed
     private readonly productImport: AffiliateProductImportJobQueue,
     private readonly idGenerator: IdGenerator,
     private readonly eventDelivery: OutboxEventDeliveryRepository,
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: ImportProductFromFeedInput): Promise<ImportProductFromFeedOutput> {
@@ -31,7 +32,7 @@ export class ImportProductFromFeed
       id: eventId,
       name: 'AffiliateProductImportRequested',
       payload: input,
-      occurredAt: new Date().toISOString(),
+      occurredAt: this.clock.now().toISOString(),
     }
     await this.outbox.publish(event)
     try {

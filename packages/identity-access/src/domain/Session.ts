@@ -10,6 +10,7 @@ export interface CreateSessionData {
   tokenHash: string
   userId: string
   expiresAt: Date
+  createdAt?: Date
 }
 
 export class Session {
@@ -32,10 +33,16 @@ export class Session {
   }
 
   static create(id: string, data: CreateSessionData): Session {
-    return new Session(id, data.tokenHash, data.userId, data.expiresAt, new Date())
+    return new Session(
+      id,
+      data.tokenHash,
+      data.userId,
+      data.expiresAt,
+      data.createdAt ?? data.expiresAt,
+    )
   }
 
-  isExpired(now: Date = new Date()): boolean {
+  isExpired(now: Date): boolean {
     return this.expiresAt <= now
   }
 

@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'bun:test'
+
+const now = new Date('2026-08-20T12:00:00.000Z')
+
 import type { DatabaseConnection } from '@affiliate-hub/shared-kernel'
 import { CatalogUnitOfWorkSql } from '../src/adapters/CatalogUnitOfWorkSql'
 import { ProductActivated } from '../src/application/ports/EventPublisher'
@@ -53,11 +56,15 @@ describe('CatalogUnitOfWorkSql', () => {
   it('commits product and outbox writes together on the transaction connection', async () => {
     const db = new TransactionalDatabaseFake()
     const unitOfWork = new CatalogUnitOfWorkSql(db)
-    const product = Product.createDraft('PRODUCT-1', { name: 'Perfume X', category: 'perfume' })
+    const product = Product.createDraft(
+      'PRODUCT-1',
+      { name: 'Perfume X', category: 'perfume' },
+      now,
+    )
 
     await unitOfWork.transaction(async ({ products, events }) => {
       await products.save(product)
-      await events.publish(new ProductActivated(product.getId()))
+      await events.publish(new ProductActivated(product.getId(), now))
     })
 
     expect(db.committedQueries).toHaveLength(2)
@@ -69,12 +76,16 @@ describe('CatalogUnitOfWorkSql', () => {
   it('does not commit the product when the outbox write fails', async () => {
     const db = new TransactionalDatabaseFake(true)
     const unitOfWork = new CatalogUnitOfWorkSql(db)
-    const product = Product.createDraft('PRODUCT-2', { name: 'Perfume Y', category: 'perfume' })
+    const product = Product.createDraft(
+      'PRODUCT-2',
+      { name: 'Perfume Y', category: 'perfume' },
+      now,
+    )
 
     await expect(
       unitOfWork.transaction(async ({ products, events }) => {
         await products.save(product)
-        await events.publish(new ProductActivated(product.getId()))
+        await events.publish(new ProductActivated(product.getId(), now))
       }),
     ).rejects.toThrow('outbox unavailable')
 

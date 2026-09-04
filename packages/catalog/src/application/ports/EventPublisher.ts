@@ -5,16 +5,20 @@ export interface DomainEvent {
 
 export class ProductActivated implements DomainEvent {
   readonly name = 'ProductActivated'
-  readonly occurredAt = new Date()
 
-  constructor(readonly productId: string) {}
+  constructor(
+    readonly productId: string,
+    readonly occurredAt: Date,
+  ) {}
 }
 
 export class ProductDeactivated implements DomainEvent {
   readonly name = 'ProductDeactivated'
-  readonly occurredAt = new Date()
 
-  constructor(readonly productId: string) {}
+  constructor(
+    readonly productId: string,
+    readonly occurredAt: Date,
+  ) {}
 }
 
 export interface EventPublisher {

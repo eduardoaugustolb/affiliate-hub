@@ -7,6 +7,7 @@ export { NotFoundError } from './errors/NotFoundError'
 export { UnauthorizedError } from './errors/UnauthorizedError'
 
 export type { Cipher } from './ports/Cipher'
+export type { Clock } from './ports/Clock'
 export type { DatabaseConnection, TransactionOptions } from './ports/DatabaseConnection'
 export type { HttpClient, HttpClientResponse, HttpRequestOptions } from './ports/HttpClient'
 export type { FetchHandler, HttpRuntimeAdapter, RunningServer } from './ports/HttpRuntimeAdapter'

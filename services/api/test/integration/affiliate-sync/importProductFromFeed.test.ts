@@ -10,6 +10,7 @@ import {
   SqlOutboxIntegrationEventPublisher,
 } from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { Queue } from 'bullmq'
+import { SystemClock } from '../../../src/adapters/clock/SystemClock'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 import { BullMqAffiliateProductImportJobQueue } from '../../../src/infrastructure/queue/bullmq/BullMqAffiliateProductImportJobQueue'
@@ -17,6 +18,7 @@ import { createAffiliateProductImportQueue } from '../../../src/infrastructure/q
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const clock = new SystemClock()
 
 describe('ImportProductFromFeed (integration)', () => {
   it('persists the event, creates a Redis job and records the enqueue state', async () => {
@@ -33,6 +35,7 @@ describe('ImportProductFromFeed (integration)', () => {
         new BullMqAffiliateProductImportJobQueue(queue),
         new IdGeneratorBun(),
         new SqlOutboxEventDeliveryRepository(db),
+        clock,
       )
 
       const output = await useCase.execute({
@@ -78,6 +81,7 @@ describe('ImportProductFromFeed (integration)', () => {
         unavailableQueue,
         new IdGeneratorBun(),
         new SqlOutboxEventDeliveryRepository(db),
+        clock,
       )
 
       const output = await useCase.execute({
@@ -122,6 +126,7 @@ describe('ImportProductFromFeed (integration)', () => {
         unavailableQueue,
         new IdGeneratorBun(),
         deliveryRepository,
+        clock,
       )
       const output = await useCase.execute({
         externalProductId: `shopee-${marker}`,

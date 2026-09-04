@@ -1,4 +1,4 @@
-import type { IdGenerator, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
+import type { Clock, IdGenerator, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
 import { Session } from '../../domain/Session'
 import { User } from '../../domain/User'
 import { InitialSetupAlreadyCompletedError } from '../errors/InitialSetupAlreadyCompletedError'
@@ -23,6 +23,7 @@ export class SetupInitialUser implements UseCase<SetupInitialUserInput, SetupIni
     private passwordHasher: PasswordHasher,
     private tokenGenerator: TokenGenerator,
     private keyedHasher: KeyedHasher,
+    private clock: Clock,
   ) {}
 
   async execute(input: SetupInitialUserInput): Promise<SetupInitialUserOutput> {
@@ -47,12 +48,14 @@ export class SetupInitialUser implements UseCase<SetupInitialUserInput, SetupIni
 
       const token = this.tokenGenerator.generate()
       const tokenHash = await this.keyedHasher.hash(token)
+      const createdAt = this.clock.now()
 
       const session = Session.create(sessionId, {
         tokenHash,
         userId,
         // 20 days
-        expiresAt: new Date(Date.now() + 3600000 * 24 * 20),
+        expiresAt: new Date(createdAt.getTime() + 3600000 * 24 * 20),
+        createdAt,
       })
 
       await scope.sessions.save(session)

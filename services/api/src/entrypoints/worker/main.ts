@@ -3,6 +3,7 @@ import {
   ReconcilePendingOutboxEnqueues,
 } from '@affiliate-hub/affiliate-sync'
 import { SqlOutboxEventDeliveryRepository } from '@affiliate-hub/affiliate-sync/infrastructure'
+import { SystemClock } from '../../adapters/clock/SystemClock'
 import { IdGeneratorBun } from '../../adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../adapters/database/PgAdapter'
 import { env } from '../../env'
@@ -18,12 +19,13 @@ import { IntervalTaskScheduler } from '../../infrastructure/scheduling/IntervalT
 const RECONCILIATION_INTERVAL_MS = 5 * 60 * 1_000
 
 async function main(): Promise<void> {
-  const logger = new JsonLogger().child({ service: 'affiliate-import-worker' })
+  const clock = new SystemClock()
+  const logger = new JsonLogger(clock).child({ service: 'affiliate-import-worker' })
   const db = new PgAdapter(env.DATABASE_URL)
   const deliveryRepository = new SqlOutboxEventDeliveryRepository(db)
   const delivery = new DeliverAffiliateProductImport(
     deliveryRepository,
-    handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+    handleAffiliateProductImportRequested(db, new IdGeneratorBun(), clock),
   )
   const queue = createAffiliateProductImportQueue()
   const worker = createBullMqAffiliateProductImportConsumer(
@@ -72,7 +74,7 @@ async function main(): Promise<void> {
 
 if (import.meta.main) {
   main().catch((error) => {
-    new JsonLogger().error('affiliate_import.worker_start_failed', error)
+    new JsonLogger(new SystemClock()).error('affiliate_import.worker_start_failed', error)
     process.exit(1)
   })
 }

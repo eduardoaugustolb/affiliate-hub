@@ -1,4 +1,4 @@
-import type { IdGenerator, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
+import type { Clock, IdGenerator, KeyedHasher, UseCase } from '@affiliate-hub/shared-kernel'
 import { Email } from '../../domain/Email'
 import { Session } from '../../domain/Session'
 import { InvalidCredentialsError } from '../errors/InvalidCredentialsError'
@@ -24,6 +24,7 @@ export class AuthenticateUser implements UseCase<AuthenticateUserInput, Authenti
     private readonly tokenGenerator: TokenGenerator,
     private readonly keyedHasher: KeyedHasher,
     private readonly idGenerator: IdGenerator,
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: AuthenticateUserInput): Promise<AuthenticateUserOutput> {
@@ -35,13 +36,15 @@ export class AuthenticateUser implements UseCase<AuthenticateUserInput, Authenti
     const sessionId = this.idGenerator.generate()
     const token = this.tokenGenerator.generate()
     const hashedToken = await this.keyedHasher.hash(token)
-    const expiresAtTimestamp = Date.now() + 20 * 24 * 60 * 60 * 1000
+    const createdAt = this.clock.now()
+    const expiresAt = new Date(createdAt.getTime() + 20 * 24 * 60 * 60 * 1000)
 
     await this.sessionRepository.save(
       Session.create(sessionId, {
         tokenHash: hashedToken,
         userId: user.getId(),
-        expiresAt: new Date(expiresAtTimestamp),
+        expiresAt,
+        createdAt,
       }),
     )
     return { token }

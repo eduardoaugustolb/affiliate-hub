@@ -1,5 +1,6 @@
 import type { DeliverAffiliateProductImport } from '@affiliate-hub/affiliate-sync'
 import { Worker } from 'bullmq'
+import { SystemClock } from '../../../adapters/clock/SystemClock'
 import { env } from '../../../env'
 import { JsonLogger } from '../../observability/JsonLogger'
 import { EVENT_NAME } from './BullMqAffiliateProductImportJobQueue'
@@ -8,7 +9,7 @@ import { configureBullMq } from './configureBullMq'
 export function createBullMqAffiliateProductImportConsumer(
   delivery: DeliverAffiliateProductImport,
   queueName = EVENT_NAME,
-  logger = new JsonLogger().child({
+  logger = new JsonLogger(new SystemClock()).child({
     component: 'bullmq-affiliate-product-import-consumer',
     queueName,
   }),

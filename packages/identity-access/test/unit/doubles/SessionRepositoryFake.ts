@@ -1,8 +1,13 @@
+import type { Clock } from '@affiliate-hub/shared-kernel'
 import type { SessionRepository } from '../../../src/application/ports/SessionRepository'
 import type { Session } from '../../../src/domain/Session'
 
 export class SessionRepositoryFake implements SessionRepository {
   private readonly sessions = new Map<string, Session>()
+
+  constructor(
+    private readonly clock: Clock = { now: () => new Date('2026-08-20T12:00:00.000Z') },
+  ) {}
 
   async save(session: Session): Promise<void> {
     this.sessions.set(session.getId(), session)
@@ -11,7 +16,7 @@ export class SessionRepositoryFake implements SessionRepository {
   async findById(sessionId: string): Promise<Session | null> {
     const session = this.sessions.get(sessionId)
     if (!session) return null
-    if (session.isExpired()) {
+    if (session.isExpired(this.clock.now())) {
       await this.deleteById(sessionId)
       return null
     }
@@ -26,7 +31,7 @@ export class SessionRepositoryFake implements SessionRepository {
     const sessions: Session[] = []
     for (const session of this.sessions.values()) {
       if (session.getUserId() !== userId) continue
-      if (session.isExpired()) {
+      if (session.isExpired(this.clock.now())) {
         await this.deleteById(session.getId())
         continue
       }
@@ -40,7 +45,7 @@ export class SessionRepositoryFake implements SessionRepository {
       (candidate) => candidate.getTokenHash() === tokenHash,
     )
     if (!session) return null
-    if (session.isExpired()) {
+    if (session.isExpired(this.clock.now())) {
       await this.deleteById(session.getId())
       return null
     }
