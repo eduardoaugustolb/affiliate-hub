@@ -1,5 +1,6 @@
 export { ClickLogSql } from './adapters/ClickLogSql'
 export type { ClickLog, ClickRecord } from './application/ports/ClickLog'
+export type { PublishedProductReader } from './application/ports/PublishedProductReader'
 export type {
   RedirectToAffiliateLinkInput,
   RedirectToAffiliateLinkOutput,

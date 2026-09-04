@@ -4,7 +4,7 @@ tags:
   - roadmap
 status: accepted
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-20
 ---
 
 # Fase 2: Afiliação
@@ -18,7 +18,14 @@ de iniciar, ver [[06-Risks/Riscos-Conhecidos]].
 
 ## Entregáveis
 
-- Pacote `affiliate-sync`: `ShopeeAffiliateProvider` sobre `HttpClient`,
-  `RailwayCronScheduler`, serviço `sync-worker`.
+- Pacote `affiliate-sync`: `ShopeeAffiliateProvider` sobre `HttpClient` e
+  sincronização de feed pendente de operação homologada pela Shopee.
+- Contrato compartilhado `AffiliateProductImportRequested`, outbox durável,
+  job BullMQ `{ eventId }` e consumer em processo separado.
+- `DeliverAffiliateProductImport` entrega o evento sem depender de BullMQ;
+  Catalog mantém idempotência por `(provider, externalProductId)`.
+- `outbox_events` registra `enqueued_at`, `enqueue_attempts`,
+  `last_enqueue_error` e `processed_at`. O reconciliador de cinco minutos
+  recupera somente falhas anteriores de enqueue no Redis.
 - Pacote `link-redirect`: `HonoAdapter`, `ClickLogDatabase`,
   rota de redirecionamento 302 no serviço `api`.

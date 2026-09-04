@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
-import { User, UserRepositorySql } from '@affiliate-hub/identity-access'
+import { User } from '@affiliate-hub/identity-access'
+import { UserRepositorySql } from '@affiliate-hub/identity-access/adapters'
 import { Argon2Hasher } from '../../../src/adapters/crypto/Argon2Hasher'
 import { CipherAdapter } from '../../../src/adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from '../../../src/adapters/crypto/HmacKeyedHasher'
@@ -33,7 +34,13 @@ describe('LinkRedirect HTTP routes (integration)', () => {
         passwordHash: await passwordHasher.hash('integration-password'),
       }),
     )
-    const httpServer = createServer()
+    const httpServer = createServer({
+      affiliateLinkGenerator: {
+        async generateAffiliateLink(): Promise<string> {
+          return 'https://example.com/redirect-target'
+        },
+      },
+    })
     await httpServer.listen(TEST_PORT)
     const login = await fetch(`${BASE_URL}/session`, {
       method: 'POST',
@@ -46,7 +53,7 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
     if (!sessionCookie)
       throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
-    authHeaders = { cookie: sessionCookie }
+    authHeaders = { cookie: sessionCookie, origin: 'http://localhost:3000' }
   })
 
   afterEach(async () => {
@@ -61,12 +68,17 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume Redirect', category: 'perfume' }),
+      body: JSON.stringify({
+        name: 'Perfume Redirect',
+        category: 'perfume',
+        productUrl: 'https://shopee.com.br/perfume-redirect',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
 
-    await db.query('update products set affiliate_link_url = $1 where id = $2', [
+    await db.query('update products set status = $1, affiliate_link_url = $2 where id = $3', [
+      'active',
       'https://example.com/redirect-target',
       productId,
     ])
@@ -83,6 +95,31 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     expect(rows).toHaveLength(1)
   })
 
+  it('GET /p/:id returns 404 for a deactivated product even when its link is still present', async () => {
+    const created = await fetch(`${BASE_URL}/products`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...authHeaders },
+      body: JSON.stringify({ name: 'Perfume Inactive', category: 'perfume' }),
+    })
+    const { productId } = (await created.json()) as { message: string; productId: string }
+    insertedIds.push(productId)
+
+    await db.query('update products set status = $1, affiliate_link_url = $2 where id = $3', [
+      'inactive',
+      'https://example.com/stale-target',
+      productId,
+    ])
+
+    const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
+
+    expect(response.status).toBe(404)
+    const rows = await db.query<{ product_id: string }>(
+      'select product_id from click_logs where product_id = $1',
+      [productId],
+    )
+    expect(rows).toHaveLength(0)
+  })
+
   it('GET /p/:id maps NotFoundError to 404 when the product does not exist', async () => {
     const response = await fetch(`${BASE_URL}/p/DOES-NOT-EXIST`, { redirect: 'manual' })
     const body = (await response.json()) as { message: string }
@@ -95,10 +132,16 @@ describe('LinkRedirect HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume No Link', category: 'perfume' }),
+      body: JSON.stringify({
+        name: 'Perfume No Link',
+        category: 'perfume',
+        productUrl: 'https://shopee.com.br/perfume-no-link',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
+
+    await db.query('update products set affiliate_link_url = null where id = $1', [productId])
 
     const response = await fetch(`${BASE_URL}/p/${productId}`, { redirect: 'manual' })
 

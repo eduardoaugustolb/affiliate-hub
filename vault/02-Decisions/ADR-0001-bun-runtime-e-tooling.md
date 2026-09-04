@@ -4,7 +4,7 @@ tags:
   - decision
 status: accepted
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-20
 ---
 
 # ADR-0001: Bun como Runtime, Package Manager e Bundler
@@ -12,7 +12,8 @@ updated: 2026-08-06
 ## Contexto
 
 O projeto precisa de um runtime TypeScript único em todos os serviços
-deployáveis (`api`, `sync-worker`, `broadcast-worker`, `template-svc`). Decisão
+deployáveis ou entrypoints (`api`, `affiliate-import-worker`,
+`broadcast-worker`, `template-svc`). Decisão
 levantada como não-negociável pelo usuário no início da discussão de
 arquitetura.
 
@@ -36,3 +37,5 @@ Bun é usado como runtime, package manager e bundler em todos os serviços:
   [[ADR-0010-bun-test-em-todo-lugar]] (a primeira tentativa foi Vitest,
   revertida por incompatibilidade com `Bun.SQL`).
 - Monorepo usa Bun workspaces nativamente, ver [[ADR-0005-bun-workspaces-monorepo]].
+- `Bun.RedisClient` é usado pelo BullMQ via `createBunRedisClient`; o projeto
+  não instala `ioredis` para o fluxo de importação afiliada.

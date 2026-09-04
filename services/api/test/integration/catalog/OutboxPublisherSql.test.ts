@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test'
-import { OutboxPublisherSql } from '@affiliate-hub/catalog'
+import { OutboxPublisherSql } from '@affiliate-hub/catalog/adapters'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 
 const DATABASE_URL =

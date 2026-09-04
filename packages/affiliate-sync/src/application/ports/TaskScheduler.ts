@@ -1,3 +1,7 @@
 export interface TaskScheduler {
-  schedule(cronExpression: string, task: () => Promise<void>): void
+  scheduleEvery(intervalMs: number, task: () => Promise<void>): ScheduledTask
+}
+
+export interface ScheduledTask {
+  close(): void
 }

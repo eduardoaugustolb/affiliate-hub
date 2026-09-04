@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it } from 'bun:test'
-import { User, UserRepositorySql } from '@affiliate-hub/identity-access'
+import { User } from '@affiliate-hub/identity-access'
+import { UserRepositorySql } from '@affiliate-hub/identity-access/adapters'
 import { Argon2Hasher } from '../../../src/adapters/crypto/Argon2Hasher'
 import { CipherAdapter } from '../../../src/adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from '../../../src/adapters/crypto/HmacKeyedHasher'
@@ -33,7 +34,14 @@ describe('Catalog HTTP routes (integration)', () => {
         passwordHash: await passwordHasher.hash('integration-password'),
       }),
     )
-    const httpServer = createServer()
+    const httpServer = createServer({
+      affiliateLinkGenerator: {
+        async generateAffiliateLink(productUrl: string): Promise<string> {
+          if (productUrl.endsWith('/invalid')) return 'javascript:alert(1)'
+          return `https://s.shopee.com.br/generated?source=${encodeURIComponent(productUrl)}`
+        },
+      },
+    })
     await httpServer.listen(TEST_PORT)
     const login = await fetch(`${BASE_URL}/session`, {
       method: 'POST',
@@ -46,7 +54,7 @@ describe('Catalog HTTP routes (integration)', () => {
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
     if (!sessionCookie)
       throw new Error(`Session cookie was not set: ${login.status} ${await login.text()}`)
-    authHeaders = { cookie: sessionCookie }
+    authHeaders = { cookie: sessionCookie, origin: 'http://localhost:3000' }
   })
 
   afterEach(async () => {
@@ -56,11 +64,15 @@ describe('Catalog HTTP routes (integration)', () => {
     }
   })
 
-  it('POST /products creates a draft product', async () => {
+  it('POST /products creates a draft product with an affiliate link generated from the original Shopee URL', async () => {
     const response = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Oversized Hoodie', category: 'streetwear' }),
+      body: JSON.stringify({
+        name: 'Oversized Hoodie',
+        category: 'streetwear',
+        productUrl: 'https://shopee.com.br/oversized-hoodie',
+      }),
     })
     const body = (await response.json()) as { message: string; productId: string }
     insertedIds.push(body.productId)
@@ -68,13 +80,25 @@ describe('Catalog HTTP routes (integration)', () => {
     expect(response.status).toBe(201)
     expect(body.message).toBe('Product created successfully')
     expect(body.productId).toMatch(/^[0-9a-f-]{36}$/)
+
+    const rows = await db.query<{ affiliate_link_url: string }>(
+      'select affiliate_link_url from products where id = $1',
+      [body.productId],
+    )
+    expect(rows[0]?.affiliate_link_url).toBe(
+      'https://s.shopee.com.br/generated?source=https%3A%2F%2Fshopee.com.br%2Foversized-hoodie',
+    )
   })
 
   it('GET /products/curation lists drafts just created', async () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Cap', category: 'streetwear' }),
+      body: JSON.stringify({
+        name: 'Cap',
+        category: 'streetwear',
+        productUrl: 'https://shopee.com.br/cap',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
@@ -91,7 +115,11 @@ describe('Catalog HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume X', category: 'perfume' }),
+      body: JSON.stringify({
+        name: 'Perfume X',
+        category: 'perfume',
+        productUrl: 'https://shopee.com.br/perfume-x',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
@@ -99,8 +127,7 @@ describe('Catalog HTTP routes (integration)', () => {
     // Media curation only approves a photo that already exists on the product —
     // it doesn't add one (that arrives via a future upload flow, see MediaTemplate).
     // Seed the precondition directly, same as that future flow would.
-    await db.query('update products set affiliate_link_url = $1, photos = $2 where id = $3', [
-      'https://example.com/link',
+    await db.query('update products set photos = $1 where id = $2', [
       JSON.stringify([{ url: 'https://example.com/photo.jpg', approved: false }]),
       productId,
     ])
@@ -121,7 +148,11 @@ describe('Catalog HTTP routes (integration)', () => {
     const created = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Bucket Hat', category: 'streetwear' }),
+      body: JSON.stringify({
+        name: 'Bucket Hat',
+        category: 'streetwear',
+        productUrl: 'https://shopee.com.br/bucket-hat',
+      }),
     })
     const { productId } = (await created.json()) as { message: string; productId: string }
     insertedIds.push(productId)
@@ -151,30 +182,19 @@ describe('Catalog HTTP routes (integration)', () => {
     expect(body.message).toContain('DOES-NOT-EXIST')
   })
 
-  it('POST /products/:id/approve-media maps DomainError to 400', async () => {
-    const created = await fetch(`${BASE_URL}/products`, {
+  it('POST /products maps an invalid link returned by the provider to 400', async () => {
+    const response = await fetch(`${BASE_URL}/products`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ name: 'Perfume Y', category: 'perfume' }),
-    })
-    const { productId } = (await created.json()) as { message: string; productId: string }
-    insertedIds.push(productId)
-
-    // Photo exists and gets approved, but no affiliate link was ever assigned —
-    // activate() must reject on that specific invariant.
-    await db.query('update products set photos = $1 where id = $2', [
-      JSON.stringify([{ url: 'https://example.com/photo.jpg', approved: false }]),
-      productId,
-    ])
-
-    const response = await fetch(`${BASE_URL}/products/${productId}/approve-media`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ photoUrl: 'https://example.com/photo.jpg', tryActivate: true }),
+      body: JSON.stringify({
+        name: 'Perfume Y',
+        category: 'perfume',
+        productUrl: 'https://shopee.com.br/invalid',
+      }),
     })
     const body = (await response.json()) as { message: string }
 
     expect(response.status).toBe(400)
-    expect(body.message).toContain('affiliate link')
+    expect(body.message).toBe('Affiliate link must use HTTP or HTTPS')
   })
 })

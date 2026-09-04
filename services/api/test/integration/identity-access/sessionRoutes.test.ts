@@ -9,12 +9,12 @@ import {
 } from '@affiliate-hub/identity-access'
 import type { HttpServer } from '@affiliate-hub/shared-kernel'
 import { HttpStatus } from '@affiliate-hub/shared-kernel'
-import { IdGeneratorFake } from '../../../../../packages/identity-access/test/doubles/IdGeneratorFake'
-import { KeyedHasherFake } from '../../../../../packages/identity-access/test/doubles/KeyedHasherFake'
-import { PasswordHasherFake } from '../../../../../packages/identity-access/test/doubles/PasswordHasherFake'
-import { SessionRepositoryFake } from '../../../../../packages/identity-access/test/doubles/SessionRepositoryFake'
-import { TokenGeneratorFake } from '../../../../../packages/identity-access/test/doubles/TokenGeneratorFake'
-import { UserRepositoryFake } from '../../../../../packages/identity-access/test/doubles/UserRepositoryFake'
+import { IdGeneratorFake } from '../../../../../packages/identity-access/test/unit/doubles/IdGeneratorFake'
+import { KeyedHasherFake } from '../../../../../packages/identity-access/test/unit/doubles/KeyedHasherFake'
+import { PasswordHasherFake } from '../../../../../packages/identity-access/test/unit/doubles/PasswordHasherFake'
+import { SessionRepositoryFake } from '../../../../../packages/identity-access/test/unit/doubles/SessionRepositoryFake'
+import { TokenGeneratorFake } from '../../../../../packages/identity-access/test/unit/doubles/TokenGeneratorFake'
+import { UserRepositoryFake } from '../../../../../packages/identity-access/test/unit/doubles/UserRepositoryFake'
 import { BunRuntimeServer } from '../../../src/adapters/http/BunRuntimeServer'
 import { HonoHttpServer } from '../../../src/adapters/http/HonoHttpServer'
 import { requireAuthentication } from '../../../src/http/middlewares/RequireAuthentication'
@@ -60,6 +60,7 @@ describe('Session HTTP routes (integration)', () => {
       getAuthenticatedUser,
       logout: new Logout(sessionRepository, keyedHasher),
     })
+    server.use('/users', requireAuthentication(getAuthenticatedUser))
     server.use('/users/*', requireAuthentication(getAuthenticatedUser))
     registerUserRoutes(server, {
       updateUser: new UpdateUser(userRepository),
@@ -87,14 +88,38 @@ describe('Session HTTP routes (integration)', () => {
     })
 
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ message: 'Email and password are required' })
+    expect(await response.json()).toEqual({
+      code: 'VALIDATION_ERROR',
+      message: 'Request payload is invalid',
+    })
   })
 
   it('returns 401 when a session cookie is missing', async () => {
     const response = await fetch(`${BASE_URL}/session`)
 
     expect(response.status).toBe(401)
-    expect(await response.json()).toEqual({ message: 'Unauthorized' })
+    expect(await response.json()).toEqual({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
+  })
+
+  it('protects the exact /users path and returns its JSON contract', async () => {
+    const unauthorized = await fetch(`${BASE_URL}/users`)
+    expect(unauthorized.status).toBe(401)
+    expect(await unauthorized.json()).toEqual({ code: 'UNAUTHORIZED', message: 'Unauthorized' })
+
+    const login = await fetch(`${BASE_URL}/session`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'jane@example.com', password: 'valid-password' }),
+    })
+    const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
+    if (!sessionCookie) throw new Error('Session cookie was not set')
+
+    const authorized = await fetch(`${BASE_URL}/users`, { headers: { cookie: sessionCookie } })
+    expect(authorized.status).toBe(200)
+    expect(await authorized.json()).toEqual({
+      message: 'User retrieved successfully',
+      user: { id: 'USER-1', email: 'jane@example.com', name: 'Jane' },
+    })
   })
 
   it('shares the authenticated user with protected handlers', async () => {
@@ -127,15 +152,15 @@ describe('Session HTTP routes (integration)', () => {
     const sessionCookie = login.headers.get('set-cookie')?.split(';')[0]
     if (!sessionCookie) throw new Error('Session cookie was not set')
 
-    const unauthenticatedUpdate = await fetch(`${BASE_URL}/users/me/update`, {
-      method: 'POST',
+    const unauthenticatedUpdate = await fetch(`${BASE_URL}/users/me`, {
+      method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name: 'Jane Doe' }),
     })
     expect(unauthenticatedUpdate.status).toBe(401)
 
-    const update = await fetch(`${BASE_URL}/users/me/update`, {
-      method: 'POST',
+    const update = await fetch(`${BASE_URL}/users/me`, {
+      method: 'PATCH',
       headers: { 'content-type': 'application/json', cookie: sessionCookie },
       body: JSON.stringify({ name: 'Jane Doe' }),
     })
@@ -185,6 +210,9 @@ describe('Session HTTP routes (integration)', () => {
       headers: { cookie: sessionCookie },
     })
     expect(invalidatedSession.status).toBe(401)
-    expect(await invalidatedSession.json()).toEqual({ message: 'Unauthorized' })
+    expect(await invalidatedSession.json()).toEqual({
+      code: 'UNAUTHORIZED',
+      message: 'Unauthorized',
+    })
   })
 })

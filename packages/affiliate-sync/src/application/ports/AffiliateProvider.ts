@@ -8,6 +8,6 @@ export interface AffiliateProduct {
 }
 
 export interface AffiliateProvider {
-  findLink(externalProductId: string): Promise<AffiliateLink | undefined>
+  generateShortLink(originUrl: string): Promise<AffiliateLink>
   listUpdatedProducts(): Promise<AffiliateProduct[]>
 }

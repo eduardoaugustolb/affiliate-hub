@@ -1,8 +1,7 @@
 import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
 import type { ProductStatus } from '../../domain/ProductStatus'
-import type { EventPublisher } from '../ports/EventPublisher'
+import type { CatalogUnitOfWork } from '../ports/CatalogUnitOfWork'
 import { ProductActivated } from '../ports/EventPublisher'
-import type { ProductRepository } from '../ports/ProductRepository'
 
 export interface ApproveProductMediaInput {
   productId: string
@@ -19,31 +18,31 @@ export interface ApproveProductMediaOutput {
 export class ApproveProductMedia
   implements UseCase<ApproveProductMediaInput, ApproveProductMediaOutput>
 {
-  constructor(
-    private readonly productRepository: ProductRepository,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+  constructor(private readonly unitOfWork: CatalogUnitOfWork) {}
 
   async execute(input: ApproveProductMediaInput): Promise<ApproveProductMediaOutput> {
-    const product = await this.productRepository.findById(input.productId)
-    if (!product) {
-      throw new NotFoundError(`Product ${input.productId} not found`)
-    }
+    return await this.unitOfWork.transaction(async ({ products, events }) => {
+      const product = await products.findById(input.productId)
+      if (!product) {
+        throw new NotFoundError(`Product ${input.productId} not found`)
+      }
 
-    product.approvePhoto(input.photoUrl)
-    if (input.templateId) {
-      product.assignTemplate(input.templateId)
-    }
-    if (input.tryActivate) {
-      product.activate()
-    }
+      const wasActive = product.getStatus() === 'active'
+      product.approvePhoto(input.photoUrl)
+      if (input.templateId) {
+        product.assignTemplate(input.templateId)
+      }
+      if (input.tryActivate) {
+        product.activate()
+      }
 
-    await this.productRepository.save(product)
+      await products.save(product)
 
-    if (product.getStatus() === 'active') {
-      await this.eventPublisher.publish(new ProductActivated(product.getId()))
-    }
+      if (!wasActive && product.getStatus() === 'active') {
+        await events.publish(new ProductActivated(product.getId()))
+      }
 
-    return { productId: product.getId(), status: product.getStatus() }
+      return { productId: product.getId(), status: product.getStatus() }
+    })
   }
 }

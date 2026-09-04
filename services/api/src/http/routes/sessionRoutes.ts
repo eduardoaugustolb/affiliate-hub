@@ -1,18 +1,14 @@
+import { authenticateUserBodySchema, sessionResponseSchema } from '@affiliate-hub/contracts'
 import {
   type AuthenticateUser,
   type AuthenticateUserInput,
   type GetAuthenticatedUser,
-  type GetAuthenticatedUserInput,
   InvalidCredentialsError,
   type Logout,
 } from '@affiliate-hub/identity-access'
-import {
-  BadRequestError,
-  type CookieOptions,
-  type HttpServer,
-  HttpStatus,
-} from '@affiliate-hub/shared-kernel'
+import { type CookieOptions, type HttpServer, HttpStatus } from '@affiliate-hub/shared-kernel'
 import { mapErrorToHttp } from '../ErrorMapper'
+import { parse } from '../parse'
 
 export interface SessionUseCases {
   authenticateUser: AuthenticateUser
@@ -20,12 +16,13 @@ export interface SessionUseCases {
   logout: Logout
 }
 
-export const SESSION_COOKIE_NAME = '__Host-session'
+const useSecureCookies = process.env.SESSION_COOKIE_SECURE !== 'false'
+export const SESSION_COOKIE_NAME = useSecureCookies ? '__Host-session' : 'session'
 export const SESSION_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: useSecureCookies,
   sameSite: 'lax',
-  maxAge: 20 * 24 * 60 * 60, // 20 days
+  maxAge: 20 * 24 * 60 * 60,
   path: '/',
 }
 
@@ -34,24 +31,22 @@ export function registerSessionRoutes(httpServer: HttpServer, useCases: SessionU
     try {
       const token = req.cookies[SESSION_COOKIE_NAME]
       if (!token) throw new InvalidCredentialsError('No token provided')
-      const input: GetAuthenticatedUserInput = { token }
-      const { user } = await useCases.getAuthenticatedUser.execute(input)
-
-      res.sendJson({ message: 'Authenticated user retrieved successfully', user })
+      const { user } = await useCases.getAuthenticatedUser.execute({ token })
+      res.sendJson(
+        parse(sessionResponseSchema, {
+          message: 'Authenticated user retrieved successfully',
+          user,
+        }),
+      )
     } catch (error) {
       mapErrorToHttp(error, res)
     }
   })
+
   httpServer.post('/session', async (req, res) => {
     try {
-      const { email, password } = req.body as Record<string, string | undefined>
-
-      if (!email || !password) throw new BadRequestError('Email and password are required')
-
-      const input: AuthenticateUserInput = {
-        email,
-        password,
-      }
+      const body = parse(authenticateUserBodySchema, req.body)
+      const input: AuthenticateUserInput = body
       const { token } = await useCases.authenticateUser.execute(input)
       res.setCookie(SESSION_COOKIE_NAME, token, SESSION_COOKIE_OPTIONS)
       res.status(HttpStatus.NO_CONTENT).end()
@@ -59,16 +54,14 @@ export function registerSessionRoutes(httpServer: HttpServer, useCases: SessionU
       mapErrorToHttp(error, res)
     }
   })
+
   httpServer.post('/session/logout', async (req, res) => {
     try {
       const token = req.cookies[SESSION_COOKIE_NAME]
-
       if (!token) throw new InvalidCredentialsError('No token provided')
-
       await useCases.logout.execute({ token })
       res.clearCookie(SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS)
-      res.status(HttpStatus.NO_CONTENT)
-      res.end()
+      res.status(HttpStatus.NO_CONTENT).end()
     } catch (error) {
       mapErrorToHttp(error, res)
     }

@@ -1,7 +1,6 @@
 import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
-import type { EventPublisher } from '../ports/EventPublisher'
+import type { CatalogUnitOfWork } from '../ports/CatalogUnitOfWork'
 import { ProductDeactivated } from '../ports/EventPublisher'
-import type { ProductRepository } from '../ports/ProductRepository'
 
 export interface DeactivateProductInput {
   productId: string
@@ -12,21 +11,24 @@ export interface DeactivateProductOutput {
 }
 
 export class DeactivateProduct implements UseCase<DeactivateProductInput, DeactivateProductOutput> {
-  constructor(
-    private readonly productRepository: ProductRepository,
-    private readonly eventPublisher: EventPublisher,
-  ) {}
+  constructor(private readonly unitOfWork: CatalogUnitOfWork) {}
 
   async execute(input: DeactivateProductInput): Promise<DeactivateProductOutput> {
-    const product = await this.productRepository.findById(input.productId)
-    if (!product) {
-      throw new NotFoundError(`Product ${input.productId} not found`)
-    }
+    return await this.unitOfWork.transaction(async ({ products, events }) => {
+      const product = await products.findById(input.productId)
+      if (!product) {
+        throw new NotFoundError(`Product ${input.productId} not found`)
+      }
 
-    product.deactivate()
-    await this.productRepository.save(product)
-    await this.eventPublisher.publish(new ProductDeactivated(product.getId()))
+      if (product.getStatus() === 'inactive') {
+        return { productId: product.getId() }
+      }
 
-    return { productId: product.getId() }
+      product.deactivate()
+      await products.save(product)
+      await events.publish(new ProductDeactivated(product.getId()))
+
+      return { productId: product.getId() }
+    })
   }
 }

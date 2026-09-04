@@ -26,6 +26,18 @@ export class BunNativeHttpServer implements HttpServer {
     this.routes.set(`POST ${path}`, handler)
   }
 
+  put(path: string, handler: RouteHandler): void {
+    this.routes.set(`PUT ${path}`, handler)
+  }
+
+  patch(path: string, handler: RouteHandler): void {
+    this.routes.set(`PATCH ${path}`, handler)
+  }
+
+  delete(path: string, handler: RouteHandler): void {
+    this.routes.set(`DELETE ${path}`, handler)
+  }
+
   use(path: string, middleware: Middleware): void {
     this.middlewares.push({ path, middleware })
   }
@@ -54,6 +66,7 @@ export class BunNativeHttpServer implements HttpServer {
     }
 
     const httpRequest: HttpRequest = {
+      method: request.method,
       context: {},
       params: {},
       query: Object.fromEntries(url.searchParams),

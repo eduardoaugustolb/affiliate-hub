@@ -5,7 +5,7 @@ tags:
   - module
 status: living
 created: 2026-08-06
-updated: 2026-08-06
+updated: 2026-08-20
 ---
 
 # 🧩 Módulos (Bounded Contexts)
@@ -36,14 +36,22 @@ implantado (ver [[04-Infrastructure/Deploy-Topology]]).
   entre pacotes de módulo.
 - **LinkRedirect / CommentAssist → Catalog**: leitura via `ProductRepository`
   compartilhado (mesma porta, reaproveitada como dependência de leitura).
-- **AffiliateSync → Catalog**: `ImportProductFromFeed` delega a
-  `RegisterProduct` via porta, não import direto de classe.
+- **AffiliateSync → Catalog**: `ImportProductFromFeed` grava
+  `AffiliateProductImportRequested` na outbox e solicita o job Redis. O
+  consumer entrega apenas `eventId` a `DeliverAffiliateProductImport`, que
+  chama o handler de integração. O handler executa `RegisterProduct` sem
+  import direto de caso de uso entre os pacotes. Reentregas são idempotentes
+  por `(provider, externalProductId)`.
 
 ## Ver também
 
+[[AffiliateSync-Guia-Linear|Guia linear de implementação do AffiliateSync]] ·
+[[Catalog-Guia-Linear|Guia linear de implementação do Catalog]] ·
+[[IdentityAccess-Setup-Inicial|Setup inicial concorrente do painel]] ·
+[[Shopee-Affiliate-Open-API|Referência técnica da Shopee Affiliate Open API]] ·
 [[02-Decisions/ADR-0005-bun-workspaces-monorepo|ADR-0005]], como isso vira
 fronteira de pacote de workspace, não só convenção.
 
 ---
 
-*Última atualização: 2026-08-06*
+*Última atualização: 2026-08-20*

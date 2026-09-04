@@ -6,8 +6,8 @@ export class OutboxPublisherSql implements EventPublisher {
 
   async publish(event: DomainEvent): Promise<void> {
     await this.db.query(
-      'insert into outbox_events (name, payload, occurred_at) values ($1, $2, $3)',
-      [event.name, JSON.stringify(event), event.occurredAt],
+      'insert into outbox_events (event_id, name, payload, occurred_at, available_at) values ($1, $2, $3, $4, $5)',
+      [crypto.randomUUID(), event.name, JSON.stringify(event), event.occurredAt, event.occurredAt],
     )
   }
 }

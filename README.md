@@ -22,15 +22,23 @@ mesma disciplina de portas/adapters, caso de uso tipado e erro mapeado na borda.
 ```
 packages/
   shared-kernel/    Portas e tipos transversais (HttpServer, UseCase, erros)
+  contracts/        Contratos de integração entre bounded contexts
   config/           Helper de validação de env vars com zod
   catalog/          Fonte de verdade dos produtos (cadastro, curadoria, ciclo de vida)
   link-redirect/    Encurtador próprio + QR code + log de cliques
   identity-access/  Autenticação por sessão e gestão de usuário (LGPD)
+  affiliate-sync/   Integração e sincronização de catálogos de afiliados
 services/
-  api/              Composition root do HTTP server (Hono sobre Bun.serve)
+  api/              Composition root HTTP e workers (Hono sobre Bun.serve)
 vault/              Docs de arquitetura, ADRs, módulos e LGPD (Obsidian)
 PRD.md              Product Requirements Document
 ```
+
+Todo módulo de domínio organiza o código em `src/domain`, `src/application` e
+`src/adapters`. Adaptadores transversais e as bordas HTTP e de worker ficam em
+`services/api/src`. Testes unitários ficam em `test/unit`; testes que dependem
+de infraestrutura real ficam em `test/integration`. Os arquivos usam o sufixo
+`.spec.ts` para testes unitários e `.test.ts` para testes de integração.
 
 ## Como rodar local
 
@@ -65,6 +73,7 @@ bun run dev  # em services/api
 | `bun run format` | Formata com Biome |
 | `bun test` | Testes unitários (dentro de cada pacote) |
 | `bun run test:integration` | Testes de integração da API (em `services/api`) |
+| `bun --env-file=services/api/.env run test:coverage` | Suíte completa e bloqueio de cobertura global abaixo de 90% |
 | `bun run bench:http` | Benchmark dos roteadores HTTP (em `services/api`) |
 
 ## Env vars da API
@@ -74,7 +83,7 @@ Todas as variáveis são obrigatórias (validadas com zod em `services/api/src/e
 | Variável | Descrição |
 |---|---|
 | `DATABASE_URL` | URL de conexão com o Postgres |
-| `PORT` | Porta do HTTP server (padrão 3000) |
+| `PORT` | Porta do HTTP server (padrão 3001) |
 | `TZ` | Timezone da aplicação (ex.: `UTC`) |
 | `PII_ENCRYPTION_KEY` | Chave AES-256-GCM (base64url, 32 bytes) para e-mail em repouso |
 | `EMAIL_LOOKUP_HMAC_KEY` | Chave HMAC para o lookup de e-mail (LGPD) |

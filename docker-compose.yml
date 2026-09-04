@@ -9,11 +9,11 @@ services:
       TZ: UTC
       PGTZ: UTC
     ports:
-      - '5433:5432'
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d drops_do_frost']
+      test: ["CMD-SHELL", "pg_isready -U postgres -d drops_do_frost"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,7 +23,7 @@ services:
     image: dbgate/dbgate
     restart: on-failure
     ports:
-      - '8080:3000'
+      - "8080:3000"
     environment:
       CONNECTIONS: db
       LABEL_db: Drops do Frost (local)
@@ -36,5 +36,20 @@ services:
       db:
         condition: service_healthy
 
+  redis_db:
+    image: redis:7-alpine
+    restart: on-failure
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - redis_data:/data
+
 volumes:
   db_data:
+  redis_data:

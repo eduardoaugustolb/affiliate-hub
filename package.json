@@ -9,8 +9,11 @@
   ],
   "scripts": {
     "typecheck": "bun run --filter '*' typecheck",
+    "architecture:check": "bun run scripts/checkArchitecture.ts",
     "lint": "biome check .",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "db:migrate": "bun run scripts/migrate.ts",
+    "test:coverage": "bun test --coverage --coverage-reporter=lcov --coverage-dir=coverage && bun run scripts/assertCoverage.ts coverage/lcov.info"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

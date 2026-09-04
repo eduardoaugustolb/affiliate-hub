@@ -33,8 +33,10 @@ de afiliado vigente, registrando o clique.
 
 ## Portas
 
-- `ProductRepository` (reaproveitada de [[Catalog]], leitura apenas,
-  `@drops-do-frost/catalog` é dependência declarada do pacote)
+- `PublishedProductReader`: porta mínima de leitura, com
+  `findAffiliateLinkByCode(code): Promise<string | null>`. Só expõe o link de um
+  produto publicado; o consumidor não conhece a entidade nem a persistência de
+  Catalog.
 - `ClickLog`: porta de analytics, com `ClickRecord { productId, clickedAt }`.
 - `HttpServer`: porta de transporte, reaproveitada do `shared-kernel`
   (Hono hoje; trocar por outro é isolado aqui).
@@ -43,14 +45,22 @@ de afiliado vigente, registrando o clique.
 
 - `HonoHttpServer implements HttpServer`: vive em `services/api`, reaproveitado
   do Catalog (mesma instância de servidor, rotas registradas nela).
+- `CatalogPublishedProductReader`: adapter de composição em `services/api`,
+  traduz `ProductRepository` de [[Catalog]] para `PublishedProductReader` sem
+  expor a dependência ao pacote LinkRedirect.
 - `ClickLogDatabase implements ClickLog`: via `DatabaseConnection`, não
   conhece Postgres especificamente (ver
   [[02-Decisions/ADR-0002-database-connection-sem-orm]]).
 
 ## Domínio
 
-O redirecionamento em si não precisa de entidade rica adicional, reaproveita
-`Product`/`affiliateLinkUrl` de [[Catalog]] como leitura (via `toSnapshot()`).
+O redirecionamento em si não precisa de entidade rica adicional. A porta
+`PublishedProductReader` expõe apenas o link afiliado vigente por código. O
+adapter só retorna o link quando o produto está `active`; portanto um produto
+`inactive` não redireciona, mesmo que `affiliate_link_url` ainda esteja
+preenchido. Produto inexistente, não publicado ou sem link resultam em 404 e
+não registram clique.
+
 `ClickRecord` é um registro de evento imutável (interface simples na própria
 porta), não uma entidade com ciclo de vida próprio, módulo propositalmente
   enxuto nesse ponto, mesma lógica de design do [[CommentAssist]].

@@ -19,6 +19,11 @@ export class UserRepositorySql implements UserRepository {
     private readonly keyedHasher: KeyedHasher,
   ) {}
 
+  async hasAnyUser(): Promise<boolean> {
+    const result = await this.db.query('select id from users limit 1')
+    return result.length > 0
+  }
+
   async deleteById(id: string): Promise<void> {
     await this.db.query('delete from users where id = $1', [id])
   }
