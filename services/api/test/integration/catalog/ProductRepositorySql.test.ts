@@ -1,4 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test'
+
+const now = new Date('2026-08-20T12:00:00.000Z')
+
 import { Product } from '@affiliate-hub/catalog'
 import { ProductRepositorySql } from '@affiliate-hub/catalog/adapters'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
@@ -19,10 +22,14 @@ describe('ProductRepositorySql (integration)', () => {
   })
 
   it('saves and finds a product by id', async () => {
-    const product = Product.createDraft(crypto.randomUUID(), {
-      name: 'Oversized Hoodie',
-      category: 'streetwear',
-    })
+    const product = Product.createDraft(
+      crypto.randomUUID(),
+      {
+        name: 'Oversized Hoodie',
+        category: 'streetwear',
+      },
+      now,
+    )
     insertedIds.push(product.getId())
 
     await productRepository.save(product)
@@ -34,15 +41,19 @@ describe('ProductRepositorySql (integration)', () => {
   })
 
   it('round-trips photos and activation state through the jsonb column', async () => {
-    const product = Product.createDraft(crypto.randomUUID(), {
-      name: 'Perfume X',
-      category: 'perfume',
-    })
+    const product = Product.createDraft(
+      crypto.randomUUID(),
+      {
+        name: 'Perfume X',
+        category: 'perfume',
+      },
+      now,
+    )
     insertedIds.push(product.getId())
-    product.addPhoto('https://example.com/photo.jpg')
-    product.approvePhoto('https://example.com/photo.jpg')
-    product.assignAffiliateLink('https://example.com/link')
-    product.activate()
+    product.addPhoto('https://example.com/photo.jpg', now)
+    product.approvePhoto('https://example.com/photo.jpg', now)
+    product.assignAffiliateLink('https://example.com/link', now)
+    product.activate(now)
 
     await productRepository.save(product)
     const found = await productRepository.findById(product.getId())
@@ -54,12 +65,20 @@ describe('ProductRepositorySql (integration)', () => {
   })
 
   it('lists only products with the given status, excluding removed ones', async () => {
-    const draft = Product.createDraft(crypto.randomUUID(), { name: 'Cap', category: 'streetwear' })
-    const removed = Product.createDraft(crypto.randomUUID(), {
-      name: 'Old Cap',
-      category: 'streetwear',
-    })
-    removed.deactivate()
+    const draft = Product.createDraft(
+      crypto.randomUUID(),
+      { name: 'Cap', category: 'streetwear' },
+      now,
+    )
+    const removed = Product.createDraft(
+      crypto.randomUUID(),
+      {
+        name: 'Old Cap',
+        category: 'streetwear',
+      },
+      now,
+    )
+    removed.deactivate(now, now)
     insertedIds.push(draft.getId(), removed.getId())
 
     await productRepository.save(draft)
@@ -73,14 +92,18 @@ describe('ProductRepositorySql (integration)', () => {
   })
 
   it('upserts on save instead of duplicating the row', async () => {
-    const product = Product.createDraft(crypto.randomUUID(), {
-      name: 'Bucket Hat',
-      category: 'streetwear',
-    })
+    const product = Product.createDraft(
+      crypto.randomUUID(),
+      {
+        name: 'Bucket Hat',
+        category: 'streetwear',
+      },
+      now,
+    )
     insertedIds.push(product.getId())
     await productRepository.save(product)
 
-    product.deactivate()
+    product.deactivate(now, now)
     await productRepository.save(product)
 
     const found = await productRepository.findById(product.getId())

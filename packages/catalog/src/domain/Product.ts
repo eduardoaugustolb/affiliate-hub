@@ -39,8 +39,7 @@ export class Product {
     private removedAt: Date | null,
   ) {}
 
-  static createDraft(id: string, data: CreateProductData): Product {
-    const now = new Date()
+  static createDraft(id: string, data: CreateProductData, now: Date): Product {
     return new Product(id, data.name, data.category, 'draft', null, null, [], null, now, now, null)
   }
 
@@ -60,36 +59,36 @@ export class Product {
     )
   }
 
-  addPhoto(url: string): void {
+  addPhoto(url: string, now: Date): void {
     this.ensureNotRemoved()
     this.photos.push(Photo.create(url))
-    this.touch()
+    this.touch(now)
   }
 
-  approvePhoto(url: string): void {
+  approvePhoto(url: string, now: Date): void {
     this.ensureNotRemoved()
     const index = this.photos.findIndex((photo) => photo.getUrl() === url)
     if (index === -1) {
       throw new DomainError(`Product has no photo with url ${url}`)
     }
     this.photos[index] = (this.photos[index] as Photo).approve()
-    this.touch()
+    this.touch(now)
   }
 
-  assignAffiliateLink(url: string): void {
+  assignAffiliateLink(url: string, now: Date): void {
     this.ensureNotRemoved()
     Product.validateAffiliateLinkUrl(url)
     this.affiliateLinkUrl = url
-    this.touch()
+    this.touch(now)
   }
 
-  assignTemplate(templateId: string): void {
+  assignTemplate(templateId: string, now: Date): void {
     this.ensureNotRemoved()
     this.assignedTemplate = templateId
-    this.touch()
+    this.touch(now)
   }
 
-  activate(): void {
+  activate(now: Date): void {
     this.ensureNotRemoved()
     if (!this.hasApprovedPhoto()) {
       throw new DomainError('Product needs at least one approved photo to be activated')
@@ -98,14 +97,14 @@ export class Product {
       throw new DomainError('Product needs a valid affiliate link to be activated')
     }
     this.status = 'active'
-    this.touch()
+    this.touch(now)
   }
 
-  deactivate(): void {
+  deactivate(removedAt: Date, now: Date): void {
     this.ensureNotRemoved()
     this.status = 'inactive'
-    this.removedAt = new Date()
-    this.touch()
+    this.removedAt = removedAt
+    this.touch(now)
   }
 
   toSnapshot(): ProductSnapshot {
@@ -142,8 +141,8 @@ export class Product {
     }
   }
 
-  private touch(): void {
-    this.updatedAt = new Date()
+  private touch(updatedAt: Date): void {
+    this.updatedAt = updatedAt
   }
 
   private static validateAffiliateLinkUrl(value: string): void {

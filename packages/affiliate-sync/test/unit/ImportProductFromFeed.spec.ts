@@ -4,6 +4,8 @@ import type { AffiliateProductImportJobQueue } from '../../src/application/ports
 import type { IntegrationEventPublisher } from '../../src/application/ports/IntegrationEventPublisher'
 import { ImportProductFromFeed } from '../../src/application/use-cases/ImportProductFromFeed'
 
+const clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
+
 describe('ImportProductFromFeed', () => {
   it('publishes the normalized product as an integration event', async () => {
     const events: unknown[] = []
@@ -23,6 +25,7 @@ describe('ImportProductFromFeed', () => {
       queue,
       { generate: () => 'event-123' },
       eventDelivery,
+      clock,
     )
 
     const output = await useCase.execute({

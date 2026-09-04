@@ -1,4 +1,4 @@
-import type { IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
+import type { Clock, IdGenerator, UseCase } from '@affiliate-hub/shared-kernel'
 import { type Category, Product } from '../../domain/Product'
 import type { ProductRepository } from '../ports/ProductRepository'
 
@@ -15,10 +15,11 @@ export class RegisterProduct implements UseCase<RegisterProductInput, RegisterPr
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly idGenerator: IdGenerator,
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: RegisterProductInput): Promise<RegisterProductOutput> {
-    const product = Product.createDraft(this.idGenerator.generate(), input)
+    const product = Product.createDraft(this.idGenerator.generate(), input, this.clock.now())
     await this.productRepository.save(product)
     return { productId: product.getId() }
   }

@@ -10,6 +10,7 @@ import {
 } from '@affiliate-hub/affiliate-sync/infrastructure'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
 import type { Queue, Worker } from 'bullmq'
+import { SystemClock } from '../../../src/adapters/clock/SystemClock'
 import { IdGeneratorBun } from '../../../src/adapters/crypto/IdGeneratorBun'
 import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
@@ -19,6 +20,8 @@ import { createAffiliateProductImportQueue } from '../../../src/infrastructure/q
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const clock = new SystemClock()
+const occurredAt = new Date('2026-08-20T12:00:00.000Z')
 
 describe('affiliate product import idempotency (integration)', () => {
   it('completes a redelivered event without calling Catalog a second time', async () => {
@@ -32,7 +35,7 @@ describe('affiliate product import idempotency (integration)', () => {
 
     try {
       queue = createAffiliateProductImportQueue(queueName)
-      const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun())
+      const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun(), clock)
       let handlerCalls = 0
       worker = createBullMqAffiliateProductImportConsumer(
         new DeliverAffiliateProductImport(
@@ -86,7 +89,7 @@ describe('affiliate product import idempotency (integration)', () => {
         releaseHandlers = resolve
       })
       const createGatedHandler = (db: PgAdapter) => {
-        const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun())
+        const handler = handleAffiliateProductImportRequested(db, new IdGeneratorBun(), clock)
         return async (event: Parameters<typeof handler>[0]) => {
           arrivals += 1
           if (arrivals === 2) releaseHandlers?.()
@@ -171,7 +174,7 @@ describe('affiliate product import idempotency (integration)', () => {
       worker = createBullMqAffiliateProductImportConsumer(
         new DeliverAffiliateProductImport(
           repositoryThatFailsOnce,
-          handleAffiliateProductImportRequested(db, new IdGeneratorBun()),
+          handleAffiliateProductImportRequested(db, new IdGeneratorBun(), clock),
         ),
         queueName,
       )
@@ -210,7 +213,7 @@ function createEvent(
   return {
     id: eventId,
     name: 'AffiliateProductImportRequested',
-    occurredAt: new Date().toISOString(),
+    occurredAt: occurredAt.toISOString(),
     payload: { externalProductId, name, provider: 'shopee', category: 'streetwear' },
   }
 }

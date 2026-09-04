@@ -3,6 +3,8 @@ import { RegisterManualProduct } from '../../src/application/use-cases/RegisterM
 import { IdGeneratorFake } from './doubles/IdGeneratorFake'
 import { ProductRepositoryFake } from './doubles/ProductRepositoryFake'
 
+const clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
+
 class AffiliateLinkGeneratorFake {
   constructor(private readonly affiliateLinkUrl: string) {}
 
@@ -18,6 +20,7 @@ describe('RegisterManualProduct', () => {
       productRepository,
       new IdGeneratorFake(),
       new AffiliateLinkGeneratorFake('https://s.shopee.com.br/affiliate-link'),
+      clock,
     )
 
     const output = await useCase.execute({
@@ -39,6 +42,7 @@ describe('RegisterManualProduct', () => {
       productRepository,
       new IdGeneratorFake(),
       new AffiliateLinkGeneratorFake('javascript:alert(1)'),
+      clock,
     )
 
     await expect(
@@ -55,12 +59,17 @@ describe('RegisterManualProduct', () => {
   it('rejects an invalid original product URL before invoking the affiliate provider', async () => {
     const productRepository = new ProductRepositoryFake()
     let providerCalled = false
-    const useCase = new RegisterManualProduct(productRepository, new IdGeneratorFake(), {
-      async generateAffiliateLink(): Promise<string> {
-        providerCalled = true
-        return 'https://s.shopee.com.br/affiliate-link'
+    const useCase = new RegisterManualProduct(
+      productRepository,
+      new IdGeneratorFake(),
+      {
+        async generateAffiliateLink(): Promise<string> {
+          providerCalled = true
+          return 'https://s.shopee.com.br/affiliate-link'
+        },
       },
-    })
+      clock,
+    )
 
     await expect(
       useCase.execute({

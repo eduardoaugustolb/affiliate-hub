@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
+import type { Clock, DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
 import { handleAffiliateProductImportRequested } from '../../../src/infrastructure/event-handlers/handleAffiliateProductImportRequested'
 
 class IdGeneratorFake implements IdGenerator {
@@ -50,6 +50,8 @@ class DatabaseConnectionFake implements DatabaseConnection {
   }
 }
 
+const clock: Clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
+
 const event = {
   id: 1,
   eventId: 'event-1',
@@ -66,7 +68,7 @@ const event = {
 describe('handleAffiliateProductImportRequested', () => {
   it('registers a product and saves the external-product mapping in one transaction', async () => {
     const db = new DatabaseConnectionFake()
-    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake())
+    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake(), clock)
 
     await handler(event)
 
@@ -77,7 +79,7 @@ describe('handleAffiliateProductImportRequested', () => {
   it('does not register an already imported product', async () => {
     const db = new DatabaseConnectionFake()
     db.mappings.set(mappingKey('shopee', 'shopee-1'), 'existing-product')
-    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake())
+    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake(), clock)
 
     await handler(event)
 
@@ -87,7 +89,7 @@ describe('handleAffiliateProductImportRequested', () => {
   it('rolls back product creation when saving the mapping fails', async () => {
     const db = new DatabaseConnectionFake()
     db.failOnMappingInsert = true
-    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake())
+    const handler = handleAffiliateProductImportRequested(db, new IdGeneratorFake(), clock)
 
     await expect(handler(event)).rejects.toThrow('registry unavailable')
     expect(db.products).toEqual([])

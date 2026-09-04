@@ -1,5 +1,6 @@
 import {
   BadRequestError,
+  type Clock,
   ExternalServiceError,
   type HttpClient,
 } from '@affiliate-hub/shared-kernel'
@@ -28,7 +29,6 @@ export interface ShopeeAffiliateProviderConfig {
   appId: string
   secret: string
   subIds?: string[]
-  now?: () => Date
 }
 
 const SHOPEE_AFFILIATE_API_URL = 'https://open-api.affiliate.shopee.com.br/graphql'
@@ -41,16 +41,14 @@ const SHOPEE_AFFILIATE_API_URL = 'https://open-api.affiliate.shopee.com.br/graph
  * list here would hide a broken sync, so it fails explicitly instead.
  */
 export class ShopeeAffiliateProvider implements AffiliateProvider {
-  private readonly now: () => Date
-
   constructor(
     private readonly httpClient: HttpClient,
     private readonly config: ShopeeAffiliateProviderConfig,
+    private readonly clock: Clock,
   ) {
     if (config.subIds && config.subIds.length > 5) {
       throw new Error('Shopee supports at most five subIds')
     }
-    this.now = config.now ?? (() => new Date())
   }
 
   async generateShortLink(originUrl: string): Promise<AffiliateLink> {
@@ -59,7 +57,8 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
       query: generateShortLinkMutation,
       variables: { originUrl, subIds: this.config.subIds ?? [] },
     })
-    const timestamp = Math.floor(this.now().getTime() / 1_000).toString()
+    const now = this.clock.now()
+    const timestamp = Math.floor(now.getTime() / 1_000).toString()
     const signature = new Bun.CryptoHasher('sha256')
       .update(`${this.config.appId}${timestamp}${payload}${this.config.secret}`)
       .digest('hex')
@@ -88,7 +87,7 @@ export class ShopeeAffiliateProvider implements AffiliateProvider {
       )
     }
 
-    return AffiliateLink.create(shortLink)
+    return AffiliateLink.create(shortLink, now)
   }
 
   async listUpdatedProducts(): Promise<AffiliateProduct[]> {

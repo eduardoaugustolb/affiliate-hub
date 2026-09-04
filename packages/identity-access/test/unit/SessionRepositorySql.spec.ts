@@ -34,7 +34,9 @@ function databaseWithResponses(responses: unknown[][]): {
 describe('SessionRepositorySql', () => {
   it('saves sessions and deletes them by id or token hash', async () => {
     const { db, calls } = databaseWithResponses([[], [], []])
-    const repository = new SessionRepositorySql(db)
+    const repository = new SessionRepositorySql(db, {
+      now: () => new Date('2026-08-20T12:00:00.000Z'),
+    })
     const session = Session.create('SESSION-1', {
       tokenHash: 'token-hash',
       userId: 'USER-1',
@@ -54,7 +56,9 @@ describe('SessionRepositorySql', () => {
 
   it('returns null when an id or token hash does not match a session', async () => {
     const { db } = databaseWithResponses([[], []])
-    const repository = new SessionRepositorySql(db)
+    const repository = new SessionRepositorySql(db, {
+      now: () => new Date('2026-08-20T12:00:00.000Z'),
+    })
 
     await expect(repository.findById('missing')).resolves.toBeNull()
     await expect(repository.findByTokenHash('missing')).resolves.toBeNull()
@@ -72,7 +76,9 @@ describe('SessionRepositorySql', () => {
       ],
       [],
     ])
-    const repository = new SessionRepositorySql(db)
+    const repository = new SessionRepositorySql(db, {
+      now: () => new Date('2026-08-20T12:00:00.000Z'),
+    })
 
     await expect(repository.listByUserId('USER-1')).resolves.toBeNull()
 
@@ -81,11 +87,22 @@ describe('SessionRepositorySql', () => {
   })
 
   it('rehydrates an active session found by id', async () => {
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1_000)
+    const expiresAt = new Date('2026-08-21T12:00:00.000Z')
+    const createdAt = new Date('2026-08-20T12:00:00.000Z')
     const { db } = databaseWithResponses([
-      [{ id: 'SESSION-1', token_hash: 'token-hash', user_id: 'USER-1', expires_at: expiresAt }],
+      [
+        {
+          id: 'SESSION-1',
+          token_hash: 'token-hash',
+          user_id: 'USER-1',
+          expires_at: expiresAt,
+          created_at: createdAt,
+        },
+      ],
     ])
-    const repository = new SessionRepositorySql(db)
+    const repository = new SessionRepositorySql(db, {
+      now: () => new Date('2026-08-20T12:00:00.000Z'),
+    })
 
     const session = await repository.findById('SESSION-1')
 
@@ -94,6 +111,7 @@ describe('SessionRepositorySql', () => {
       tokenHash: 'token-hash',
       userId: 'USER-1',
       expiresAt,
+      createdAt,
     })
   })
 })

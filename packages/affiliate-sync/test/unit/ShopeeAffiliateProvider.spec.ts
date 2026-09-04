@@ -2,6 +2,8 @@ import { describe, expect, it } from 'bun:test'
 import type { HttpClient, HttpRequestOptions } from '@affiliate-hub/shared-kernel'
 import { ShopeeAffiliateProvider } from '../../src/infrastructure/providers/shopee/ShopeeAffiliateProvider'
 
+const clock = { now: () => new Date('2026-08-13T12:00:00.000Z') }
+
 describe('ShopeeAffiliateProvider', () => {
   it('signs and sends the documented GraphQL short-link request through HttpClient', async () => {
     const requests: Array<{ url: string; options: unknown }> = []
@@ -15,12 +17,15 @@ describe('ShopeeAffiliateProvider', () => {
         }
       },
     }
-    const provider = new ShopeeAffiliateProvider(httpClient, {
-      appId: 'credential',
-      secret: 'secret',
-      subIds: ['affiliate-hub'],
-      now: () => new Date('2026-08-13T12:00:00.000Z'),
-    })
+    const provider = new ShopeeAffiliateProvider(
+      httpClient,
+      {
+        appId: 'credential',
+        secret: 'secret',
+        subIds: ['affiliate-hub'],
+      },
+      clock,
+    )
 
     const link = await provider.generateShortLink('https://shopee.example/product/shop/item')
 
@@ -43,10 +48,14 @@ describe('ShopeeAffiliateProvider', () => {
       get: async <Body>() => ({ status: 200, body: {} as Body }),
       post: async <Body>() => ({ status: 200, body: {} as Body }),
     }
-    const provider = new ShopeeAffiliateProvider(httpClient, {
-      appId: 'credential',
-      secret: 'secret',
-    })
+    const provider = new ShopeeAffiliateProvider(
+      httpClient,
+      {
+        appId: 'credential',
+        secret: 'secret',
+      },
+      clock,
+    )
 
     await expect(provider.listUpdatedProducts()).rejects.toThrow(
       'Shopee product feed is not configured',
@@ -61,10 +70,14 @@ describe('ShopeeAffiliateProvider', () => {
         body: { errors: [{ message: 'invalid product' }] } as Body,
       }),
     }
-    const provider = new ShopeeAffiliateProvider(httpClient, {
-      appId: 'credential',
-      secret: 'secret',
-    })
+    const provider = new ShopeeAffiliateProvider(
+      httpClient,
+      {
+        appId: 'credential',
+        secret: 'secret',
+      },
+      clock,
+    )
 
     await expect(
       provider.generateShortLink('https://shopee.example/missing-product'),
@@ -82,6 +95,7 @@ describe('ShopeeAffiliateProvider', () => {
         },
       },
       { appId: 'credential', secret: 'secret' },
+      clock,
     )
 
     await expect(provider.generateShortLink('not a URL')).rejects.toThrow(
@@ -99,6 +113,7 @@ describe('ShopeeAffiliateProvider', () => {
         },
       },
       { appId: 'credential', secret: 'secret' },
+      clock,
     )
 
     await expect(provider.generateShortLink('https://shopee.example/product')).rejects.toThrow(

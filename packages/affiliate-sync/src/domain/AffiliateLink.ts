@@ -16,17 +16,17 @@ export class AffiliateLink {
     return new AffiliateLink(parsedUrl, parsedUpdatedAt)
   }
 
-  static create(url: string): AffiliateLink {
+  static create(url: string, updatedAt: Date): AffiliateLink {
     const parsedUrl = new URL(url)
     AffiliateLink.validateUrl(parsedUrl)
-    return new AffiliateLink(parsedUrl, new Date())
+    return new AffiliateLink(parsedUrl, new Date(updatedAt))
   }
 
-  update(url: string): AffiliateLink {
+  update(url: string, updatedAt: Date): AffiliateLink {
     const parsedUrl = new URL(url)
     AffiliateLink.validateUrl(parsedUrl)
     this.url = parsedUrl
-    this.updatedAt = new Date()
+    this.updatedAt = new Date(updatedAt)
     return this
   }
 

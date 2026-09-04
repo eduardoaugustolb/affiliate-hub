@@ -1,4 +1,4 @@
-import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
+import { type Clock, NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
 import type { CatalogUnitOfWork } from '../ports/CatalogUnitOfWork'
 import { ProductDeactivated } from '../ports/EventPublisher'
 
@@ -11,7 +11,10 @@ export interface DeactivateProductOutput {
 }
 
 export class DeactivateProduct implements UseCase<DeactivateProductInput, DeactivateProductOutput> {
-  constructor(private readonly unitOfWork: CatalogUnitOfWork) {}
+  constructor(
+    private readonly unitOfWork: CatalogUnitOfWork,
+    private readonly clock: Clock,
+  ) {}
 
   async execute(input: DeactivateProductInput): Promise<DeactivateProductOutput> {
     return await this.unitOfWork.transaction(async ({ products, events }) => {
@@ -24,9 +27,10 @@ export class DeactivateProduct implements UseCase<DeactivateProductInput, Deacti
         return { productId: product.getId() }
       }
 
-      product.deactivate()
+      const now = this.clock.now()
+      product.deactivate(now, now)
       await products.save(product)
-      await events.publish(new ProductDeactivated(product.getId()))
+      await events.publish(new ProductDeactivated(product.getId(), now))
 
       return { productId: product.getId() }
     })

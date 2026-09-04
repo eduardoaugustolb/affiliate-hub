@@ -4,7 +4,7 @@ import type {
   IdentityAccessUnitOfWork,
 } from '@affiliate-hub/identity-access'
 import { SetupInitialUser } from '@affiliate-hub/identity-access'
-import type { HttpServer } from '@affiliate-hub/shared-kernel'
+import type { Clock, HttpServer } from '@affiliate-hub/shared-kernel'
 import { IdGeneratorFake } from '../../../../../packages/identity-access/test/unit/doubles/IdGeneratorFake'
 import { KeyedHasherFake } from '../../../../../packages/identity-access/test/unit/doubles/KeyedHasherFake'
 import { PasswordHasherFake } from '../../../../../packages/identity-access/test/unit/doubles/PasswordHasherFake'
@@ -16,6 +16,7 @@ import { HonoHttpServer } from '../../../src/adapters/http/HonoHttpServer'
 import { registerAdminRoutes } from '../../../src/http/routes/adminRoutes'
 
 let nextPort = 3070
+const clock: Clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
 
 class IdentityAccessUnitOfWorkFake implements IdentityAccessUnitOfWork {
   constructor(private readonly scope: IdentityAccessTransactionScope) {}
@@ -46,11 +47,13 @@ describe('Admin setup HTTP route (integration)', () => {
         new IdentityAccessUnitOfWorkFake({
           users: userRepository,
           sessions: sessionRepository,
+          clock,
         }),
         idGenerator,
         passwordHasher,
         tokenGenerator,
         keyedHasher,
+        clock,
       ),
     })
     const port = nextPort++

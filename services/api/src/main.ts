@@ -23,8 +23,9 @@ import {
   UserRepositorySql,
 } from '@affiliate-hub/identity-access/adapters'
 import { ClickLogSql, RedirectToAffiliateLink } from '@affiliate-hub/link-redirect'
-import type { HttpServer } from '@affiliate-hub/shared-kernel'
+import type { Clock, HttpServer } from '@affiliate-hub/shared-kernel'
 import { CatalogPublishedProductReader } from './adapters/catalog/CatalogPublishedProductReader'
+import { SystemClock } from './adapters/clock/SystemClock'
 import { Argon2Hasher } from './adapters/crypto/Argon2Hasher'
 import { CipherAdapter } from './adapters/crypto/CipherAdapter'
 import { HmacKeyedHasher } from './adapters/crypto/HmacKeyedHasher'
@@ -57,15 +58,17 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
     throw new Error('DATABASE_URL is not set')
   }
 
+  const clock = new SystemClock()
+
   const db = new PgAdapter(databaseUrl)
   const productRepository = new ProductRepositorySql(db)
   const catalogUnitOfWork = new CatalogUnitOfWorkSql(db)
   const clickLog = new ClickLogSql(db)
   const idGenerator = new IdGeneratorBun()
   const affiliateLinkGenerator =
-    dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator()
+    dependencies.affiliateLinkGenerator ?? createShopeeAffiliateLinkGenerator(clock)
 
-  const sessionRepository = new SessionRepositorySql(db)
+  const sessionRepository = new SessionRepositorySql(db, clock)
   const cipher = new CipherAdapter(Buffer.from(env.PII_ENCRYPTION_KEY, 'base64url'))
   const emailLookupHasher = new HmacKeyedHasher(env.EMAIL_LOOKUP_HMAC_KEY)
   const sessionTokenHasher = new HmacKeyedHasher(env.SESSION_TOKEN_HMAC_KEY)
@@ -74,20 +77,22 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   const userRepository = new UserRepositorySql(db, cipher, emailLookupHasher)
 
   const catalogUseCases: CatalogUseCases = {
-    registerProduct: new RegisterProduct(productRepository, idGenerator),
+    registerProduct: new RegisterProduct(productRepository, idGenerator, clock),
     registerManualProduct: new RegisterManualProduct(
       productRepository,
       idGenerator,
       affiliateLinkGenerator,
+      clock,
     ),
-    approveProductMedia: new ApproveProductMedia(catalogUnitOfWork),
-    deactivateProduct: new DeactivateProduct(catalogUnitOfWork),
+    approveProductMedia: new ApproveProductMedia(catalogUnitOfWork, clock),
+    deactivateProduct: new DeactivateProduct(catalogUnitOfWork, clock),
     listProductsForCuration: new ListProductsForCuration(productRepository),
   }
 
   const linkRedirectUseCases: LinkRedirectUseCases = {
     redirectToAffiliateLink: new RedirectToAffiliateLink(
       new CatalogPublishedProductReader(productRepository),
+      clock,
       clickLog,
     ),
   }
@@ -101,11 +106,13 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
       tokenGenerator,
       sessionTokenHasher,
       idGenerator,
+      clock,
     ),
     getAuthenticatedUser: new GetAuthenticatedUser(
       userRepository,
       sessionRepository,
       sessionTokenHasher,
+      clock,
     ),
   }
 
@@ -116,11 +123,12 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
 
   const adminUseCases: AdminUseCases = {
     setupInitialUser: new SetupInitialUser(
-      new IdentityAccessUnitOfWorkSql(db, cipher, emailLookupHasher),
+      new IdentityAccessUnitOfWorkSql(db, cipher, emailLookupHasher, clock),
       idGenerator,
       argon2Hasher,
       tokenGenerator,
       sessionTokenHasher,
+      clock,
     ),
   }
 
@@ -153,7 +161,7 @@ export function createServer(dependencies: ServerDependencies = {}): HttpServer 
   return httpServer
 }
 
-function createShopeeAffiliateLinkGenerator(): AffiliateLinkGenerator {
+function createShopeeAffiliateLinkGenerator(clock: Clock): AffiliateLinkGenerator {
   if (!env.SHOPEE_APP_ID || !env.SHOPEE_PASSWORD) {
     return {
       async generateAffiliateLink(): Promise<string> {
@@ -162,10 +170,14 @@ function createShopeeAffiliateLinkGenerator(): AffiliateLinkGenerator {
     }
   }
 
-  const provider = new ShopeeAffiliateProvider(new FetchHttpClient(), {
-    appId: env.SHOPEE_APP_ID,
-    secret: env.SHOPEE_PASSWORD,
-  })
+  const provider = new ShopeeAffiliateProvider(
+    new FetchHttpClient(),
+    {
+      appId: env.SHOPEE_APP_ID,
+      secret: env.SHOPEE_PASSWORD,
+    },
+    clock,
+  )
 
   return {
     async generateAffiliateLink(productUrl: string): Promise<string> {

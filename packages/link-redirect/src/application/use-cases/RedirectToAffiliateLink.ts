@@ -1,4 +1,4 @@
-import { NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
+import { type Clock, NotFoundError, type UseCase } from '@affiliate-hub/shared-kernel'
 import type { ClickLog } from '../ports/ClickLog'
 import type { PublishedProductReader } from '../ports/PublishedProductReader'
 
@@ -15,6 +15,7 @@ export class RedirectToAffiliateLink
 {
   constructor(
     private readonly publishedProductReader: PublishedProductReader,
+    private readonly clock: Clock,
     private readonly clickLog: ClickLog,
   ) {}
 
@@ -24,7 +25,7 @@ export class RedirectToAffiliateLink
       throw new NotFoundError(`Published product ${input.id} not found or has no affiliate link`)
     }
 
-    await this.clickLog.register({ productId: input.id, clickedAt: new Date() })
+    await this.clickLog.register({ productId: input.id, clickedAt: this.clock.now() })
 
     return { url: affiliateLinkUrl }
   }

@@ -4,6 +4,7 @@ import { PgAdapter } from '../../../src/adapters/database/PgAdapter'
 
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/drops_do_frost'
+const occurredAt = new Date('2026-08-20T12:00:00.000Z')
 
 describe('OutboxPublisherSql (integration)', () => {
   const db = new PgAdapter(DATABASE_URL)
@@ -16,7 +17,7 @@ describe('OutboxPublisherSql (integration)', () => {
   it('persists a domain event as a row in outbox_events', async () => {
     await eventPublisher.publish({
       name: 'ProductActivated',
-      occurredAt: new Date(),
+      occurredAt,
       productId: 'INTEGRATION-TEST-001',
     } as never)
 

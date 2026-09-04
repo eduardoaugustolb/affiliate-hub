@@ -5,7 +5,7 @@ import {
   ProductRepositorySql,
 } from '@affiliate-hub/catalog/adapters'
 import type { AffiliateProductImportRequested } from '@affiliate-hub/contracts'
-import type { DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
+import type { Clock, DatabaseConnection, IdGenerator } from '@affiliate-hub/shared-kernel'
 
 type AffiliateProductImportRequestedEvent = Pick<
   OutboxEventForDelivery,
@@ -19,6 +19,7 @@ export type AffiliateProductImportRequestedHandler = (
 export function handleAffiliateProductImportRequested(
   db: DatabaseConnection,
   idGenerator: IdGenerator,
+  clock: Clock,
 ): AffiliateProductImportRequestedHandler {
   return async (event) => {
     const payload = event.payload as AffiliateProductImportRequested['payload']
@@ -37,6 +38,7 @@ export function handleAffiliateProductImportRequested(
         const registerProduct = new RegisterProduct(
           new ProductRepositorySql(transaction),
           idGenerator,
+          clock,
         )
         const product = await registerProduct.execute({
           name: payload.name,

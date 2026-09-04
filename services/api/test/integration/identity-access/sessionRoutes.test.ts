@@ -23,6 +23,7 @@ import { registerUserRoutes } from '../../../src/http/routes/userRoutes'
 
 const PORT = 3057
 const BASE_URL = `http://localhost:${PORT}`
+const clock = { now: () => new Date('2026-08-20T12:00:00.000Z') }
 describe('Session HTTP routes (integration)', () => {
   let server: HttpServer
 
@@ -47,6 +48,7 @@ describe('Session HTTP routes (integration)', () => {
       userRepository,
       sessionRepository,
       keyedHasher,
+      clock,
     )
     registerSessionRoutes(server, {
       authenticateUser: new AuthenticateUser(
@@ -56,6 +58,7 @@ describe('Session HTTP routes (integration)', () => {
         tokenGenerator,
         keyedHasher,
         idGenerator,
+        clock,
       ),
       getAuthenticatedUser,
       logout: new Logout(sessionRepository, keyedHasher),

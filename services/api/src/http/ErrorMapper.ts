@@ -50,6 +50,12 @@ export function mapErrorToHttp(error: unknown, response: HttpResponse): void {
       .sendJson({ code: 'DOMAIN_ERROR', message: error.message })
     return
   }
+
+  console.error('[HTTP] Unhandled error', {
+    name: error instanceof Error ? error.name : typeof error,
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  })
   response.status(HttpStatus.INTERNAL_SERVER_ERROR).sendJson({
     code: 'INTERNAL_ERROR',
     message: 'Unexpected internal error',

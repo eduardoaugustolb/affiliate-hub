@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'bun:test'
+
+const now = new Date('2026-08-20T12:00:00.000Z')
+
 import { NotFoundError } from '@affiliate-hub/shared-kernel'
 import { ApproveProductMedia } from '../../src/application/use-cases/ApproveProductMedia'
 import { Product } from '../../src/domain/Product'
@@ -10,13 +13,18 @@ describe('ApproveProductMedia', () => {
   it('approves photo and activates product when tryActivate=true and the invariant is satisfied', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft('PRODUCT-1', { name: 'Perfume X', category: 'perfume' })
-    product.addPhoto('https://example.com/photo.jpg')
-    product.assignAffiliateLink('https://example.com/link')
+    const product = Product.createDraft(
+      'PRODUCT-1',
+      { name: 'Perfume X', category: 'perfume' },
+      now,
+    )
+    product.addPhoto('https://example.com/photo.jpg', now)
+    product.assignAffiliateLink('https://example.com/link', now)
     await productRepository.save(product)
 
     const useCase = new ApproveProductMedia(
       new CatalogUnitOfWorkFake(productRepository, eventPublisher),
+      { now: () => now },
     )
     const output = await useCase.execute({
       productId: product.getId(),
@@ -32,6 +40,7 @@ describe('ApproveProductMedia', () => {
   it('throws NotFoundError when product does not exist', async () => {
     const useCase = new ApproveProductMedia(
       new CatalogUnitOfWorkFake(new ProductRepositoryFake(), new EventPublisherFake()),
+      { now: () => now },
     )
 
     await expect(
@@ -42,15 +51,20 @@ describe('ApproveProductMedia', () => {
   it('does not publish a duplicate activation event on retry', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft('PRODUCT-RETRY', {
-      name: 'Perfume Retry',
-      category: 'perfume',
-    })
-    product.addPhoto('https://example.com/retry.jpg')
-    product.assignAffiliateLink('https://example.com/link')
+    const product = Product.createDraft(
+      'PRODUCT-RETRY',
+      {
+        name: 'Perfume Retry',
+        category: 'perfume',
+      },
+      now,
+    )
+    product.addPhoto('https://example.com/retry.jpg', now)
+    product.assignAffiliateLink('https://example.com/link', now)
     await productRepository.save(product)
     const useCase = new ApproveProductMedia(
       new CatalogUnitOfWorkFake(productRepository, eventPublisher),
+      { now: () => now },
     )
     const input = {
       productId: product.getId(),
@@ -67,12 +81,17 @@ describe('ApproveProductMedia', () => {
   it('does not publish an event when not trying to activate', async () => {
     const productRepository = new ProductRepositoryFake()
     const eventPublisher = new EventPublisherFake()
-    const product = Product.createDraft('PRODUCT-2', { name: 'Perfume X', category: 'perfume' })
-    product.addPhoto('https://example.com/photo.jpg')
+    const product = Product.createDraft(
+      'PRODUCT-2',
+      { name: 'Perfume X', category: 'perfume' },
+      now,
+    )
+    product.addPhoto('https://example.com/photo.jpg', now)
     await productRepository.save(product)
 
     const useCase = new ApproveProductMedia(
       new CatalogUnitOfWorkFake(productRepository, eventPublisher),
+      { now: () => now },
     )
     await useCase.execute({
       productId: product.getId(),

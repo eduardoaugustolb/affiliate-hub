@@ -5,6 +5,7 @@ import { KeyedHasherFake } from './doubles/KeyedHasherFake'
 import { SessionRepositoryFake } from './doubles/SessionRepositoryFake'
 
 const TOKEN = 'session-token'
+const expiresAt = new Date('2026-08-21T12:00:00.000Z')
 
 async function setup() {
   const sessionRepository = new SessionRepositoryFake()
@@ -15,7 +16,7 @@ async function setup() {
     Session.create('SESSION-1', {
       tokenHash: await keyedHasher.hash(TOKEN),
       userId: 'USER-1',
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      expiresAt,
     }),
   )
 
