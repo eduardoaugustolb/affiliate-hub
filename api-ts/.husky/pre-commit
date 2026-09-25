@@ -1,0 +1,4 @@
+cd api-ts
+bunx --bun @biomejs/biome check --staged --write --files-ignore-unknown=true --no-errors-on-unmatched
+git update-index --again
+bun test --pass-with-no-tests

@@ -1,0 +1,7 @@
+MSG_FILE="$1"
+case "$MSG_FILE" in
+	/*) ;;
+	*) MSG_FILE="$(pwd)/$MSG_FILE" ;;
+esac
+cd api-ts
+bunx --bun commitlint --edit "$MSG_FILE"
