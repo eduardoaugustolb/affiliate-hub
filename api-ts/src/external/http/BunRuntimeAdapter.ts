@@ -2,7 +2,7 @@ import type {
 	FetchHandler,
 	HttpRuntime,
 	RunningServer,
-} from "../../infra/http/HttpRuntime";
+} from "@/infra/http/HttpRuntime";
 
 export class HttpBunRuntimeAdapter implements HttpRuntime {
 	async serve(

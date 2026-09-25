@@ -1,14 +1,14 @@
 import { type Context, Hono } from "hono";
 import type { StatusCode } from "hono/utils/http-status";
-import { ErrorMapper } from "../../infra/ErrorMapper";
-import type { HttpRuntime, RunningServer } from "../../infra/http/HttpRuntime";
+import { ErrorMapper } from "@/infra/ErrorMapper";
+import type { HttpRuntime, RunningServer } from "@/infra/http/HttpRuntime";
 import {
 	type HttpMethod,
 	type HttpRequest,
 	type HttpResponse,
 	type HttpServer,
 	HttpStatusCode,
-} from "../../infra/http/HttpServer";
+} from "@/infra/http/HttpServer";
 
 export class HonoAdapter implements HttpServer {
 	private app: Hono;
