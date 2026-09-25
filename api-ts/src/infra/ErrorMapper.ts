@@ -1,4 +1,5 @@
-import { NotFoundError } from "../application/errors/NotFound";
+import { NotFoundError } from "@/application/errors/NotFoundError";
+import { DomainError } from "@/domain/errors/DomainError";
 import { type HttpResponse, HttpStatusCode } from "./http/HttpServer";
 
 export class ErrorMapper {
@@ -10,9 +11,25 @@ export class ErrorMapper {
 					message: error.message,
 					code: error.code,
 				},
-				headers: {},
+				headers: {
+					"Content-Type": "application/json",
+				},
 			};
 		}
+
+		if (error instanceof DomainError) {
+			return {
+				status: HttpStatusCode.UNPROCESSABLE_ENTITY,
+				body: {
+					code: error.code,
+					message: error.message,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			};
+		}
+
 		return {
 			status: HttpStatusCode.INTERNAL_SERVER_ERROR,
 			body: {

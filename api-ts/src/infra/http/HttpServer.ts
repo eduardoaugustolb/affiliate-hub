@@ -13,6 +13,7 @@ export enum HttpStatusCode {
 	UNAUTHORIZED = 401,
 	FORBIDDEN = 403,
 	CONFLICT = 409,
+	UNPROCESSABLE_ENTITY = 422,
 }
 
 export type HttpRequest = {
