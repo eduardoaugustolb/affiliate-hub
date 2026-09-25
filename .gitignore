@@ -1,0 +1,11 @@
+# env files
+.env
+.env.production
+
+# agents config
+.claude
+.codex
+.agents
+.opencode
+CLAUDE.md
+AGENTS.md
