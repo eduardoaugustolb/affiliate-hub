@@ -1,12 +1,33 @@
 import { ProductCode } from "./ProductCode";
 import { ProductDestinationUrl } from "./ProductDestinationUrl";
+import { ProductImageUrl } from "./ProductImageUrl";
+import { ProductMarketplace } from "./ProductMarketplace";
+import { ProductStatus } from "./ProductStatus";
 
 export class Product {
 	private readonly code: ProductCode;
 	private readonly destinationUrl: ProductDestinationUrl;
-	private constructor(code: string, destinationUrl: string) {
+	private readonly marketplace: ProductMarketplace;
+	private readonly imageUrl: ProductImageUrl;
+	private readonly status: ProductStatus;
+
+	private constructor(
+		private id: string,
+		code: string,
+		destinationUrl: string,
+		marketplace: string,
+		imageUrl: string,
+		status: string,
+	) {
 		this.code = new ProductCode(code);
 		this.destinationUrl = new ProductDestinationUrl(destinationUrl);
+		this.marketplace = new ProductMarketplace(marketplace);
+		this.imageUrl = new ProductImageUrl(imageUrl);
+		this.status = new ProductStatus(status);
+	}
+
+	getId(): string {
+		return this.id;
 	}
 
 	getCode(): ProductCode {
@@ -17,7 +38,26 @@ export class Product {
 		return this.destinationUrl;
 	}
 
-	static Create(code: string, destinationUrl: string) {
-		return new Product(code, destinationUrl);
+	getMarketplace(): ProductMarketplace {
+		return this.marketplace;
+	}
+
+	getImageUrl(): ProductImageUrl {
+		return this.imageUrl;
+	}
+
+	getStatus(): ProductStatus {
+		return this.status;
+	}
+
+	static create(
+		id: string,
+		code: string,
+		destinationUrl: string,
+		marketplace: string,
+		imageUrl: string,
+		status: string,
+	) {
+		return new Product(id, code, destinationUrl, marketplace, imageUrl, status);
 	}
 }
