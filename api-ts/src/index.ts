@@ -1,5 +1,9 @@
 import { HttpBunRuntimeAdapter } from "./external/http/BunRuntimeAdapter";
 import { HonoAdapter } from "./external/http/HonoAdapter";
+import {
+	EnvironmentVarsValidator,
+	environmentVarsSchema,
+} from "./external/validation/environment/ZodEnvironmentVarsValidator";
 import { HttpMethod } from "./infra/http/HttpServer";
 
 async function main() {
@@ -11,6 +15,13 @@ async function main() {
 		res.body = "OK";
 		return res;
 	});
+
+	const envVarsIsValid = await new EnvironmentVarsValidator(
+		environmentVarsSchema,
+	).validate(process.env);
+	if (!envVarsIsValid) {
+		throw new Error("Invalid environment variables");
+	}
 
 	await restApi.listen(3000);
 }
