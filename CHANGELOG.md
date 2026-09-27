@@ -1,3 +1,13 @@
+## [0.3.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.2.0...v0.3.0) (2026-09-27)
+
+
+### Features
+
+* **api-ts:** add env vars validation ([5b8e177](https://github.com/eduardoaugustolb/affiliate-hub/commit/5b8e1775f492d48178f68df007f5129b6558eda9))
+* **api-ts:** add product persistence with postgres ([74d7b66](https://github.com/eduardoaugustolb/affiliate-hub/commit/74d7b66d76bd91315852b72d87e796969e344b67))
+* **api-ts:** expand product domain model ([406d3dd](https://github.com/eduardoaugustolb/affiliate-hub/commit/406d3ddc00a990358c0ee2abd63bba2f515bafcb))
+* **api-ts:** validate environment before startup ([479b611](https://github.com/eduardoaugustolb/affiliate-hub/commit/479b61177f467943e9075aa195f76c6895eb99db))
+
 ## [0.2.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.1.0...v0.2.0) (2026-09-25)
 
 
