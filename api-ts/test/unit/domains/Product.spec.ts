@@ -1,48 +1,40 @@
 import { describe, expect, it } from "bun:test";
 import { Product } from "@/domain/entities/Product";
 import { DomainError } from "@/domain/errors/DomainError";
-
-const productMock = {
-	id: "id",
-	code: "ABC123",
-	destinationUrl: "https://example.com",
-	marketplace: "shein",
-	imageUrl: "https://example.com/image.jpg",
-	status: "active",
-};
+import { productFake } from "../../mocks/ProductFake";
 
 describe("Product entity", () => {
 	it("should create a product with valid data", () => {
 		const product = Product.create(
-			productMock.id,
-			productMock.code,
-			productMock.destinationUrl,
-			productMock.marketplace,
-			productMock.imageUrl,
-			productMock.status,
+			productFake.id,
+			productFake.code,
+			productFake.destinationUrl,
+			productFake.marketplace,
+			productFake.imageUrl,
+			productFake.status,
 		);
 
 		expect(product).toBeTruthy();
-		expect(product.getId()).toBe(productMock.id);
-		expect(product.getCode().getValue()).toBe(productMock.code);
+		expect(product.getId()).toBe(productFake.id);
+		expect(product.getCode().getValue()).toBe(productFake.code);
 		expect(product.getDestinationUrl().getValue()).toBe(
-			productMock.destinationUrl,
+			productFake.destinationUrl,
 		);
-		expect(product.getMarketplace().getValue()).toBe(productMock.marketplace);
-		expect(product.getImageUrl().getUrl()).toBe(productMock.imageUrl);
-		expect(product.getStatus().getValue()).toBe(productMock.status);
+		expect(product.getMarketplace().getValue()).toBe(productFake.marketplace);
+		expect(product.getImageUrl().getValue()).toBe(productFake.imageUrl);
+		expect(product.getStatus().getValue()).toBe(productFake.status);
 	});
 	it.each(["I", "O", "0", ""])(
 		"should reject product creation with an invalid code",
 		(code) => {
 			expect(() =>
 				Product.create(
-					productMock.id,
+					productFake.id,
 					code,
-					productMock.destinationUrl,
-					productMock.marketplace,
-					productMock.imageUrl,
-					productMock.status,
+					productFake.destinationUrl,
+					productFake.marketplace,
+					productFake.imageUrl,
+					productFake.status,
 				),
 			).toThrow(new DomainError("Invalid product code"));
 		},
@@ -53,12 +45,12 @@ describe("Product entity", () => {
 		(destinationUrl) => {
 			expect(() =>
 				Product.create(
-					productMock.id,
-					productMock.code,
+					productFake.id,
+					productFake.code,
 					destinationUrl,
-					productMock.marketplace,
-					productMock.imageUrl,
-					productMock.status,
+					productFake.marketplace,
+					productFake.imageUrl,
+					productFake.status,
 				),
 			).toThrow(new DomainError("Invalid product destination URL"));
 		},
@@ -69,12 +61,12 @@ describe("Product entity", () => {
 		(imageUrl) => {
 			expect(() =>
 				Product.create(
-					productMock.id,
-					productMock.code,
-					productMock.destinationUrl,
-					productMock.marketplace,
+					productFake.id,
+					productFake.code,
+					productFake.destinationUrl,
+					productFake.marketplace,
 					imageUrl,
-					productMock.status,
+					productFake.status,
 				),
 			).toThrow(new DomainError("Invalid product image URL"));
 		},
@@ -85,12 +77,12 @@ describe("Product entity", () => {
 		(marketplace) => {
 			expect(() =>
 				Product.create(
-					productMock.id,
-					productMock.code,
-					productMock.destinationUrl,
+					productFake.id,
+					productFake.code,
+					productFake.destinationUrl,
 					marketplace,
-					productMock.imageUrl,
-					productMock.status,
+					productFake.imageUrl,
+					productFake.status,
 				),
 			).toThrow(new DomainError("Invalid product marketplace"));
 		},
@@ -101,11 +93,11 @@ describe("Product entity", () => {
 		(status) => {
 			expect(() =>
 				Product.create(
-					productMock.id,
-					productMock.code,
-					productMock.destinationUrl,
-					productMock.marketplace,
-					productMock.imageUrl,
+					productFake.id,
+					productFake.code,
+					productFake.destinationUrl,
+					productFake.marketplace,
+					productFake.imageUrl,
 					status,
 				),
 			).toThrow(new DomainError("Invalid product status"));

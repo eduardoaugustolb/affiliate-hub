@@ -1,14 +1,16 @@
+import { DomainError } from "../errors/DomainError";
+
 export class ProductImageUrl {
 	private readonly url: string;
 
 	constructor(url: string) {
 		if (!ProductImageUrl.validate(url)) {
-			throw new Error("Invalid product image URL");
+			throw new DomainError("Invalid product image URL");
 		}
 		this.url = url;
 	}
 
-	getUrl(): string {
+	getValue(): string {
 		return this.url;
 	}
 

@@ -8,7 +8,7 @@ describe("ProductImageUrl entity", () => {
 		const productImageUrl = new ProductImageUrl(url);
 		expect(productImageUrl).toBeTruthy();
 		expect(productImageUrl).toBeInstanceOf(ProductImageUrl);
-		expect(productImageUrl.getUrl()).toBe(url);
+		expect(productImageUrl.getValue()).toBe(url);
 	});
 
 	it.each(["http://example.com", "example", "", "example.com"])(
