@@ -1,3 +1,10 @@
+## [0.4.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.3.0...v0.4.0) (2026-09-27)
+
+
+### Features
+
+* **api-ts:** add create product use case/command and adjust product image url ([5942f71](https://github.com/eduardoaugustolb/affiliate-hub/commit/5942f71c5fb02e25cf3da8ec85b499895ae470a0))
+
 ## [0.3.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.2.0...v0.3.0) (2026-09-27)
 
 
