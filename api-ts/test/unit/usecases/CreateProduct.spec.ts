@@ -25,11 +25,11 @@ describe("CreateProduct usecase", () => {
 	};
 
 	beforeEach(() => {
-		repo = new ProductRepositoryFake();
 		idGenerator = new IdGeneratorFake();
+		repo = new ProductRepositoryFake(idGenerator);
 		productCodeGenerator = new ProductCodeGeneratorFake();
 
-		useCase = new CreateProduct(repo, idGenerator, productCodeGenerator);
+		useCase = new CreateProduct(repo, productCodeGenerator);
 	});
 
 	it("should persist a product successfully", async () => {
@@ -77,10 +77,10 @@ describe("CreateProduct usecase", () => {
 
 		const product = call[0];
 
-		expect(product.getDestinationUrl().getValue()).toBe(input.destinationUrl);
-		expect(product.getMarketplace().getValue()).toBe(input.marketplace);
-		expect(product.getImageUrl().getValue()).toBe(input.imageUrl);
-		expect(product.getStatus().getValue()).toBe(input.status);
+		expect(product.getDestinationUrl()).toBe(input.destinationUrl);
+		expect(product.getMarketplace()).toBe(input.marketplace);
+		expect(product.getImageUrl()).toBe(input.imageUrl);
+		expect(product.getStatus()).toBe(input.status);
 	});
 
 	it("should retry with a new code when the generated code already exists", async () => {

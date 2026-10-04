@@ -30,27 +30,37 @@ export class Product {
 		return this.id;
 	}
 
-	getCode(): ProductCode {
-		return this.code;
+	getCode(): string {
+		return this.code.getValue();
 	}
 
-	getDestinationUrl(): ProductDestinationUrl {
-		return this.destinationUrl;
+	getDestinationUrl(): string {
+		return this.destinationUrl.getValue();
 	}
 
-	getMarketplace(): ProductMarketplace {
-		return this.marketplace;
+	getMarketplace(): string {
+		return this.marketplace.getValue();
 	}
 
-	getImageUrl(): ProductImageUrl {
-		return this.imageUrl;
+	getImageUrl(): string {
+		return this.imageUrl.getValue();
 	}
 
-	getStatus(): ProductStatus {
-		return this.status;
+	getStatus(): string {
+		return this.status.getValue();
 	}
 
 	static create(
+		code: string,
+		destinationUrl: string,
+		marketplace: string,
+		imageUrl: string,
+		status: string,
+	) {
+		return new Product("", code, destinationUrl, marketplace, imageUrl, status);
+	}
+
+	static rehydrate(
 		id: string,
 		code: string,
 		destinationUrl: string,

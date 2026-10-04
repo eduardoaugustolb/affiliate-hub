@@ -1,7 +1,6 @@
 import { Product } from "@/domain/entities/Product";
 import { ApplicationError } from "../errors/ApplicationError";
 import { ProductCodeAlreadyExistsError } from "../errors/ProductCodeAlreadyExistsError";
-import type { IdGenerator } from "../IdGenerator";
 import type { ProductCodeGenerator } from "../ProductCodeGenerator";
 import type { ProductRepository } from "../repositories/ProductRepository";
 import type { UseCase } from "./UseCase";
@@ -20,7 +19,6 @@ export class CreateProduct
 {
 	constructor(
 		private readonly repo: ProductRepository,
-		private readonly idGenerator: IdGenerator,
 		private readonly productCodeGenerator: ProductCodeGenerator,
 	) {}
 
@@ -31,7 +29,6 @@ export class CreateProduct
 			const code = this.productCodeGenerator.generate();
 
 			const product = Product.create(
-				this.idGenerator.generate(),
 				code,
 				input.destinationUrl,
 				input.marketplace,
