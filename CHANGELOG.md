@@ -1,3 +1,15 @@
+## [0.5.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.4.0...v0.5.0) (2026-10-04)
+
+
+### Features
+
+* **api-ts:** add CreateProduct use case with retry and unit tests ([313245a](https://github.com/eduardoaugustolb/affiliate-hub/commit/313245ab7d2014d1a1cac22a7ebd6acac39af601))
+* **api-ts:** add product lookup by code with unit tests ([f0a54f6](https://github.com/eduardoaugustolb/affiliate-hub/commit/f0a54f64e31b5f4fe77b6130fdc3e98b0ad7a497))
+* **api-ts:** add session domain and repository contract ([91d677d](https://github.com/eduardoaugustolb/affiliate-hub/commit/91d677d2773bae5c1c72c27260ffa2f20943696d))
+* **api-ts:** add SQL persistence layers with mocks and unit tests ([b606ac7](https://github.com/eduardoaugustolb/affiliate-hub/commit/b606ac7e6874fdf8db0a30c59088fed7bcc726e5))
+* **api-ts:** add user entity and validation with unit tests ([014c821](https://github.com/eduardoaugustolb/affiliate-hub/commit/014c8218907da7e65c9908ff646946d8d35c592e))
+* **api-ts:** add users and sessions database migrations ([28dce72](https://github.com/eduardoaugustolb/affiliate-hub/commit/28dce72c7eb72abebbb1e4f8ff2a1266d5444f84))
+
 ## [0.4.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.3.0...v0.4.0) (2026-09-27)
 
 
