@@ -1,23 +1,20 @@
-type ProductDTO = {
+export type ProductDTO = {
 	id: string;
 	code: string;
 	destinationUrl: string;
 	marketplace: string;
 	imageUrl: string;
 	status: string;
-	updatedAt: Date;
 	createdAt: Date;
+	updatedAt: Date;
 };
-
-type InputProductDTO = Omit<ProductDTO, "updatedAt" | "createdAt">;
-
+export type InputProductDTO = Omit<ProductDTO, "createdAt" | "updatedAt">;
 export interface ProductDAO {
-	save(product: InputProductDTO): Promise<void>;
-	update(product: InputProductDTO): Promise<void>;
+	save(entity: InputProductDTO): Promise<void>;
+	update(entity: InputProductDTO): Promise<void>;
+	remove(id: string): Promise<void>;
 	findById(id: string): Promise<ProductDTO | undefined>;
-	findByCode(code: string): Promise<ProductDTO | undefined>;
-	findByMarketplace(marketplace: string): Promise<ProductDTO[] | undefined>;
-	findByDestinationUrl(
-		destinationUrl: string,
-	): Promise<ProductDTO[] | undefined>;
+	findByCode(value: string): Promise<ProductDTO | undefined>;
+	findByMarketplace(value: string): Promise<ProductDTO[]>;
+	findByDestinationUrl(value: string): Promise<ProductDTO[]>;
 }

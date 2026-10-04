@@ -1,57 +1,61 @@
+import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
 import { Product } from "@/domain/entities/Product";
+
 import type { ProductDAO } from "../DAOs/ProductDAO";
-
 export class ProductRepositorySQL implements ProductRepository {
-	constructor(private readonly dao: ProductDAO) {}
-
-	async findByCode(code: string): Promise<Product | undefined> {
-		const res = await this.dao.findByCode(code);
-		if (!res) return undefined;
-		return Product.create(
-			res.code,
-			res.destinationUrl,
-			res.marketplace,
-			res.imageUrl,
-			res.status,
-		);
+	constructor(
+		private readonly dao: ProductDAO,
+		private readonly idGenerator: IdGenerator,
+	) {}
+	async findById(value: string): Promise<Product | undefined> {
+		const row = await this.dao.findById(value);
+		return row
+			? Product.rehydrate(
+					row.id,
+					row.code,
+					row.destinationUrl,
+					row.marketplace,
+					row.imageUrl,
+					row.status,
+				)
+			: undefined;
 	}
-
-	async findById(id: string): Promise<Product | undefined> {
-		const res = await this.dao.findById(id);
-		if (!res) return undefined;
-		return Product.create(
-			res.code,
-			res.destinationUrl,
-			res.marketplace,
-			res.imageUrl,
-			res.status,
-		);
+	async findByCode(value: string): Promise<Product | undefined> {
+		const row = await this.dao.findByCode(value);
+		return row
+			? Product.rehydrate(
+					row.id,
+					row.code,
+					row.destinationUrl,
+					row.marketplace,
+					row.imageUrl,
+					row.status,
+				)
+			: undefined;
 	}
-
-	async remove(id: string): Promise<void> {
-		await this.remove(id);
-	}
-
-	async save(product: Product): Promise<void> {
+	async save(entity: Product): Promise<void> {
 		await this.dao.save({
-			id: product.getId(),
-			code: product.getCode().getValue(),
-			destinationUrl: product.getDestinationUrl().getValue(),
-			marketplace: product.getMarketplace().getValue(),
-			imageUrl: product.getImageUrl().getUrl(),
-			status: product.getStatus().getValue(),
+			id: entity.getId() || this.idGenerator.generate(),
+			code: entity.getCode(),
+			destinationUrl: entity.getDestinationUrl(),
+			marketplace: entity.getMarketplace(),
+			imageUrl: entity.getImageUrl(),
+			status: entity.getStatus(),
 		});
 	}
-
-	async update(product: Product): Promise<void> {
+	async update(entity: Product): Promise<void> {
+		if (!entity.getId()) throw new Error("Cannot update product without an id");
 		await this.dao.update({
-			id: product.getId(),
-			code: product.getCode().getValue(),
-			destinationUrl: product.getDestinationUrl().getValue(),
-			marketplace: product.getMarketplace().getValue(),
-			imageUrl: product.getImageUrl().getUrl(),
-			status: product.getStatus().getValue(),
+			id: entity.getId() || this.idGenerator.generate(),
+			code: entity.getCode(),
+			destinationUrl: entity.getDestinationUrl(),
+			marketplace: entity.getMarketplace(),
+			imageUrl: entity.getImageUrl(),
+			status: entity.getStatus(),
 		});
+	}
+	async remove(id: string): Promise<void> {
+		await this.dao.remove(id);
 	}
 }
