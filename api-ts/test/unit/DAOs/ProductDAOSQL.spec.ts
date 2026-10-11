@@ -121,14 +121,14 @@ describe("Product SQL DAO", () => {
 				method === "save" || method === "update"
 					? dao[method](row)
 					: dao[method](row.id);
-			await expect(call).rejects.toBe(error);
+			expect(call).rejects.toBe(error);
 		},
 	);
 	it.each(["save", "update"] as const)(
 		"should translate product code uniqueness errors on %s",
 		async (method) => {
 			connection.error = { code: "23505", constraint: "products_code_unique" };
-			await expect(dao[method](row)).rejects.toBeInstanceOf(
+			expect(dao[method](row)).rejects.toBeInstanceOf(
 				ProductCodeAlreadyExistsError,
 			);
 		},
@@ -136,6 +136,6 @@ describe("Product SQL DAO", () => {
 	it("should preserve unrelated uniqueness errors", async () => {
 		const error = { code: "23505", constraint: "products_pkey" };
 		connection.error = error;
-		await expect(dao.save(row)).rejects.toBe(error);
+		expect(dao.save(row)).rejects.toBe(error);
 	});
 });

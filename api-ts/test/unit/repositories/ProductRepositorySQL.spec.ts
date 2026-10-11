@@ -80,7 +80,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for id", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findById").mockRejectedValueOnce(error);
-			await expect(repo.findById("missing")).rejects.toBe(error);
+			expect(repo.findById("missing")).rejects.toBe(error);
 		});
 		it("should rehydrate all fields when finding by code", async () => {
 			await dao.save(row);
@@ -99,7 +99,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for code", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findByCode").mockRejectedValueOnce(error);
-			await expect(repo.findByCode("missing")).rejects.toBe(error);
+			expect(repo.findByCode("missing")).rejects.toBe(error);
 		});
 		it("should update persisted data", async () => {
 			await dao.save(row);
@@ -124,7 +124,7 @@ for (const factory of factories)
 		});
 		it("should reject updates without an id", async () => {
 			const update = spyOn(dao, "update");
-			await expect(
+			expect(
 				repo.update(
 					Product.create(
 						row.code,
@@ -145,7 +145,7 @@ for (const factory of factories)
 		it("should propagate save errors", async () => {
 			const error = new Error("insert failed");
 			spyOn(dao, "save").mockRejectedValueOnce(error);
-			await expect(
+			expect(
 				repo.save(
 					Product.create(
 						row.code,
@@ -160,7 +160,7 @@ for (const factory of factories)
 		it("should propagate update errors", async () => {
 			const error = new Error("update failed");
 			spyOn(dao, "update").mockRejectedValueOnce(error);
-			await expect(
+			expect(
 				repo.update(
 					Product.rehydrate(
 						row.id,
@@ -176,6 +176,6 @@ for (const factory of factories)
 		it("should propagate deletion errors", async () => {
 			const error = new Error("delete failed");
 			spyOn(dao, "remove").mockRejectedValueOnce(error);
-			await expect(repo.remove(row.id)).rejects.toBe(error);
+			expect(repo.remove(row.id)).rejects.toBe(error);
 		});
 	});
