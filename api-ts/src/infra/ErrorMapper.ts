@@ -1,4 +1,5 @@
 import { NotFoundError } from "@/application/errors/NotFoundError";
+import { UnauthorizedError } from "@/application/errors/UnauthorizedError";
 import { DomainError } from "@/domain/errors/DomainError";
 import { type HttpResponse, HttpStatusCode } from "./http/HttpServer";
 
@@ -7,6 +8,19 @@ export class ErrorMapper {
 		if (error instanceof NotFoundError) {
 			return {
 				status: HttpStatusCode.NOT_FOUND,
+				body: {
+					message: error.message,
+					code: error.code,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			};
+		}
+
+		if (error instanceof UnauthorizedError) {
+			return {
+				status: HttpStatusCode.UNAUTHORIZED,
 				body: {
 					message: error.message,
 					code: error.code,
