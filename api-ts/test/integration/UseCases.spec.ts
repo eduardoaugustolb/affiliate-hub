@@ -45,10 +45,8 @@ describe("application use case integrations", () => {
 			),
 		);
 		const auth = new AuthenticateUser(
-			{
-				withinTransaction: async (fn) =>
-					fn({ userRepo: users, sessionRepo: sessions }),
-			},
+			users,
+			sessions,
 			dateProvider,
 			hasher,
 			new BunTokenGenerator(),

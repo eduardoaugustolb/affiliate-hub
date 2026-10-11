@@ -16,14 +16,7 @@ describe("AuthenticateUser", () => {
 		const idGenerator = new IdGeneratorFake();
 		const userRepo = new UserRepositoryFake(idGenerator);
 		const sessionRepo = new SessionRepositoryFake(idGenerator, dateProvider);
-		const transaction = {
-			withinTransaction: async (
-				fn: (ctx: {
-					userRepo: UserRepositoryFake;
-					sessionRepo: SessionRepositoryFake;
-				}) => unknown,
-			) => fn({ userRepo, sessionRepo }),
-		};
+
 		const passwordHasher = {
 			hash: async (s: string) => `hash:${s}`,
 			verify: async (s: string, hash: string) => hash === `hash:${s}`,
@@ -36,7 +29,8 @@ describe("AuthenticateUser", () => {
 		};
 		const tokenHasher = { hash: async (s: string) => `token-hash:${s}` };
 		const useCase = new AuthenticateUser(
-			transaction,
+			userRepo,
+			sessionRepo,
 			dateProvider,
 			passwordHasher,
 			generator,
@@ -72,7 +66,7 @@ describe("AuthenticateUser", () => {
 	});
 
 	it("rejects an invalid password", async () => {
-		const { useCase, userRepo, sessionRepo } = setup();
+		const { useCase, userRepo } = setup();
 		await userRepo.save(
 			User.create("Alice", "alice@example.com", "hash:secret", "admin"),
 		);
