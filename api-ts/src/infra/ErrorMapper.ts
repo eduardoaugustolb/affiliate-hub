@@ -1,3 +1,4 @@
+import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
@@ -22,6 +23,19 @@ export class ErrorMapper {
 		if (error instanceof InvalidCredentialsError) {
 			return {
 				status: HttpStatusCode.UNAUTHORIZED,
+				body: {
+					message: error.message,
+					code: error.code,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			};
+		}
+
+		if (error instanceof ForbiddenOperationError) {
+			return {
+				status: HttpStatusCode.FORBIDDEN,
 				body: {
 					message: error.message,
 					code: error.code,
