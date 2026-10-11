@@ -96,6 +96,16 @@ for (const factory of factories)
 		it("should return null when email is missing", async () => {
 			expect(await repo.findByEmail("missing")).toBe(null);
 		});
+		it("should rehydrate the first admin", async () => {
+			await dao.save(row);
+			const user = await repo.findFirstAdmin();
+			expect(user).toBeInstanceOf(User);
+			expect(user?.getId()).toBe(row.id);
+			expect(user?.getRole()).toBe("admin");
+		});
+		it("should return null when no admin exists", async () => {
+			expect(await repo.findFirstAdmin()).toBeNull();
+		});
 		it("should propagate lookup errors for email", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findByEmail").mockRejectedValueOnce(error);

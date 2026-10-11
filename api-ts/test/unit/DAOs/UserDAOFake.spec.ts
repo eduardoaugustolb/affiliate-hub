@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { UserDAOFake } from "../../mocks/UserDAOFake";
 
 const row = {
@@ -18,6 +19,11 @@ describe("User DAO fake", () => {
 		expect(await dao.findById(row.id)).toMatchObject(row);
 		expect(await dao.findByEmail("eduardo@example.com")).toMatchObject(row);
 	});
+	it("should find the first admin and return null when none exists", async () => {
+		expect(await dao.findFirstAdmin()).toBe(null);
+		await dao.save(row);
+		expect(await dao.findFirstAdmin()).toMatchObject(row);
+	});
 	it("should reject duplicate ids without overwriting existing data", async () => {
 		await dao.save(row);
 		await expect(dao.save({ ...row, email: "different" })).rejects.toThrow(
@@ -25,10 +31,11 @@ describe("User DAO fake", () => {
 		);
 		expect(await dao.findById(row.id)).toMatchObject(row);
 	});
-	it("should reject duplicate unique values on insert", async () => {
+	it("should reject duplicate emails on insert", async () => {
 		await dao.save(row);
-		await expect(dao.save({ ...row, id: "id-2" })).rejects.toThrow();
-		expect(await dao.findById("id-2")).toBe(null);
+		return expect(dao.save({ ...row, id: "id-2" })).rejects.toBeInstanceOf(
+			UserAlreadyExistsError,
+		);
 	});
 	it("should reject duplicate unique values on update", async () => {
 		await dao.save(row);

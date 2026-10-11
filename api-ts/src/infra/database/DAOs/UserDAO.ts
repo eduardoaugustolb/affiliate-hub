@@ -14,4 +14,5 @@ export interface UserDAO {
 	deleteById(id: string): Promise<void>;
 	findById(id: string): Promise<UserDTO | null>;
 	findByEmail(value: string): Promise<UserDTO | null>;
+	findFirstAdmin(): Promise<UserDTO | null>;
 }

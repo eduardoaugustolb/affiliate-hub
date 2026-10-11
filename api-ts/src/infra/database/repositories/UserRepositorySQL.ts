@@ -20,6 +20,12 @@ export class UserRepositorySQL implements UserRepository {
 			? User.rehydrate(row.id, row.name, row.email, row.passwordHash, row.role)
 			: null;
 	}
+	async findFirstAdmin(): Promise<User | null> {
+		const row = await this.dao.findFirstAdmin();
+		return row
+			? User.rehydrate(row.id, row.name, row.email, row.passwordHash, row.role)
+			: null;
+	}
 	async save(entity: User): Promise<void> {
 		await this.dao.save({
 			id: entity.getId() || this.idGenerator.generate(),

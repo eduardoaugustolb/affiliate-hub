@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { UserDAOSQL } from "@/external/database/DAOs/UserDAOSQL";
 import { DatabaseConnectionFake } from "../../mocks/DatabaseConnectionFake";
 
@@ -80,6 +81,17 @@ describe("User SQL DAO", () => {
 	it("should return null when email is missing", async () => {
 		expect(await dao.findByEmail("missing")).toEqual(null);
 	});
+	it("should find the first admin by creation date", async () => {
+		connection.rows = [row];
+		expect(await dao.findFirstAdmin()).toEqual(row);
+		expect(connection.lastQuery()).toEqual({
+			sql: 'SELECT id, name, email, password_hash AS "passwordHash", role, created_at AS "createdAt", updated_at AS "updatedAt" FROM users WHERE role = $1 ORDER BY created_at ASC LIMIT 1',
+			params: ["admin"],
+		});
+	});
+	it("should return null when no admin exists", async () => {
+		expect(await dao.findFirstAdmin()).toBe(null);
+	});
 	it.each(["save", "update", "deleteById", "findById"] as const)(
 		"should propagate errors from %s",
 		async (method) => {
@@ -92,4 +104,18 @@ describe("User SQL DAO", () => {
 			await expect(call).rejects.toBe(error);
 		},
 	);
+	it.each(["save", "update"] as const)(
+		"should translate duplicate email conflicts on %s",
+		(method) => {
+			connection.error = { code: "23505", constraint: "users_email_unique" };
+			return expect(dao[method](row)).rejects.toBeInstanceOf(
+				UserAlreadyExistsError,
+			);
+		},
+	);
+	it("should preserve unrelated unique constraint errors", () => {
+		const error = { code: "23505", constraint: "users_pkey" };
+		connection.error = error;
+		return expect(dao.save(row)).rejects.toBe(error);
+	});
 });

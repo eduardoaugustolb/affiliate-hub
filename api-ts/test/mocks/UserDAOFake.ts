@@ -1,3 +1,4 @@
+import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import type {
 	InputUserDTO,
 	UserDAO,
@@ -9,7 +10,7 @@ export class UserDAOFake implements UserDAO {
 	async save(entity: InputUserDTO): Promise<void> {
 		if (this.db.has(entity.id)) throw new Error("Duplicate id");
 		if ([...this.db.values()].some((row) => row.email === entity.email))
-			throw new Error("Duplicate email");
+			throw new UserAlreadyExistsError();
 		const now = new Date();
 		this.db.set(entity.id, { ...entity, createdAt: now, updatedAt: now });
 	}
@@ -21,7 +22,7 @@ export class UserDAOFake implements UserDAO {
 				(row) => row.id !== entity.id && row.email === entity.email,
 			)
 		)
-			throw new Error("Duplicate email");
+			throw new UserAlreadyExistsError();
 		if (existing)
 			this.db.set(entity.id, { ...existing, ...entity, updatedAt: new Date() });
 	}
@@ -33,5 +34,8 @@ export class UserDAOFake implements UserDAO {
 	}
 	async findByEmail(value: string): Promise<UserDTO | null> {
 		return [...this.db.values()].find((row) => row.email === value) ?? null;
+	}
+	async findFirstAdmin(): Promise<UserDTO | null> {
+		return [...this.db.values()].find((row) => row.role === "admin") ?? null;
 	}
 }
