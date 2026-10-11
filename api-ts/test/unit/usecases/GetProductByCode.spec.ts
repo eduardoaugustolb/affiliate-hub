@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
 import { GetProductByCode } from "@/application/usecases/GetProductByCode";
@@ -16,7 +17,7 @@ describe("GetProductByCode use case", () => {
 		idGenerator = new IdGeneratorFake();
 		productRepo = new ProductRepositoryFake(idGenerator);
 
-		productRepo.save(
+		void productRepo.save(
 			Product.create(
 				productFake.code,
 				productFake.destinationUrl,
@@ -30,12 +31,14 @@ describe("GetProductByCode use case", () => {
 	});
 
 	it("should return a product", () => {
-		expect(usecase.execute({ code: productFake.code })).resolves.toBeInstanceOf(
-			Product,
-		);
+		return expect(
+			usecase.execute(undefined, { code: productFake.code }),
+		).resolves.toBeInstanceOf(Product);
 	});
 
-	it("should return null if no product is found", () => {
-		expect(usecase.execute({ code: "invalid-code" })).resolves.toBeUndefined();
+	it("should throw ProductNotFoundError when no product is found", () => {
+		return expect(
+			usecase.execute(undefined, { code: "invalid-code" }),
+		).rejects.toBeInstanceOf(ProductNotFoundError);
 	});
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { UnauthorizedError } from "@/application/errors/UnauthorizedError";
+import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { AuthenticateUser } from "@/application/usecases/AuthenticateUser";
 import { User } from "@/domain/entities/User";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
@@ -62,7 +62,7 @@ describe("AuthenticateUser", () => {
 				email: "missing@example.com",
 				password: "secret",
 			}),
-		).rejects.toBeInstanceOf(UnauthorizedError);
+		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 
 	it("rejects an invalid password", async () => {
@@ -75,6 +75,6 @@ describe("AuthenticateUser", () => {
 				email: "alice@example.com",
 				password: "wrong",
 			}),
-		).rejects.toBeInstanceOf(UnauthorizedError);
+		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 });

@@ -1,4 +1,7 @@
 import { describe, expect, it } from "bun:test";
+import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
+import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { HonoAdapter } from "@/external/http/HonoAdapter";
 import type {
 	FetchHandler,
@@ -66,6 +69,7 @@ describe("HonoAdapter", () => {
 		server.register(HttpMethod.GET, "/private", async () => {
 			throw new Error("failure");
 		});
+
 		await server.listen(8124);
 		const response = await runtime.handler?.(
 			new Request("http://localhost/private"),
@@ -74,6 +78,57 @@ describe("HonoAdapter", () => {
 		expect(await response?.json()).toEqual({
 			message: "failure",
 			code: "INTERNAL_SERVER_ERROR",
+		});
+	});
+
+	it("maps duplicate users to HTTP 409", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoAdapter(runtime);
+		server.register(HttpMethod.POST, "/users", async () => {
+			throw new UserAlreadyExistsError();
+		});
+		await server.listen(8126);
+		const response = await runtime.handler?.(
+			new Request("http://localhost/users", { method: "POST" }),
+		);
+		expect(response?.status).toBe(409);
+		expect(await response?.json()).toEqual({
+			message: "User already exists",
+			code: "USER_ALREADY_EXISTS",
+		});
+	});
+
+	it("maps invalid credentials to HTTP 401", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoAdapter(runtime);
+		server.register(HttpMethod.POST, "/login", async () => {
+			throw new InvalidCredentialsError();
+		});
+		await server.listen(8127);
+		const response = await runtime.handler?.(
+			new Request("http://localhost/login", { method: "POST" }),
+		);
+		expect(response?.status).toBe(401);
+		expect(await response?.json()).toEqual({
+			message: "Email or password is invalid",
+			code: "INVALID_CREDENTIALS",
+		});
+	});
+
+	it("maps missing products to HTTP 404", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoAdapter(runtime);
+		server.register(HttpMethod.GET, "/products/:code", async (req) => {
+			throw new ProductNotFoundError(req.params.code);
+		});
+		await server.listen(8128);
+		const response = await runtime.handler?.(
+			new Request("http://localhost/products/MISSING"),
+		);
+		expect(response?.status).toBe(404);
+		expect(await response?.json()).toEqual({
+			message: "Product with code MISSING was not found",
+			code: "PRODUCT_NOT_FOUND",
 		});
 	});
 

@@ -1,11 +1,12 @@
-import { NotFoundError } from "@/application/errors/NotFoundError";
-import { UnauthorizedError } from "@/application/errors/UnauthorizedError";
+import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
+import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { DomainError } from "@/domain/errors/DomainError";
 import { type HttpResponse, HttpStatusCode } from "./http/HttpServer";
 
 export class ErrorMapper {
 	static async toRestResponse(error: Error): Promise<HttpResponse> {
-		if (error instanceof NotFoundError) {
+		if (error instanceof ProductNotFoundError) {
 			return {
 				status: HttpStatusCode.NOT_FOUND,
 				body: {
@@ -18,9 +19,22 @@ export class ErrorMapper {
 			};
 		}
 
-		if (error instanceof UnauthorizedError) {
+		if (error instanceof InvalidCredentialsError) {
 			return {
 				status: HttpStatusCode.UNAUTHORIZED,
+				body: {
+					message: error.message,
+					code: error.code,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			};
+		}
+
+		if (error instanceof UserAlreadyExistsError) {
+			return {
+				status: HttpStatusCode.CONFLICT,
 				body: {
 					message: error.message,
 					code: error.code,

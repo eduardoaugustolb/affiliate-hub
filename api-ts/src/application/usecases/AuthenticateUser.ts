@@ -1,6 +1,6 @@
 import { Session } from "@/domain/entities/Session";
 import type { DateProvider } from "@/infra/date/Provider";
-import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { InvalidCredentialsError } from "../errors/InvalidCredentialsError";
 import type { PasswordHasher } from "../PasswordHasher";
 import { AuthenticationPolicy } from "../policy/AuthenticationPolicy";
 import type { SessionRepository } from "../repositories/SessionRepository";
@@ -28,15 +28,14 @@ export class AuthenticateUser
 
 	async execute(_: undefined, input: AuthenticateUserInput): Promise<string> {
 		const user = await this.userRepo.findByEmail(input.email);
-		if (!user) throw new UnauthorizedError("Password or email is invalid");
+		if (!user) throw new InvalidCredentialsError();
 
 		const isValidPassword = await this.passwordHasher.verify(
 			input.password,
 			user.getPasswordHash(),
 		);
 
-		if (!isValidPassword)
-			throw new UnauthorizedError("Password or email is invalid");
+		if (!isValidPassword) throw new InvalidCredentialsError();
 
 		const rawSessionToken = this.sessionTokenGenerator.generate(
 			AuthenticationPolicy.sessionTokenBytes,

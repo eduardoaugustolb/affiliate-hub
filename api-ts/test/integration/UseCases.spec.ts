@@ -25,7 +25,7 @@ describe("application use case integrations", () => {
 			imageUrl: "https://example.com/item.jpg",
 			status: "active",
 		});
-		const found = await get.execute({ code: "ABC123" });
+		const found = await get.execute(undefined, { code: "ABC123" });
 		expect(found).toBeInstanceOf(Product);
 		expect(found?.getDestinationUrl()).toBe("https://example.com/item");
 	});
