@@ -41,4 +41,18 @@ describe("GetProductByCode use case", () => {
 			usecase.execute(undefined, { code: "invalid-code" }),
 		).rejects.toBeInstanceOf(ProductNotFoundError);
 	});
+
+	it("should reject an empty code without querying the repository", async () => {
+		const findByCode = productRepo.findByCode.bind(productRepo);
+		let wasQueried = false;
+		productRepo.findByCode = async (code) => {
+			wasQueried = true;
+			return findByCode(code);
+		};
+
+		await expect(
+			usecase.execute(undefined, { code: "  " }),
+		).rejects.toBeInstanceOf(ProductNotFoundError);
+		expect(wasQueried).toBe(false);
+	});
 });
