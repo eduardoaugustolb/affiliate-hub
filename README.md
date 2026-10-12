@@ -19,8 +19,8 @@ O [PRD do MVP](PRD.MVP.md) descreve o fluxo e as funcionalidades planejadas. Ele
 
 ## Requisitos
 
-- [Bun](https://bun.sh/) — runtime e gerenciador de pacotes.
-- Docker Compose — para subir o PostgreSQL localmente.
+- [Bun](https://bun.sh/), runtime e gerenciador de pacotes.
+- Docker Compose, para subir o PostgreSQL localmente.
 
 ## Desenvolvimento local
 
