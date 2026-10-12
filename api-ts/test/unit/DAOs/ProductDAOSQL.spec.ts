@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeAlreadyExistsError";
 import { ProductDAOSQL } from "@/external/database/DAOs/ProductDAOSQL";
-import { DatabaseConnectionFake } from "../../mocks/DatabaseConnectionFake";
+import { DatabaseConnectionFake } from "../mocks/DatabaseConnectionFake";
 
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };
 const row = {

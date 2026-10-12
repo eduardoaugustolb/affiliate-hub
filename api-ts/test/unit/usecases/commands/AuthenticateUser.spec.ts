@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
-import { AuthenticateUser } from "@/application/usecases/AuthenticateUser";
+import { AuthenticateUser } from "@/application/usecases/commands/AuthenticateUser";
 import { User } from "@/domain/entities/User";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
 import { SessionRepositoryFake } from "../../mocks/SessionRepositoryFake";

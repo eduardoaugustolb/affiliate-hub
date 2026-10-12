@@ -1,6 +1,6 @@
 import { describe, expect, it, mock, spyOn } from "bun:test";
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
-import { CreateUser } from "@/application/usecases/CreateUser";
+import { CreateUser } from "@/application/usecases/commands/CreateUser";
 import { User } from "@/domain/entities/User";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
 import { UserRepositoryFake } from "../../mocks/UserRepositoryFake";

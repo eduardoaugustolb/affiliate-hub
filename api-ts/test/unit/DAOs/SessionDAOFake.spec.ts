@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { SessionDAOFake } from "../../mocks/SessionDAOFake";
+import { SessionDAOFake } from "../mocks/SessionDAOFake";
 
 const row = {
 	id: "id-1",

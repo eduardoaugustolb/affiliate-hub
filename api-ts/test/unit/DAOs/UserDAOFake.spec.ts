@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
-import { UserDAOFake } from "../../mocks/UserDAOFake";
+import { UserDAOFake } from "../mocks/UserDAOFake";
 
 const row = {
 	id: "id-1",

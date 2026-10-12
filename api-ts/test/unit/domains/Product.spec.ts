@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { Product } from "@/domain/entities/Product";
 import { DomainError } from "@/domain/errors/DomainError";
-import { productFake } from "../../mocks/ProductFake";
+import { productFake } from "../mocks/ProductFake";
 
 describe("Product entity", () => {
 	it("should create a product with valid data", () => {

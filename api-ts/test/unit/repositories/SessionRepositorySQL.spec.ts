@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { Session } from "@/domain/entities/Session";
 import { SessionRepositorySQL } from "@/infra/database/repositories/SessionRepositorySQL";
-import { SessionDAOFake } from "../../mocks/SessionDAOFake";
-import { SessionRepositoryFake } from "../../mocks/SessionRepositoryFake";
+import { SessionDAOFake } from "../mocks/SessionDAOFake";
+import { SessionRepositoryFake } from "../mocks/SessionRepositoryFake";
 
 const expiresAt = new Date("2026-10-04T13:00:00Z");
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };

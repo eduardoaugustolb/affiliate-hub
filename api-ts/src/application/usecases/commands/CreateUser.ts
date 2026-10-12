@@ -1,9 +1,9 @@
 import { User } from "@/domain/entities/User";
-import { ForbiddenOperationError } from "../errors/ForbiddenOperationError";
-import type { PasswordHasher } from "../PasswordHasher";
-import { UserCreationPolicy } from "../policy/UserCreationPolicy";
-import type { UserRepository } from "../repositories/UserRepository";
-import type { UseCase } from "./UseCase";
+import { ForbiddenOperationError } from "../../errors/ForbiddenOperationError";
+import type { PasswordHasher } from "../../PasswordHasher";
+import { UserCreationPolicy } from "../../policy/UserCreationPolicy";
+import type { UserRepository } from "../../repositories/UserRepository";
+import type { Command } from "./Command";
 
 export type CreateUserInput = {
 	name: string;
@@ -12,7 +12,7 @@ export type CreateUserInput = {
 	role: string;
 };
 
-export class CreateUser implements UseCase<User, CreateUserInput, undefined> {
+export class CreateUser implements Command<User, CreateUserInput, undefined> {
 	constructor(
 		private readonly userRepo: UserRepository,
 		private readonly passwordHasher: PasswordHasher,

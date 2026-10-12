@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
-import { GetProductByCode } from "@/application/usecases/GetProductByCode";
+import { GetProductByCode } from "@/application/usecases/queries/GetProductByCode";
 import { Product } from "@/domain/entities/Product";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
 import { productFake } from "../../mocks/ProductFake";

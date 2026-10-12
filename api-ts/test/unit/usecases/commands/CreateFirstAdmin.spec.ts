@@ -1,6 +1,6 @@
 import { describe, expect, it, mock, spyOn } from "bun:test";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
-import { CreateFirstAdmin } from "@/application/usecases/CreateFirstAdmin";
+import { CreateFirstAdmin } from "@/application/usecases/commands/CreateFirstAdmin";
 import { User } from "@/domain/entities/User";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
 import { UserRepositoryFake } from "../../mocks/UserRepositoryFake";

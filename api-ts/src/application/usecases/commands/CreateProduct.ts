@@ -1,9 +1,9 @@
 import { Product } from "@/domain/entities/Product";
-import { ApplicationError } from "../errors/ApplicationError";
-import { ProductCodeAlreadyExistsError } from "../errors/ProductCodeAlreadyExistsError";
-import type { ProductCodeGenerator } from "../ProductCodeGenerator";
-import type { ProductRepository } from "../repositories/ProductRepository";
-import type { UseCase } from "./UseCase";
+import { ApplicationError } from "../../errors/ApplicationError";
+import { ProductCodeAlreadyExistsError } from "../../errors/ProductCodeAlreadyExistsError";
+import type { ProductCodeGenerator } from "../../ProductCodeGenerator";
+import type { ProductRepository } from "../../repositories/ProductRepository";
+import type { Command } from "./Command";
 
 type CreateProductInput = {
 	destinationUrl: string;
@@ -15,14 +15,17 @@ type CreateProductInput = {
 type CreateProductOutput = undefined;
 
 export class CreateProduct
-	implements UseCase<CreateProductInput, CreateProductOutput>
+	implements Command<undefined, CreateProductInput, CreateProductOutput>
 {
 	constructor(
 		private readonly repo: ProductRepository,
 		private readonly productCodeGenerator: ProductCodeGenerator,
 	) {}
 
-	async execute(input: CreateProductInput): Promise<CreateProductOutput> {
+	async execute(
+		_actor: undefined,
+		input: CreateProductInput,
+	): Promise<CreateProductOutput> {
 		const maxRetries = 10;
 
 		for (let retries = 0; retries < maxRetries; retries++) {

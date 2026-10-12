@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { Product } from "@/domain/entities/Product";
 import { ProductRepositorySQL } from "@/infra/database/repositories/ProductRepositorySQL";
-import { ProductDAOFake } from "../../mocks/ProductDAOFake";
+import { ProductDAOFake } from "../mocks/ProductDAOFake";
 
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };
 const row = {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { Session } from "@/domain/entities/Session";
 import { DomainError } from "@/domain/errors/DomainError";
-import type { DateProvider } from "@/infra/date/Provider";
+import type { DateProvider } from "@/infra/date/DateProvider";
 
 const now = new Date("2026-10-04T12:00:00.000Z");
 const expiresAt = new Date("2026-10-04T13:00:00.000Z");

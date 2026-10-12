@@ -1,13 +1,13 @@
 import { Session } from "@/domain/entities/Session";
-import type { DateProvider } from "@/infra/date/Provider";
-import { InvalidCredentialsError } from "../errors/InvalidCredentialsError";
-import type { PasswordHasher } from "../PasswordHasher";
-import { AuthenticationPolicy } from "../policy/AuthenticationPolicy";
-import type { SessionRepository } from "../repositories/SessionRepository";
-import type { UserRepository } from "../repositories/UserRepository";
-import type { SessionTokenGenerator } from "../SessionTokenGenerator";
-import type { SessionTokenHasher } from "../SessionTokenHasher";
-import type { UseCase } from "./UseCase";
+import type { DateProvider } from "@/infra/date/DateProvider";
+import { InvalidCredentialsError } from "../../errors/InvalidCredentialsError";
+import type { PasswordHasher } from "../../PasswordHasher";
+import { AuthenticationPolicy } from "../../policy/AuthenticationPolicy";
+import type { SessionRepository } from "../../repositories/SessionRepository";
+import type { UserRepository } from "../../repositories/UserRepository";
+import type { SessionTokenGenerator } from "../../SessionTokenGenerator";
+import type { SessionTokenHasher } from "../../SessionTokenHasher";
+import type { Command } from "./Command";
 
 export type AuthenticateUserInput = {
 	email: string;
@@ -15,7 +15,7 @@ export type AuthenticateUserInput = {
 };
 
 export class AuthenticateUser
-	implements UseCase<undefined, AuthenticateUserInput, string>
+	implements Command<undefined, AuthenticateUserInput, string>
 {
 	constructor(
 		private readonly userRepo: UserRepository,

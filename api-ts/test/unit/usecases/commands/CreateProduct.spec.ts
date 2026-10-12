@@ -4,7 +4,7 @@ import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeA
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductCodeGenerator } from "@/application/ProductCodeGenerator";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
-import { CreateProduct } from "@/application/usecases/CreateProduct";
+import { CreateProduct } from "@/application/usecases/commands/CreateProduct";
 import { DomainError } from "@/domain/errors/DomainError";
 import { IdGeneratorFake } from "../../mocks/IdGeneratorFake";
 import { ProductCodeGeneratorFake } from "../../mocks/ProductCodeGeneratorFake";
@@ -33,7 +33,7 @@ describe("CreateProduct usecase", () => {
 	});
 
 	it("should persist a product successfully", async () => {
-		const result = await useCase.execute(input);
+		const result = await useCase.execute(undefined, input);
 
 		expect(result).toBeUndefined();
 	});
@@ -43,7 +43,7 @@ describe("CreateProduct usecase", () => {
 
 		idGenerator.generate = generate;
 
-		await useCase.execute(input);
+		await useCase.execute(undefined, input);
 
 		expect(generate).toHaveBeenCalledTimes(1);
 	});
@@ -53,7 +53,7 @@ describe("CreateProduct usecase", () => {
 
 		productCodeGenerator.generate = generate;
 
-		await useCase.execute(input);
+		await useCase.execute(undefined, input);
 
 		expect(generate).toHaveBeenCalledTimes(1);
 	});
@@ -63,7 +63,7 @@ describe("CreateProduct usecase", () => {
 
 		repo.save = save;
 
-		await useCase.execute(input);
+		await useCase.execute(undefined, input);
 
 		expect(save).toHaveBeenCalledTimes(1);
 
@@ -102,7 +102,7 @@ describe("CreateProduct usecase", () => {
 
 		repo.save = save;
 
-		const result = await useCase.execute(input);
+		const result = await useCase.execute(undefined, input);
 
 		expect(result).toBeUndefined();
 		expect(generate).toHaveBeenCalledTimes(2);
@@ -124,7 +124,7 @@ describe("CreateProduct usecase", () => {
 			}
 		});
 
-		await useCase.execute(input);
+		await useCase.execute(undefined, input);
 
 		expect(savedCodes).toEqual(["ABC123", "DEF456"]);
 	});
@@ -139,7 +139,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute(input);
+			await useCase.execute(undefined, input);
 
 			throw new Error("Expected use case to throw");
 		} catch (error) {
@@ -164,7 +164,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute(input);
+			await useCase.execute(undefined, input);
 
 			throw new Error("Expected use case to throw");
 		} catch (error) {
@@ -179,7 +179,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid destinationUrl",
 		async (destinationUrl) => {
 			try {
-				await useCase.execute({
+				await useCase.execute(undefined, {
 					...input,
 					destinationUrl,
 				});
@@ -197,7 +197,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid imageUrl",
 		async (imageUrl) => {
 			try {
-				await useCase.execute({
+				await useCase.execute(undefined, {
 					...input,
 					imageUrl,
 				});
@@ -213,7 +213,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid status",
 		async (status) => {
 			try {
-				await useCase.execute({
+				await useCase.execute(undefined, {
 					...input,
 					status,
 				});
@@ -229,7 +229,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid marketplace",
 		async (marketplace) => {
 			try {
-				await useCase.execute({
+				await useCase.execute(undefined, {
 					...input,
 					marketplace,
 				});
@@ -247,7 +247,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute({
+			await useCase.execute(undefined, {
 				...input,
 				destinationUrl: "invalid",
 			});

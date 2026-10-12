@@ -1,14 +1,14 @@
 import type { Product } from "@/domain/entities/Product";
-import { ProductNotFoundError } from "../errors/ProductNotFoundError";
-import type { ProductRepository } from "../repositories/ProductRepository";
-import type { UseCase } from "./UseCase";
+import { ProductNotFoundError } from "../../errors/ProductNotFoundError";
+import type { ProductRepository } from "../../repositories/ProductRepository";
+import type { Query } from "./Query";
 
 interface GetProductByCodeInput {
 	code: string;
 }
 
 export class GetProductByCode
-	implements UseCase<undefined, GetProductByCodeInput, Product>
+	implements Query<undefined, GetProductByCodeInput, Product>
 {
 	constructor(private productRepository: ProductRepository) {}
 

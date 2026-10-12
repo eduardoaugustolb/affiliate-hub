@@ -1,6 +1,6 @@
 import type { IdGenerator } from "@/application/IdGenerator";
 import { SessionRepositorySQL } from "@/infra/database/repositories/SessionRepositorySQL";
-import type { DateProvider } from "@/infra/date/Provider";
+import type { DateProvider } from "@/infra/date/DateProvider";
 import { SessionDAOFake } from "./SessionDAOFake";
 export class SessionRepositoryFake extends SessionRepositorySQL {
 	readonly fakeDAO: SessionDAOFake;

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { SessionDAOSQL } from "@/external/database/DAOs/SessionDAOSQL";
-import { DatabaseConnectionFake } from "../../mocks/DatabaseConnectionFake";
+import { DatabaseConnectionFake } from "../mocks/DatabaseConnectionFake";
 
 const expiresAt = new Date("2026-10-04T13:00:00Z");
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };

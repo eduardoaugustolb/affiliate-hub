@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { User } from "@/domain/entities/User";
 import { UserRepositorySQL } from "@/infra/database/repositories/UserRepositorySQL";
-import { UserDAOFake } from "../../mocks/UserDAOFake";
-import { UserRepositoryFake } from "../../mocks/UserRepositoryFake";
+import { UserDAOFake } from "../mocks/UserDAOFake";
+import { UserRepositoryFake } from "../mocks/UserRepositoryFake";
 
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };
 const row = {
