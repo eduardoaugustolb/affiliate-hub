@@ -119,7 +119,7 @@ describe("HonoAdapter", () => {
 		const runtime = new CapturingRuntime();
 		const server = new HonoAdapter(runtime);
 		server.register(HttpMethod.GET, "/products/:code", async (req) => {
-			throw new ProductNotFoundError(req.params.code);
+			throw new ProductNotFoundError(req.params.code ?? "unknown");
 		});
 		await server.listen(8128);
 		const response = await runtime.handler?.(

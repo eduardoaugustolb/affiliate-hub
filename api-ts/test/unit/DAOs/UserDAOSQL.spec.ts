@@ -101,7 +101,7 @@ describe("User SQL DAO", () => {
 				method === "save" || method === "update"
 					? dao[method](row)
 					: dao[method](row.id);
-			await expect(call).rejects.toBe(error);
+			return expect(call).rejects.toBe(error);
 		},
 	);
 	it.each(["save", "update"] as const)(

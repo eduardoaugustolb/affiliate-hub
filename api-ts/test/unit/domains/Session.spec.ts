@@ -8,6 +8,7 @@ const expiresAt = new Date("2026-10-04T13:00:00.000Z");
 const past = new Date("2026-10-04T11:00:00.000Z");
 const dateProvider: DateProvider = {
 	now: () => new Date(now.getTime()),
+	add: (ms) => new Date(now.getTime() + ms),
 };
 const userId = "user-123";
 const tokenHash = "hashed-session-token";
@@ -80,6 +81,7 @@ describe("Session entity", () => {
 	it("should validate expiration using the injected date provider", () => {
 		const laterDateProvider: DateProvider = {
 			now: () => new Date("2026-10-04T14:00:00.000Z"),
+			add: (ms) => new Date(now.getTime() + ms),
 		};
 
 		expect(() =>
@@ -90,6 +92,7 @@ describe("Session entity", () => {
 	it("should validate revocation using the injected date provider", () => {
 		const earlierDateProvider: DateProvider = {
 			now: () => new Date("2026-10-04T10:00:00.000Z"),
+			add: (ms) => new Date(now.getTime() + ms),
 		};
 
 		expect(() =>

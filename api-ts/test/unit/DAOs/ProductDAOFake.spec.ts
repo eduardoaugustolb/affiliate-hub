@@ -25,6 +25,7 @@ describe("Product DAO fake", () => {
 			"Duplicate id",
 		);
 		expect(await dao.findById(row.id)).toMatchObject(row);
+		expect(await dao.findById(row.id)).toMatchObject(row);
 	});
 	it("should reject duplicate unique values on insert", async () => {
 		await dao.save(row);
