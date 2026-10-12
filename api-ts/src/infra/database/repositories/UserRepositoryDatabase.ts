@@ -3,7 +3,7 @@ import type { UserRepository } from "@/application/repositories/UserRepository";
 import { User } from "@/domain/entities/User";
 
 import type { UserDAO } from "../DAOs/UserDAO";
-export class UserRepositorySQL implements UserRepository {
+export class UserRepositoryDatabase implements UserRepository {
 	constructor(
 		private readonly dao: UserDAO,
 		private readonly idGenerator: IdGenerator,

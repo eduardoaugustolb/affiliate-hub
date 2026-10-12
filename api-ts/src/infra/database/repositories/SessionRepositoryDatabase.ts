@@ -3,7 +3,7 @@ import type { SessionRepository } from "@/application/repositories/SessionReposi
 import { Session } from "@/domain/entities/Session";
 import type { DateProvider } from "@/infra/DateProvider";
 import type { SessionDAO } from "../DAOs/SessionDAO";
-export class SessionRepositorySQL implements SessionRepository {
+export class SessionRepositoryDatabase implements SessionRepository {
 	constructor(
 		private readonly dao: SessionDAO,
 		private readonly idGenerator: IdGenerator,

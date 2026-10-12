@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { Product } from "@/domain/entities/Product";
-import { ProductRepositorySQL } from "@/infra/database/repositories/ProductRepositorySQL";
+import { ProductRepositoryDatabase } from "@/infra/database/repositories/ProductRepositoryDatabase";
 import { ProductDAOFake } from "../mocks/ProductDAOFake";
 
 const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };
@@ -18,13 +18,13 @@ const factories = [
 	{
 		name: "SQL repository",
 		create: (dao: ProductDAOFake) =>
-			new ProductRepositorySQL(dao, { generate: () => row.id }),
+			new ProductRepositoryDatabase(dao, { generate: () => row.id }),
 	},
 ];
 for (const factory of factories)
 	describe(`Product ${factory.name}`, () => {
 		let dao: ProductDAOFake;
-		let repo: ProductRepositorySQL;
+		let repo: ProductRepositoryDatabase;
 		beforeEach(() => {
 			dao = new ProductDAOFake();
 			repo = factory.create(dao);
@@ -80,7 +80,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for id", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findById").mockRejectedValueOnce(error);
-			expect(repo.findById("missing")).rejects.toBe(error);
+			return expect(repo.findById("missing")).rejects.toBe(error);
 		});
 		it("should rehydrate all fields when finding by code", async () => {
 			await dao.save(row);
@@ -99,7 +99,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for code", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findByCode").mockRejectedValueOnce(error);
-			expect(repo.findByCode("missing")).rejects.toBe(error);
+			return expect(repo.findByCode("missing")).rejects.toBe(error);
 		});
 		it("should update persisted data", async () => {
 			await dao.save(row);
@@ -145,7 +145,7 @@ for (const factory of factories)
 		it("should propagate save errors", async () => {
 			const error = new Error("insert failed");
 			spyOn(dao, "save").mockRejectedValueOnce(error);
-			expect(
+			return expect(
 				repo.save(
 					Product.create(
 						row.code,
@@ -160,7 +160,7 @@ for (const factory of factories)
 		it("should propagate update errors", async () => {
 			const error = new Error("update failed");
 			spyOn(dao, "update").mockRejectedValueOnce(error);
-			expect(
+			return expect(
 				repo.update(
 					Product.rehydrate(
 						row.id,
@@ -176,6 +176,6 @@ for (const factory of factories)
 		it("should propagate deletion errors", async () => {
 			const error = new Error("delete failed");
 			spyOn(dao, "remove").mockRejectedValueOnce(error);
-			expect(repo.remove(row.id)).rejects.toBe(error);
+			return expect(repo.remove(row.id)).rejects.toBe(error);
 		});
 	});

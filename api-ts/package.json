@@ -1,6 +1,6 @@
 {
 	"name": "api-ts",
-	"module": "src/index.ts",
+	"module": "src/main.ts",
 	"type": "module",
 	"private": true,
 	"devDependencies": {

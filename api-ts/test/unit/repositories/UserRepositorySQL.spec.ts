@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { User } from "@/domain/entities/User";
-import { UserRepositorySQL } from "@/infra/database/repositories/UserRepositorySQL";
+import { UserRepositoryDatabase } from "@/infra/database/repositories/UserRepositoryDatabase";
 import { UserDAOFake } from "../mocks/UserDAOFake";
 import { UserRepositoryFake } from "../mocks/UserRepositoryFake";
 
@@ -18,7 +18,7 @@ const factories = [
 	{
 		name: "SQL repository",
 		create: (dao: UserDAOFake) =>
-			new UserRepositorySQL(dao, { generate: () => row.id }),
+			new UserRepositoryDatabase(dao, { generate: () => row.id }),
 	},
 	{
 		name: "repository fake",
@@ -28,7 +28,7 @@ const factories = [
 for (const factory of factories)
 	describe(`User ${factory.name}`, () => {
 		let dao: UserDAOFake;
-		let repo: UserRepositorySQL;
+		let repo: UserRepositoryDatabase;
 		beforeEach(() => {
 			dao = new UserDAOFake();
 			repo = factory.create(dao);
@@ -81,7 +81,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for id", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findById").mockRejectedValueOnce(error);
-			await expect(repo.findById("missing")).rejects.toBe(error);
+			return expect(repo.findById("missing")).rejects.toBe(error);
 		});
 		it("should rehydrate all fields when finding by email", async () => {
 			await dao.save(row);
@@ -109,7 +109,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for email", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findByEmail").mockRejectedValueOnce(error);
-			await expect(repo.findByEmail("missing")).rejects.toBe(error);
+			return expect(repo.findByEmail("missing")).rejects.toBe(error);
 		});
 		it("should update persisted data", async () => {
 			await dao.save(row);
@@ -132,7 +132,7 @@ for (const factory of factories)
 		});
 		it("should reject updates without an id", async () => {
 			const update = spyOn(dao, "update");
-			await expect(
+			expect(
 				repo.update(
 					User.create(row.name, row.email, row.passwordHash, row.role),
 				),
@@ -147,14 +147,14 @@ for (const factory of factories)
 		it("should propagate save errors", async () => {
 			const error = new Error("insert failed");
 			spyOn(dao, "save").mockRejectedValueOnce(error);
-			await expect(
+			return expect(
 				repo.save(User.create(row.name, row.email, row.passwordHash, row.role)),
 			).rejects.toBe(error);
 		});
 		it("should propagate update errors", async () => {
 			const error = new Error("update failed");
 			spyOn(dao, "update").mockRejectedValueOnce(error);
-			await expect(
+			return expect(
 				repo.update(
 					User.rehydrate(
 						row.id,
@@ -169,6 +169,6 @@ for (const factory of factories)
 		it("should propagate deletion errors", async () => {
 			const error = new Error("delete failed");
 			spyOn(dao, "deleteById").mockRejectedValueOnce(error);
-			await expect(repo.deleteById(row.id)).rejects.toBe(error);
+			return expect(repo.deleteById(row.id)).rejects.toBe(error);
 		});
 	});

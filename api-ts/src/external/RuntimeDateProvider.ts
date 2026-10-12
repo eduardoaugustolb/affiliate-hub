@@ -1,4 +1,4 @@
-import type { DateProvider } from "../DateProvider";
+import type { DateProvider } from "../infra/DateProvider";
 
 export class RuntimeDateProvider implements DateProvider {
 	now(): Date {

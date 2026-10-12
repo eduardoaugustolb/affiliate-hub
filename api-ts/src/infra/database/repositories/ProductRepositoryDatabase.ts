@@ -3,7 +3,7 @@ import type { ProductRepository } from "@/application/repositories/ProductReposi
 import { Product } from "@/domain/entities/Product";
 
 import type { ProductDAO } from "../DAOs/ProductDAO";
-export class ProductRepositorySQL implements ProductRepository {
+export class ProductRepositoryDatabase implements ProductRepository {
 	constructor(
 		private readonly dao: ProductDAO,
 		private readonly idGenerator: IdGenerator,

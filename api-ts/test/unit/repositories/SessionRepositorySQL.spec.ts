@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { Session } from "@/domain/entities/Session";
-import { SessionRepositorySQL } from "@/infra/database/repositories/SessionRepositorySQL";
+import { SessionRepositoryDatabase } from "@/infra/database/repositories/SessionRepositoryDatabase";
 import { SessionDAOFake } from "../mocks/SessionDAOFake";
 import { SessionRepositoryFake } from "../mocks/SessionRepositoryFake";
 
 const expiresAt = new Date("2026-10-04T13:00:00Z");
-const dateProvider = { now: () => new Date("2026-10-04T12:00:00Z") };
+const dateProvider = {
+	now: () => new Date("2026-10-04T12:00:00Z"),
+	add: (ms: number) => new Date(Date.parse("2026-10-04T12:00:00Z") + ms),
+};
 const row = {
 	id: "persisted-id",
 	userId: "user-123",
@@ -19,7 +22,11 @@ const factories = [
 	{
 		name: "SQL repository",
 		create: (dao: SessionDAOFake) =>
-			new SessionRepositorySQL(dao, { generate: () => row.id }, dateProvider),
+			new SessionRepositoryDatabase(
+				dao,
+				{ generate: () => row.id },
+				dateProvider,
+			),
 	},
 	{
 		name: "repository fake",
@@ -30,7 +37,7 @@ const factories = [
 for (const factory of factories)
 	describe(`Session ${factory.name}`, () => {
 		let dao: SessionDAOFake;
-		let repo: SessionRepositorySQL;
+		let repo: SessionRepositoryDatabase;
 		beforeEach(() => {
 			dao = new SessionDAOFake();
 			repo = factory.create(dao);
@@ -84,7 +91,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for id", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findById").mockRejectedValueOnce(error);
-			await expect(repo.findById("missing")).rejects.toBe(error);
+			return expect(repo.findById("missing")).rejects.toBe(error);
 		});
 		it("should rehydrate all fields when finding by tokenHash", async () => {
 			await dao.save(row);
@@ -102,7 +109,7 @@ for (const factory of factories)
 		it("should propagate lookup errors for tokenHash", async () => {
 			const error = new Error("database unavailable");
 			spyOn(dao, "findByTokenHash").mockRejectedValueOnce(error);
-			await expect(repo.findByTokenHash("missing")).rejects.toBe(error);
+			return expect(repo.findByTokenHash("missing")).rejects.toBe(error);
 		});
 		it("should update persisted data", async () => {
 			await dao.save(row);
@@ -126,7 +133,7 @@ for (const factory of factories)
 		});
 		it("should reject updates without an id", async () => {
 			const update = spyOn(dao, "update");
-			await expect(
+			expect(
 				repo.update(
 					Session.create(expiresAt, row.userId, row.tokenHash, dateProvider),
 				),
@@ -141,7 +148,7 @@ for (const factory of factories)
 		it("should propagate save errors", async () => {
 			const error = new Error("insert failed");
 			spyOn(dao, "save").mockRejectedValueOnce(error);
-			await expect(
+			return expect(
 				repo.save(
 					Session.create(expiresAt, row.userId, row.tokenHash, dateProvider),
 				),
@@ -150,7 +157,7 @@ for (const factory of factories)
 		it("should propagate update errors", async () => {
 			const error = new Error("update failed");
 			spyOn(dao, "update").mockRejectedValueOnce(error);
-			await expect(
+			return expect(
 				repo.update(
 					Session.rehydrate(
 						row.id,
@@ -166,7 +173,7 @@ for (const factory of factories)
 		it("should propagate deletion errors", async () => {
 			const error = new Error("delete failed");
 			spyOn(dao, "deleteById").mockRejectedValueOnce(error);
-			await expect(repo.deleteById(row.id)).rejects.toBe(error);
+			return expect(repo.deleteById(row.id)).rejects.toBe(error);
 		});
 		it("should preserve revocation on rehydration", async () => {
 			await dao.save({ ...row, revokedAt: dateProvider.now() });
