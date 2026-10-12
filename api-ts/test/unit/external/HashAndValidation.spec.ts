@@ -4,7 +4,7 @@ import { BunSessionTokenHasher } from "@/external/hash/BunSessionTokenHasher";
 import {
 	EnvironmentVarsValidator,
 	environmentVarsSchema,
-} from "@/external/validation/environment/ZodEnvironmentVarsValidator";
+} from "@/external/ZodEnvironmentVarsValidator";
 
 describe("hash adapters", () => {
 	it("hashes and verifies passwords without storing plaintext", async () => {

@@ -1,5 +1,5 @@
 import { Session } from "@/domain/entities/Session";
-import type { DateProvider } from "@/infra/date/DateProvider";
+import type { DateProvider } from "@/infra/DateProvider";
 import { InvalidCredentialsError } from "../../errors/InvalidCredentialsError";
 import type { PasswordHasher } from "../../PasswordHasher";
 import { AuthenticationPolicy } from "../../policy/AuthenticationPolicy";

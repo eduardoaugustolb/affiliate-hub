@@ -1,7 +1,7 @@
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { SessionRepository } from "@/application/repositories/SessionRepository";
 import { Session } from "@/domain/entities/Session";
-import type { DateProvider } from "@/infra/date/DateProvider";
+import type { DateProvider } from "@/infra/DateProvider";
 import type { SessionDAO } from "../DAOs/SessionDAO";
 export class SessionRepositorySQL implements SessionRepository {
 	constructor(

@@ -1,4 +1,4 @@
-import type { DateProvider } from "@/infra/date/DateProvider";
+import type { DateProvider } from "@/infra/DateProvider";
 import { DomainError } from "../errors/DomainError";
 
 export class SessionExpiresAt {

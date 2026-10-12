@@ -3,7 +3,7 @@ import { HonoAdapter } from "./external/http/HonoAdapter";
 import {
 	EnvironmentVarsValidator,
 	environmentVarsSchema,
-} from "./external/validation/environment/ZodEnvironmentVarsValidator";
+} from "./external/ZodEnvironmentVarsValidator";
 import { HttpMethod } from "./infra/http/HttpServer";
 
 async function main() {

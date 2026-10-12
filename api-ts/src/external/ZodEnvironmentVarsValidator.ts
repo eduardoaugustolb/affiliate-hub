@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Validator } from "@/infra/validation/Validator";
+import type { Validator } from "@/infra/Validator";
 
 export const environmentVarsSchema = z.object({
 	DATABASE_URL: z.string(),

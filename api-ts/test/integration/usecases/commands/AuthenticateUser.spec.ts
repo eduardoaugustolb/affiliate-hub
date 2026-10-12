@@ -4,7 +4,7 @@ import { User } from "@/domain/entities/User";
 import { BunTokenGenerator } from "@/external/BunTokenGenerator";
 import { BunPasswordHasher } from "@/external/hash/BunPasswordHasher";
 import { BunSessionTokenHasher } from "@/external/hash/BunSessionTokenHasher";
-import { RuntimeDateProvider } from "@/infra/date/providers/RuntimeDateProvider";
+import { RuntimeDateProvider } from "@/external/RuntimeDateProvider";
 import { IdGeneratorFake } from "../../../../test/unit/mocks/IdGeneratorFake";
 import { SessionRepositoryFake } from "../../../../test/unit/mocks/SessionRepositoryFake";
 import { UserRepositoryFake } from "../../../../test/unit/mocks/UserRepositoryFake";
