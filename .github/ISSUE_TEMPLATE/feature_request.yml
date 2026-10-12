@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a change to the product or its development workflow.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain the user-visible behavior or workflow you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Who benefits, and when?
+    validations:
+      required: false

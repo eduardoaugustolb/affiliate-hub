@@ -1,0 +1,28 @@
+name: Bug report
+description: Report behavior that does not match the documented product flow.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not include credentials, personal data, production records, or private affiliate URLs."
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Bun version, operating system, and relevant project revision.
+    validations:
+      required: false
