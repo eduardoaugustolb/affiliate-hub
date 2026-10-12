@@ -1,3 +1,20 @@
+## [0.6.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.5.0...v0.6.0) (2026-10-12)
+
+
+### Features
+
+* add admin bootstrap script ([f7b19c5](https://github.com/eduardoaugustolb/affiliate-hub/commit/f7b19c5395a668293c972b9c25c3e4e9a2486e79))
+* add user authentication sessions ([568b519](https://github.com/eduardoaugustolb/affiliate-hub/commit/568b519baa4e8f941c206f678c235bdb644f7831))
+* **admin:** prompt for bootstrap credentials ([a6a929d](https://github.com/eduardoaugustolb/affiliate-hub/commit/a6a929d3246aadc48163ebf410dc88e37929f2a2))
+* find first admin in user repository ([5a369c7](https://github.com/eduardoaugustolb/affiliate-hub/commit/5a369c79ebf46b686f15cea8a7de37f2decb159c))
+* **infra:** create affiliate database automatically ([b6a8e01](https://github.com/eduardoaugustolb/affiliate-hub/commit/b6a8e01d58d11f86322cd17e7528a37ced674a00))
+* restrict user creation to admins ([c301b49](https://github.com/eduardoaugustolb/affiliate-hub/commit/c301b4903c31ed37720223180e6390cae94322e7))
+
+
+### Bug Fixes
+
+* **api-ts:** remove unit of work on AuthenticateUser to receive repositories ([8fd912d](https://github.com/eduardoaugustolb/affiliate-hub/commit/8fd912d15b95f420a0557aa167f586ed844f3bce))
+
 ## [0.5.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.4.0...v0.5.0) (2026-10-04)
 
 
@@ -34,12 +51,4 @@
 
 * **api-ts:** add database connection port ([5e07c5f](https://github.com/eduardoaugustolb/affiliate-hub/commit/5e07c5f2081a0c36022238d95263dfe970632fe7))
 * **api-ts:** add path alias do root dir ([9d21704](https://github.com/eduardoaugustolb/affiliate-hub/commit/9d21704fd924d7134e74a43842ebb286cd21f259))
-
-## [0.1.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/22d5b985393e138153c6dacdfea1d67d3a1232e9...v0.1.0) (2026-09-25)
-
-
-### Features
-
-* add ci pipeline to update the changelog file ([f014210](https://github.com/eduardoaugustolb/affiliate-hub/commit/f01421068eb6260e601720066c380e3d11d85831))
-* **api:** setup http ports and hono adapter with bun runtime and fix husky pre-commit ([22d5b98](https://github.com/eduardoaugustolb/affiliate-hub/commit/22d5b985393e138153c6dacdfea1d67d3a1232e9))
 
