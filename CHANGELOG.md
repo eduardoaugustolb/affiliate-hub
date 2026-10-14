@@ -1,3 +1,5 @@
+## [0.6.3](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.2...v0.6.3) (2026-10-14)
+
 ## [0.6.2](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.1...v0.6.2) (2026-10-12)
 
 
@@ -40,11 +42,4 @@
 * **api-ts:** add SQL persistence layers with mocks and unit tests ([b606ac7](https://github.com/eduardoaugustolb/affiliate-hub/commit/b606ac7e6874fdf8db0a30c59088fed7bcc726e5))
 * **api-ts:** add user entity and validation with unit tests ([014c821](https://github.com/eduardoaugustolb/affiliate-hub/commit/014c8218907da7e65c9908ff646946d8d35c592e))
 * **api-ts:** add users and sessions database migrations ([28dce72](https://github.com/eduardoaugustolb/affiliate-hub/commit/28dce72c7eb72abebbb1e4f8ff2a1266d5444f84))
-
-## [0.4.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.3.0...v0.4.0) (2026-09-27)
-
-
-### Features
-
-* **api-ts:** add create product use case/command and adjust product image url ([5942f71](https://github.com/eduardoaugustolb/affiliate-hub/commit/5942f71c5fb02e25cf3da8ec85b499895ae470a0))
 
