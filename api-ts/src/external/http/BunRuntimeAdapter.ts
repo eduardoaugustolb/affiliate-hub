@@ -2,9 +2,9 @@ import type {
 	FetchHandler,
 	HttpRestRuntime,
 	RunningHttpServer,
-} from "@/infra/http/HttpRuntime";
+} from "@/infra/http/HttpRestRuntime";
 
-export class HttpBunRuntimeAdapter implements HttpRestRuntime {
+export class BunRuntimeAdapter implements HttpRestRuntime {
 	async serve(
 		handler: FetchHandler,
 		options: { port: number; hostname?: string },

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
 import { ProductCodeGeneratorFake } from "@test/support/fakes/ProductCodeGeneratorFake";
 import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
-import { productFake } from "@test/support/fixtures/product";
+import { productFake } from "@test/support/fixtures/productFake";
 import { ApplicationError } from "@/application/errors/ApplicationError";
 import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeAlreadyExistsError";
 import type { IdGenerator } from "@/application/IdGenerator";

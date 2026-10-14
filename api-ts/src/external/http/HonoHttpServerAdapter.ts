@@ -1,6 +1,10 @@
 import { type Context, Hono } from "hono";
 import type { StatusCode } from "hono/utils/http-status";
 import { ErrorMapper } from "@/infra/ErrorMapper";
+import type {
+	HttpRestRuntime,
+	RunningHttpServer,
+} from "@/infra/http/HttpRestRuntime";
 import {
 	type HttpMethod,
 	type HttpRestRequest,
@@ -8,12 +12,8 @@ import {
 	type HttpRestServer,
 	HttpStatusCode,
 } from "@/infra/http/HttpRestServer";
-import type {
-	HttpRestRuntime,
-	RunningHttpServer,
-} from "@/infra/http/HttpRuntime";
 
-export class HonoAdapter implements HttpRestServer {
+export class HonoHttpServerAdapter implements HttpRestServer {
 	private app: Hono;
 	private server: RunningHttpServer | undefined;
 

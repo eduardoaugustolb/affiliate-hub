@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
-import { HttpBunRuntimeAdapter } from "@/external/http/BunRuntimeAdapter";
-import type { RunningHttpServer } from "@/infra/http/HttpRuntime";
+import { BunRuntimeAdapter } from "@/external/http/BunRuntimeAdapter";
+import type { RunningHttpServer } from "@/infra/http/HttpRestRuntime";
 
-describe("HttpBunRuntimeAdapter", () => {
+describe("BunRuntimeAdapter", () => {
 	it("passes the handler and options to Bun and stops the server", async () => {
-		const runtime = new HttpBunRuntimeAdapter();
+		const runtime = new BunRuntimeAdapter();
 		const requests: {
 			fetch: typeof handler;
 			port: number;
@@ -47,7 +47,7 @@ describe("HttpBunRuntimeAdapter", () => {
 		Bun.serve = (() => ({ port: 0, stop() {} })) as unknown as typeof Bun.serve;
 		try {
 			return expect(
-				new HttpBunRuntimeAdapter().serve(() => new Response(), { port: 0 }),
+				new BunRuntimeAdapter().serve(() => new Response(), { port: 0 }),
 			).rejects.toThrow("Bun.serve did not return the door");
 		} finally {
 			Bun.serve = originalServe;

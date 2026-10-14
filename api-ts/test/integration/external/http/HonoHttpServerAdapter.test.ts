@@ -2,13 +2,13 @@ import { describe, expect, it } from "bun:test";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
-import { HonoAdapter } from "@/external/http/HonoHttpServerAdapter";
-import { HttpMethod, HttpStatusCode } from "@/infra/http/HttpRestServer";
+import { HonoHttpServerAdapter } from "@/external/http/HonoHttpServerAdapter";
 import type {
 	FetchHandler,
 	HttpRestRuntime,
 	RunningHttpServer,
-} from "@/infra/http/HttpRuntime";
+} from "@/infra/http/HttpRestRuntime";
+import { HttpMethod, HttpStatusCode } from "@/infra/http/HttpRestServer";
 
 class CapturingRuntime implements HttpRestRuntime {
 	handler?: FetchHandler;
@@ -29,10 +29,10 @@ class CapturingRuntime implements HttpRestRuntime {
 	}
 }
 
-describe("HonoAdapter", () => {
+describe("HonoHttpServerAdapter", () => {
 	it("maps incoming request data to the handler and returns JSON response", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.POST, "/products/:id", async (req) => ({
 			status: HttpStatusCode.OK,
 			body: {
@@ -65,7 +65,7 @@ describe("HonoAdapter", () => {
 
 	it("maps application errors into HTTP responses", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.GET, "/private", async () => {
 			throw new Error("failure");
 		});
@@ -83,7 +83,7 @@ describe("HonoAdapter", () => {
 
 	it("maps duplicate users to HTTP 409", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.POST, "/users", async () => {
 			throw new UserAlreadyExistsError();
 		});
@@ -100,7 +100,7 @@ describe("HonoAdapter", () => {
 
 	it("maps invalid credentials to HTTP 401", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.POST, "/login", async () => {
 			throw new InvalidCredentialsError();
 		});
@@ -117,7 +117,7 @@ describe("HonoAdapter", () => {
 
 	it("maps missing products to HTTP 404", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.GET, "/products/:code", async (req) => {
 			throw new ProductNotFoundError(req.params.code ?? "unknown");
 		});
@@ -134,7 +134,7 @@ describe("HonoAdapter", () => {
 
 	it("supports text responses", async () => {
 		const runtime = new CapturingRuntime();
-		const server = new HonoAdapter(runtime);
+		const server = new HonoHttpServerAdapter(runtime);
 		server.register(HttpMethod.GET, "/text", async () => ({
 			status: HttpStatusCode.OK,
 			body: "ready",

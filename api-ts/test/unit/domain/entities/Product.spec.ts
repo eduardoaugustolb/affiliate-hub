@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { productFake } from "@test/support/fixtures/product";
+import { productFake } from "@test/support/fixtures/productFake";
 import { Product } from "@/domain/entities/Product";
 import { DomainError } from "@/domain/errors/DomainError";
 

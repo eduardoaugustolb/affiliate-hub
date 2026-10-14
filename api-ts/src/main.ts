@@ -1,5 +1,5 @@
-import { HttpBunRuntimeAdapter } from "./external/http/BunRuntimeAdapter";
-import { HonoAdapter } from "./external/http/HonoHttpServerAdapter";
+import { BunRuntimeAdapter } from "./external/http/BunRuntimeAdapter";
+import { HonoHttpServerAdapter } from "./external/http/HonoHttpServerAdapter";
 import {
 	EnvironmentVarsValidator,
 	environmentVarsSchema,
@@ -7,8 +7,8 @@ import {
 import { HttpMethod } from "./infra/http/HttpRestServer";
 
 async function main() {
-	const runtime = new HttpBunRuntimeAdapter();
-	const restApi = new HonoAdapter(runtime);
+	const runtime = new BunRuntimeAdapter();
+	const restApi = new HonoHttpServerAdapter(runtime);
 
 	restApi.register(HttpMethod.GET, "/health", async (_, res) => {
 		res.headers = { "Content-Type": "text/plain" };

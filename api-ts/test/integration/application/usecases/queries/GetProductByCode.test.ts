@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
 import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
-import { productFake } from "@test/support/fixtures/product";
+import { productFake } from "@test/support/fixtures/productFake";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
