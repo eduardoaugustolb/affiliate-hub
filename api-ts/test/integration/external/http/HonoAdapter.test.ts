@@ -6,18 +6,18 @@ import { HonoAdapter } from "@/external/http/HonoHttpServerAdapter";
 import { HttpMethod, HttpStatusCode } from "@/infra/http/HttpRestServer";
 import type {
 	FetchHandler,
-	HttpRuntime,
-	RunningServer,
+	HttpRestRuntime,
+	RunningHttpServer,
 } from "@/infra/http/HttpRuntime";
 
-class CapturingRuntime implements HttpRuntime {
+class CapturingRuntime implements HttpRestRuntime {
 	handler?: FetchHandler;
 	options?: { port: number; hostname?: string };
 	stopped = false;
 	async serve(
 		handler: FetchHandler,
 		options: { port: number; hostname?: string },
-	): Promise<RunningServer> {
+	): Promise<RunningHttpServer> {
 		this.handler = handler;
 		this.options = options;
 		return {

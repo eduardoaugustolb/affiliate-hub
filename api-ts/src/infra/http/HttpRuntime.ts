@@ -1,16 +1,16 @@
 export type FetchHandler = (request: Request) => Promise<Response> | Response;
 
-export interface RunningServer {
+export interface RunningHttpServer {
 	readonly port: number;
 	stop(): Promise<void>;
 }
 
-export interface HttpRuntime {
+export interface HttpRestRuntime {
 	serve(
 		handler: FetchHandler,
 		options: {
 			port: number;
 			hostname?: string;
 		},
-	): Promise<RunningServer>;
+	): Promise<RunningHttpServer>;
 }

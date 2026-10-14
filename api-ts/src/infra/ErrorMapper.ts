@@ -3,10 +3,10 @@ import { InvalidCredentialsError } from "@/application/errors/InvalidCredentials
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { DomainError } from "@/domain/errors/DomainError";
-import { type HttpResponse, HttpStatusCode } from "./http/HttpServer";
+import { type HttpRestResponse, HttpStatusCode } from "./http/HttpRestServer";
 
 export class ErrorMapper {
-	static async toRestResponse(error: Error): Promise<HttpResponse> {
+	static async toRestResponse(error: Error): Promise<HttpRestResponse> {
 		if (error instanceof ProductNotFoundError) {
 			return {
 				status: HttpStatusCode.NOT_FOUND,

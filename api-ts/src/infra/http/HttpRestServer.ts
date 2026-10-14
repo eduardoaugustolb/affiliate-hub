@@ -16,24 +16,27 @@ export enum HttpStatusCode {
 	UNPROCESSABLE_ENTITY = 422,
 }
 
-export type HttpRequest = {
+export type HttpRestRequest = {
 	body: unknown;
 	params: Record<string, string>;
 	query: Record<string, string>;
 	headers: Record<string, string>;
 };
 
-export type HttpResponse = {
+export type HttpRestResponse = {
 	status: HttpStatusCode;
 	body: unknown;
 	headers: Record<string, string>;
 };
 
-export interface HttpServer {
+export interface HttpRestServer {
 	register(
 		method: HttpMethod,
 		path: string,
-		handler: (req: HttpRequest, res: HttpResponse) => Promise<HttpResponse>,
+		handler: (
+			req: HttpRestRequest,
+			res: HttpRestResponse,
+		) => Promise<HttpRestResponse>,
 	): void;
 	close(): Promise<void>;
 	listen(port: number): Promise<void>;

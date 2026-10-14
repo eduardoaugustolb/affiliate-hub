@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { HttpBunRuntimeAdapter } from "@/external/http/BunRuntimeAdapter";
-import type { RunningServer } from "@/infra/http/HttpRuntime";
+import type { RunningHttpServer } from "@/infra/http/HttpRuntime";
 
 describe("HttpBunRuntimeAdapter", () => {
 	it("passes the handler and options to Bun and stops the server", async () => {
@@ -28,7 +28,7 @@ describe("HttpBunRuntimeAdapter", () => {
 				},
 			} as ReturnType<typeof Bun.serve>;
 		}) as unknown as typeof Bun.serve;
-		let server: RunningServer;
+		let server: RunningHttpServer;
 		try {
 			server = await runtime.serve(handler, { port: 0, hostname: "127.0.0.1" });
 		} finally {

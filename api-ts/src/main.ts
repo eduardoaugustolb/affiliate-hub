@@ -1,10 +1,10 @@
 import { HttpBunRuntimeAdapter } from "./external/http/BunRuntimeAdapter";
-import { HonoAdapter } from "./external/http/HonoAdapter";
+import { HonoAdapter } from "./external/http/HonoHttpServerAdapter";
 import {
 	EnvironmentVarsValidator,
 	environmentVarsSchema,
 } from "./external/ZodEnvironmentVarsValidator";
-import { HttpMethod } from "./infra/http/HttpServer";
+import { HttpMethod } from "./infra/http/HttpRestServer";
 
 async function main() {
 	const runtime = new HttpBunRuntimeAdapter();

@@ -1,27 +1,33 @@
 import { type Context, Hono } from "hono";
 import type { StatusCode } from "hono/utils/http-status";
 import { ErrorMapper } from "@/infra/ErrorMapper";
-import type { HttpRuntime, RunningServer } from "@/infra/http/HttpRuntime";
 import {
 	type HttpMethod,
-	type HttpRequest,
-	type HttpResponse,
-	type HttpServer,
+	type HttpRestRequest,
+	type HttpRestResponse,
+	type HttpRestServer,
 	HttpStatusCode,
-} from "@/infra/http/HttpServer";
+} from "@/infra/http/HttpRestServer";
+import type {
+	HttpRestRuntime,
+	RunningHttpServer,
+} from "@/infra/http/HttpRuntime";
 
-export class HonoAdapter implements HttpServer {
+export class HonoAdapter implements HttpRestServer {
 	private app: Hono;
-	private server: RunningServer | undefined;
+	private server: RunningHttpServer | undefined;
 
-	constructor(private readonly runtime: HttpRuntime) {
+	constructor(private readonly runtime: HttpRestRuntime) {
 		this.app = new Hono();
 	}
 
 	register(
 		method: HttpMethod,
 		path: string,
-		handler: (req: HttpRequest, res: HttpResponse) => Promise<HttpResponse>,
+		handler: (
+			req: HttpRestRequest,
+			res: HttpRestResponse,
+		) => Promise<HttpRestResponse>,
 	): void {
 		this.app.on(method, [path], async (ctx: Context) => {
 			const rawBody = await ctx.req.text();
@@ -32,14 +38,14 @@ export class HonoAdapter implements HttpServer {
 			const params = ctx.req.param();
 			const query = ctx.req.query();
 			const headers = ctx.req.header();
-			const req: HttpRequest = {
+			const req: HttpRestRequest = {
 				body,
 				params,
 				query,
 				headers,
 			};
 
-			const res: HttpResponse = {
+			const res: HttpRestResponse = {
 				status: HttpStatusCode.OK,
 				body: null,
 				headers: {},
