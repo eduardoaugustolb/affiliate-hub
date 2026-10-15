@@ -6,7 +6,7 @@ import { HonoHttpServerAdapter } from "@/external/http/HonoHttpServerAdapter";
 import type {
 	FetchHandler,
 	HttpRestRuntime,
-	RunningHttpServer,
+	RunningRestServer,
 } from "@/infra/http/HttpRestRuntime";
 import { HttpMethod, HttpStatusCode } from "@/infra/http/HttpRestServer";
 
@@ -17,7 +17,7 @@ class CapturingRuntime implements HttpRestRuntime {
 	async serve(
 		handler: FetchHandler,
 		options: { port: number; hostname?: string },
-	): Promise<RunningHttpServer> {
+	): Promise<RunningRestServer> {
 		this.handler = handler;
 		this.options = options;
 		return {
@@ -33,16 +33,14 @@ describe("HonoHttpServerAdapter", () => {
 	it("maps incoming request data to the handler and returns JSON response", async () => {
 		const runtime = new CapturingRuntime();
 		const server = new HonoHttpServerAdapter(runtime);
-		server.register(HttpMethod.POST, "/products/:id", async (req) => ({
-			status: HttpStatusCode.OK,
-			body: {
+		server.register(HttpMethod.POST, "/products/:id", async (req, res) =>
+			res.json({
 				id: req.params.id,
 				q: req.query.q,
 				name: (req.body as { name: string }).name,
 				agent: req.headers["user-agent"],
-			},
-			headers: { "Content-Type": "application/json" },
-		}));
+			}),
+		);
 		await server.listen(8123);
 		const response = await runtime.handler?.(
 			new Request("http://localhost/products/p-1?q=abc", {
@@ -135,15 +133,198 @@ describe("HonoHttpServerAdapter", () => {
 	it("supports text responses", async () => {
 		const runtime = new CapturingRuntime();
 		const server = new HonoHttpServerAdapter(runtime);
-		server.register(HttpMethod.GET, "/text", async () => ({
-			status: HttpStatusCode.OK,
-			body: "ready",
-			headers: { "Content-Type": "text/plain" },
-		}));
+		server.register(HttpMethod.GET, "/text", async (_, res) =>
+			res.text("ready"),
+		);
 		await server.listen(8125);
 		const response = await runtime.handler?.(
 			new Request("http://localhost/text"),
 		);
-		expect(await response?.text()).toBe('"ready"');
+		expect(await response?.text()).toBe("ready");
 	});
+});
+
+// Cookies are part of the REST contract; controllers do not depend on Hono.
+describe("HonoHttpServerAdapter cookies", () => {
+	async function respond(
+		cookies: import("@/infra/http/HttpRestServer").HttpRestCookie[],
+	) {
+		const runtime = new CapturingRuntime();
+		const server = new HonoHttpServerAdapter(runtime);
+		server.register(HttpMethod.POST, "/login", async (_, res) => {
+			for (const { name, value, ...options } of cookies)
+				res.setCookie(name, value, options);
+			return res
+				.header("Cache-Control", "no-store")
+				.json({ authenticated: true });
+		});
+		await server.listen(0);
+		if (!runtime.handler) throw new Error("HTTP handler was not registered");
+		return runtime.handler(
+			new Request("http://localhost/login", { method: "POST" }),
+		);
+	}
+
+	it("sets a secure host session cookie and preserves response headers and JSON", async () => {
+		const response = await respond([
+			{
+				name: "__Host-session",
+				value: "secret-token",
+				path: "/",
+				secure: true,
+				httpOnly: true,
+				sameSite: "Strict",
+				maxAge: 3600,
+			},
+		]);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("application/json");
+		expect(response.headers.get("cache-control")).toBe("no-store");
+		expect(await response.json()).toEqual({ authenticated: true });
+		const cookies = response.headers.getSetCookie();
+		expect(cookies).toHaveLength(1);
+		expect(cookies[0]?.split("; ")).toEqual(
+			expect.arrayContaining([
+				"__Host-session=secret-token",
+				"Path=/",
+				"Secure",
+				"HttpOnly",
+				"SameSite=Strict",
+				"Max-Age=3600",
+			]),
+		);
+		expect(cookies[0]).not.toContain("Domain=");
+	});
+
+	it("supports a development session cookie without Secure", async () => {
+		const response = await respond([
+			{
+				name: "session",
+				value: "dev-token",
+				path: "/",
+				httpOnly: true,
+				sameSite: "Strict",
+			},
+		]);
+		expect(response.headers.getSetCookie()).toEqual([
+			"session=dev-token; Path=/; HttpOnly; SameSite=Strict",
+		]);
+	});
+
+	it("preserves separate Set-Cookie headers, expiration, and encoded values", async () => {
+		const expires = new Date("2020-01-01T00:00:00Z");
+		const response = await respond([
+			{
+				name: "session",
+				value: "",
+				path: "/",
+				httpOnly: true,
+				maxAge: 0,
+				expires,
+			},
+			{
+				name: "preference",
+				value: "a;b=c",
+				domain: "example.com",
+				sameSite: "Lax",
+			},
+		]);
+		expect(response.headers.getSetCookie()).toEqual([
+			"session=; Max-Age=0; Path=/; Expires=Wed, 01 Jan 2020 00:00:00 GMT; HttpOnly",
+			"preference=a%3Bb%3Dc; Domain=example.com; Path=/; SameSite=Lax",
+		]);
+	});
+
+	it.each([
+		{ secure: false, path: "/" },
+		{ secure: true, path: "/private" },
+		{ secure: true, path: "/", domain: "example.com" },
+	])(
+		"rejects invalid __Host- options: %j without emitting partial cookies",
+		async (options) => {
+			const response = await respond([
+				{ name: "preference", value: "dark" },
+				{ name: "__Host-session", value: "secret-token", ...options },
+			]);
+			expect(response.status).toBe(500);
+			expect(response.headers.getSetCookie()).toEqual([]);
+		},
+	);
+});
+
+describe("HonoHttpServerAdapter response methods", () => {
+	it("sets custom status and headers and does not leak response state across requests", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoHttpServerAdapter(runtime);
+		server.register(HttpMethod.POST, "/users", async (_, res) =>
+			res
+				.status(HttpStatusCode.CREATED)
+				.header("X-Request-Id", "123")
+				.json({ id: "u-1" }),
+		);
+		server.register(HttpMethod.GET, "/health", async (_, res) =>
+			res.text("OK"),
+		);
+		await server.listen(0);
+		if (!runtime.handler) throw new Error("Missing handler");
+		const created = await runtime.handler(
+			new Request("http://localhost/users", { method: "POST" }),
+		);
+		expect(created.status).toBe(201);
+		expect(created.headers.get("x-request-id")).toBe("123");
+		expect(created.headers.get("content-type")).toBe(
+			"application/json; charset=UTF-8",
+		);
+		expect(await created.json()).toEqual({ id: "u-1" });
+		const health = await runtime.handler(
+			new Request("http://localhost/health"),
+		);
+		expect(health.status).toBe(200);
+		expect(health.headers.get("x-request-id")).toBeNull();
+		expect(health.headers.get("content-type")).toBe(
+			"text/plain; charset=UTF-8",
+		);
+		expect(await health.text()).toBe("OK");
+	});
+
+	it("returns HTML without JSON encoding", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoHttpServerAdapter(runtime);
+		server.register(HttpMethod.GET, "/", async (_, res) =>
+			res.html('<h1 class="title">Hello</h1>'),
+		);
+		await server.listen(0);
+		const response = await runtime.handler?.(new Request("http://localhost/"));
+		expect(response?.headers.get("content-type")).toBe(
+			"text/html; charset=UTF-8",
+		);
+		expect(await response?.text()).toBe('<h1 class="title">Hello</h1>');
+	});
+
+	it.each([HttpStatusCode.NO_CONTENT, HttpStatusCode.OK])(
+		"clears a cookie with an empty %i response",
+		async (status) => {
+			const runtime = new CapturingRuntime();
+			const server = new HonoHttpServerAdapter(runtime);
+			server.register(HttpMethod.POST, "/logout", async (_, res) =>
+				res
+					.clearCookie("__Host-session", {
+						path: "/",
+						secure: true,
+						httpOnly: true,
+						sameSite: "Strict",
+					})
+					.empty(status),
+			);
+			await server.listen(0);
+			const response = await runtime.handler?.(
+				new Request("http://localhost/logout", { method: "POST" }),
+			);
+			expect(response?.status).toBe(status);
+			expect(await response?.text()).toBe("");
+			expect(response?.headers.getSetCookie()).toEqual([
+				"__Host-session=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Strict",
+			]);
+		},
+	);
 });

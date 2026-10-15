@@ -1,14 +1,14 @@
 import type {
 	FetchHandler,
 	HttpRestRuntime,
-	RunningHttpServer,
+	RunningRestServer,
 } from "@/infra/http/HttpRestRuntime";
 
 export class BunRuntimeAdapter implements HttpRestRuntime {
 	async serve(
 		handler: FetchHandler,
 		options: { port: number; hostname?: string },
-	): Promise<RunningHttpServer> {
+	): Promise<RunningRestServer> {
 		const server = Bun.serve({
 			fetch: handler,
 			port: options.port,

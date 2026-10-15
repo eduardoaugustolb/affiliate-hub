@@ -1,21 +1,21 @@
 import { type Context, Hono } from "hono";
-import type { StatusCode } from "hono/utils/http-status";
+import { generateCookie, getCookie } from "hono/cookie";
 import { ErrorMapper } from "@/infra/ErrorMapper";
+import { HttpRestResponseBuilder } from "@/infra/http/HttpRestResponseBuilder";
 import type {
 	HttpRestRuntime,
-	RunningHttpServer,
+	RunningRestServer,
 } from "@/infra/http/HttpRestRuntime";
-import {
-	type HttpMethod,
-	type HttpRestRequest,
-	type HttpRestResponse,
-	type HttpRestServer,
-	HttpStatusCode,
+import type {
+	HttpMethod,
+	HttpRestRequest,
+	HttpRestResponse,
+	HttpRestServer,
 } from "@/infra/http/HttpRestServer";
 
 export class HonoHttpServerAdapter implements HttpRestServer {
 	private app: Hono;
-	private server: RunningHttpServer | undefined;
+	private server: RunningRestServer | undefined;
 
 	constructor(private readonly runtime: HttpRestRuntime) {
 		this.app = new Hono();
@@ -26,7 +26,7 @@ export class HonoHttpServerAdapter implements HttpRestServer {
 		path: string,
 		handler: (
 			req: HttpRestRequest,
-			res: HttpRestResponse,
+			res: HttpRestResponseBuilder,
 		) => Promise<HttpRestResponse>,
 	): void {
 		this.app.on(method, [path], async (ctx: Context) => {
@@ -39,34 +39,47 @@ export class HonoHttpServerAdapter implements HttpRestServer {
 			const query = ctx.req.query();
 			const headers = ctx.req.header();
 			const req: HttpRestRequest = {
+				cookies: getCookie(ctx),
 				body,
 				params,
 				query,
 				headers,
 			};
 
-			const res: HttpRestResponse = {
-				status: HttpStatusCode.OK,
-				body: null,
-				headers: {},
-			};
+			const res = new HttpRestResponseBuilder();
 
 			try {
 				const result = await handler(req, res);
-				ctx.status(result.status as StatusCode);
-				switch (res.headers["Content-Type"]) {
-					case "application/json":
-						return ctx.json(result.body);
-					case "text/plain":
-						return ctx.text(JSON.stringify(result.body));
-					default:
-						return ctx.text(JSON.stringify(result.body));
-				}
+				return this.respond(result);
 			} catch (error: unknown) {
 				const result = await ErrorMapper.toRestResponse(error as Error);
-				return ctx.text(JSON.stringify(result.body), result.status);
+				return this.respond(result);
 			}
 		});
+	}
+
+	private respond(result: HttpRestResponse): Response {
+		// Validate all cookies before emitting any response headers.
+		const cookies = (result.cookies ?? []).map(({ name, value, ...options }) =>
+			generateCookie(name, value, options),
+		);
+		const headers = new Headers(result.headers);
+		for (const cookie of cookies) headers.append("Set-Cookie", cookie);
+		if (result.status === 204) {
+			return new Response(null, { status: result.status, headers });
+		}
+		const contentType = headers
+			.get("Content-Type")
+			?.split(";")[0]
+			?.trim()
+			.toLowerCase();
+		const isJson =
+			contentType === "application/json" || contentType?.endsWith("+json");
+		const body =
+			isJson || typeof result.body !== "string"
+				? JSON.stringify(result.body)
+				: result.body;
+		return new Response(body, { status: result.status, headers });
 	}
 
 	async close(): Promise<void> {
