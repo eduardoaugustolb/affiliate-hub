@@ -50,6 +50,6 @@ export class AuthenticateUser
 			this.dateProvider,
 		);
 		await this.sessionRepo.save(session);
-		return sessionTokenHash;
+		return rawSessionToken;
 	}
 }

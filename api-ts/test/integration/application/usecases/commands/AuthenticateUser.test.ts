@@ -48,8 +48,8 @@ describe("AuthenticateUser", () => {
 			email: "alice@example.com",
 			password: "secret",
 		});
-		expect(result).toBe("token-hash:raw-token");
-		const session = await sessionRepo.findByTokenHash(result);
+		expect(result).toBe("raw-token");
+		const session = await sessionRepo.findByTokenHash(`token-hash:${result}`);
 		expect(session?.getUserId()).toBeTruthy();
 		expect(session?.getExpiresAt()).toEqual(new Date("2026-10-18T12:00:00Z"));
 		expect(session?.getRevokedAt()).toBeNull();

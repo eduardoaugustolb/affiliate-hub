@@ -26,7 +26,7 @@ describe("GetAuthenticatedUser use case", () => {
 		};
 		userRepo = new UserRepositoryFake(idGenerator);
 		sessionRepo = new SessionRepositoryFake(idGenerator, dateProvider);
-		usecase = new GetAuthenticatedUser(userRepo, sessionRepo);
+		usecase = new GetAuthenticatedUser(userRepo, sessionRepo, dateProvider);
 	});
 
 	it("returns the user associated with a valid session", async () => {
@@ -85,6 +85,36 @@ describe("GetAuthenticatedUser use case", () => {
 
 		expect(
 			usecase.execute({ sessionTokenHash: "orphaned-token" }),
+		).rejects.toBeInstanceOf(InvalidCredentialsError);
+	});
+});
+
+describe("GetAuthenticatedUser expired sessions", () => {
+	it("returns InvalidCredentialsError when an expired session cannot be rehydrated", async () => {
+		let now = new Date("2026-10-11T12:00:00Z");
+		const dateProvider = {
+			now: () => now,
+			add: (ms: number) => new Date(now.getTime() + ms),
+		};
+		const generator = new IdGeneratorFake();
+		const userRepo = new UserRepositoryFake(generator);
+		const sessionRepo = new SessionRepositoryFake(generator, dateProvider);
+		await sessionRepo.save(
+			Session.create(
+				dateProvider.add(60_000),
+				"user-id",
+				"expired-token",
+				dateProvider,
+			),
+		);
+		now = dateProvider.add(120_000);
+		const usecase = new GetAuthenticatedUser(
+			userRepo,
+			sessionRepo,
+			dateProvider,
+		);
+		expect(
+			usecase.execute({ sessionTokenHash: "expired-token" }),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 });
