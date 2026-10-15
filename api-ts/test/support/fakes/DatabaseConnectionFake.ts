@@ -1,5 +1,5 @@
-import type { DatabaseConnection } from "@/infra/database/DatabaseConnection";
-export class DatabaseConnectionFake implements DatabaseConnection {
+import type { DatabaseTransaction } from "@/infra/database/DatabaseConnection";
+export class DatabaseConnectionFake implements DatabaseTransaction {
 	readonly queries: { sql: string; params: unknown[] }[] = [];
 	rows: unknown[] = [];
 	error: unknown;
@@ -16,8 +16,10 @@ export class DatabaseConnectionFake implements DatabaseConnection {
 		if (!query) throw new Error("No query recorded");
 		return query;
 	}
-	async transaction(): Promise<DatabaseConnection> {
+	async transaction(): Promise<DatabaseTransaction> {
 		return this;
 	}
 	async close(): Promise<void> {}
+	async commit(): Promise<void> {}
+	async rollback(): Promise<void> {}
 }
