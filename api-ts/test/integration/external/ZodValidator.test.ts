@@ -1,11 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import {
-	EnvironmentVarsValidator,
-	environmentVarsSchema,
-} from "@/external/ZodEnvironmentVarsValidator";
+import { environmentVarsSchema, ZodValidator } from "@/external/ZodValidator";
 
-describe("EnvironmentVarsValidator", () => {
-	const validator = new EnvironmentVarsValidator(environmentVarsSchema);
+describe("ZodValidator", () => {
+	const validator = new ZodValidator(environmentVarsSchema);
 	it("accepts a database URL", () =>
 		expect(
 			validator.validate({ DATABASE_URL: "postgres://localhost/db" }),
