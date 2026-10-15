@@ -7,6 +7,19 @@ import { type HttpRestResponse, HttpStatusCode } from "./http/HttpRestServer";
 
 export class ErrorMapper {
 	static async toRestResponse(error: Error): Promise<HttpRestResponse> {
+		if (error instanceof BadRequestError) {
+			return {
+				status: HttpStatusCode.BAD_REQUEST,
+				body: {
+					message: error.message,
+					code: error.code,
+				},
+				headers: {
+					"Content-Type": "application/json",
+				},
+			};
+		}
+
 		if (error instanceof ProductNotFoundError) {
 			return {
 				status: HttpStatusCode.NOT_FOUND,
@@ -82,3 +95,5 @@ export class ErrorMapper {
 		};
 	}
 }
+
+import { BadRequestError } from "@/application/errors/BadRequestError";
