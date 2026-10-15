@@ -1,51 +1,51 @@
 # Affiliate Hub
 
-Um resolvedor de produtos para quem publica looks e dumps nas redes sociais. Cada peça recebe um código curto; a pessoa digita esse código e chega ao link afiliado, mesmo que o destino seja atualizado depois.
+A product resolver for creators who post outfit roundups and product finds on social media. Each item gets a short code. Visitors enter that code to reach the affiliate link, even if the destination changes later.
 
-**Fluxo:** post com código → código do produto → link de destino.
+**Flow:** social post with a code → product code → destination link.
 
-> O projeto está em desenvolvimento. Hoje o repositório contém a API TypeScript, regras de domínio, acesso ao PostgreSQL e testes. A única rota HTTP exposta no momento é `GET /health`; a home e o painel administrativo ainda não estão implementados.
+> This project is under development. The repository currently contains the TypeScript API, domain rules, PostgreSQL persistence, and tests. The only HTTP route currently exposed is `GET /health`; the public home page and admin dashboard have not been implemented yet.
 
-## Estado atual
+## Current status
 
-- Cadastro de produtos e geração de códigos nos casos de uso.
-- Busca de produto pelo código.
-- Domínio e persistência para produtos, usuários e sessões.
-- Criação do primeiro administrador por script.
-- API HTTP com Hono rodando no Bun.
-- Testes unitários e de integração com `bun test`.
+- Product creation and code generation use cases.
+- Product lookup by code.
+- Domain and persistence layers for products, users, and sessions.
+- A script to create the first administrator.
+- An HTTP API built with Hono and running on Bun.
+- Unit and integration tests run with `bun test`.
 
-O [PRD do MVP](PRD.MVP.md) descreve o fluxo e as funcionalidades planejadas. Ele inclui etapas que ainda não estão disponíveis na aplicação.
+The [MVP product brief](PRD.MVP.md) describes the planned flow and features. Some of the work it covers is not available in the application yet.
 
-## Requisitos
+## Requirements
 
-- [Bun](https://bun.sh/), runtime e gerenciador de pacotes.
-- Docker Compose, para subir o PostgreSQL localmente.
+- [Bun](https://bun.sh/), the JavaScript runtime and package manager.
+- Docker Compose, to run PostgreSQL locally.
 
-## Desenvolvimento local
+## Local development
 
-Os comandos da API devem ser executados dentro de `api-ts/`.
+Run API commands from `api-ts/`.
 
 ```bash
 cd api-ts
 bun install
 ```
 
-Crie `api-ts/.env` com a URL do PostgreSQL:
+Create `api-ts/.env` with your PostgreSQL connection URL:
 
 ```dotenv
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/affiliate-hub
 ```
 
-Suba o banco a partir da raiz do repositório:
+Start the database from the repository root:
 
 ```bash
 docker compose -f infra/dev/docker-compose.yml up -d
 ```
 
-O Compose cria o banco `affiliate-hub` dentro do PostgreSQL local e mantém os dados no volume `pg_data`.
+The Compose file creates the `affiliate-hub` database in the local PostgreSQL instance and stores data in the `pg_data` volume.
 
-Com o banco disponível, rode as migrações e inicie a API:
+Once the database is available, run the migrations and start the API:
 
 ```bash
 cd api-ts
@@ -53,60 +53,60 @@ bun run knex migrate:latest
 bun run src/main.ts
 ```
 
-A API escuta na porta `3000`. Confira se está ativa:
+The API listens on port `3000`. Check that it is running:
 
 ```bash
 curl http://localhost:3000/health
 ```
 
-Resposta esperada: `OK`.
+Expected response: `OK`.
 
-## Comandos da API
+## API commands
 
-Dentro de `api-ts/`:
+Run these from `api-ts/`:
 
-| Comando | Ação |
+| Command | Action |
 | --- | --- |
-| `bun test` | Executa os testes unitários e de integração |
-| `bun run check` | Verifica formatação e regras do Biome |
-| `bun run lint` | Executa o lint do Biome |
-| `bun run knex migrate:latest` | Aplica migrações pendentes |
-| `bun run knex migrate:rollback` | Reverte o último lote de migrações |
-| `bun run scripts/createAdmin.ts` | Solicita os dados e cria o primeiro administrador |
+| `bun test` | Run unit and integration tests |
+| `bun run check` | Check formatting and Biome rules |
+| `bun run lint` | Run the Biome linter |
+| `bun run knex migrate:latest` | Apply pending migrations |
+| `bun run knex migrate:rollback` | Roll back the latest migration batch |
+| `bun run scripts/createAdmin.ts` | Prompt for details and create the first administrator |
 
-O script de administrador também exige `DATABASE_URL` no ambiente. Se a conta inicial já existir, a regra de criação impede cadastrar outra como primeiro administrador.
+The administrator script also requires `DATABASE_URL` in the environment. The application prevents creating another first administrator once one already exists.
 
-## Estrutura
+## Project structure
 
 ```text
 api-ts/
   src/
-    application/  # casos de uso e contratos de repositório
-    domain/       # entidades, valores e regras de domínio
-    external/     # adaptadores Bun, Hono, SQL e hashing
-    infra/        # HTTP, banco e repositórios
-  scripts/        # tarefas administrativas
-  test/           # testes unitários e de integração
-infra/dev/        # PostgreSQL local via Docker Compose
+    application/  # use cases and repository contracts
+    domain/       # entities, value objects, and domain rules
+    external/     # Bun, Hono, SQL, and hashing adapters
+    infra/        # HTTP, database, and repositories
+  scripts/        # administrative tasks
+  test/           # unit and integration tests
+infra/dev/        # local PostgreSQL with Docker Compose
 ```
 
-## Stack
+## Tech stack
 
-- Bun e TypeScript
+- Bun and TypeScript
 - Hono
-- PostgreSQL e Knex para migrações
-- Zod para validação
-- Biome para formatação e lint
-- `bun test` para testes
+- PostgreSQL and Knex for migrations
+- Zod for validation
+- Biome for formatting and linting
+- `bun test` for tests
 
-## Visão do produto
+## Product overview
 
-O código do post é estável; o destino afiliado pode mudar. Assim, um post antigo continua útil quando o link do produto precisa ser trocado. O foco do MVP é encurtar o caminho entre ver uma peça e abrir seu produto, sem busca por nome ou por IDs das plataformas.
+The code shown in a post stays the same while its affiliate destination can change. That keeps older posts useful when a product link needs to be replaced. The MVP focuses on getting from a product in a social post to its destination without searching by name or marketplace ID.
 
-Veja o [PRD.MVP.md](PRD.MVP.md) para escopo e critérios do MVP e o [CHANGELOG.md](CHANGELOG.md) para o histórico de versões.
+See [PRD.MVP.md](PRD.MVP.md) for the MVP scope and acceptance criteria, and [CHANGELOG.md](CHANGELOG.md) for the release history.
 
-## Contribuição e licença
+## Contributing and license
 
-Contribuições, relatos de bugs e propostas de melhoria são bem-vindos. Leia as [orientações para contribuir](.github/CONTRIBUTING.md) antes de abrir um pull request. Para vulnerabilidades, siga a [política de segurança](.github/SECURITY.md) e evite reportes públicos.
+Bug reports and improvement ideas are welcome. Read the [contribution guidelines](.github/CONTRIBUTING.md) before opening a pull request. For security issues, follow the [security policy](.github/SECURITY.md) and avoid public disclosure.
 
-Este repositório contém software proprietário. Todos os direitos são reservados a Eduardo Augusto Lima Barboza. Nenhuma permissão de uso, cópia, modificação ou distribuição é concedida sem autorização prévia por escrito do titular. Consulte [LICENSE](LICENSE) para os termos completos. Dependências e serviços de terceiros mantêm suas próprias licenças e termos.
+This repository contains proprietary software. All rights are reserved by Eduardo Augusto Lima Bueno. No permission to use, copy, modify, or distribute the software is granted without the owner's prior written authorization. See [LICENSE](LICENSE) for the full terms. Third-party dependencies and services remain subject to their own licenses and terms.
