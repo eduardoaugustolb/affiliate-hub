@@ -1,3 +1,19 @@
+## [0.7.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.3...v0.7.0) (2026-10-15)
+
+
+### Features
+
+* **auth:** register cookie authentication routes and API tests ([d2e396d](https://github.com/eduardoaugustolb/affiliate-hub/commit/d2e396d696d70a299881d967181431eaa81cbbcb))
+* **database:** add Bun SQL adapter and explicit transactions ([11e3b3c](https://github.com/eduardoaugustolb/affiliate-hub/commit/11e3b3c082e90157ad805e288f3dee9dc482a610))
+* **errors:** map bad requests to HTTP 400 ([8040063](https://github.com/eduardoaugustolb/affiliate-hub/commit/8040063736a1b5742dcb4fa986315f2116420279))
+* **http:** add fluent responses and cookie support to REST server ([77ca380](https://github.com/eduardoaugustolb/affiliate-hub/commit/77ca3808bf2e0503b935b548ac3af0df2ba876b8))
+* **http:** support request headers and response cookies in client ([0600780](https://github.com/eduardoaugustolb/affiliate-hub/commit/0600780e214c724d3c858e38e101290cc520b4ab))
+
+
+### Bug Fixes
+
+* **auth:** return raw tokens and reject expired sessions ([c3ccf80](https://github.com/eduardoaugustolb/affiliate-hub/commit/c3ccf8075dcea89595ea708547746bcc1e24a136))
+
 ## [0.6.3](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.2...v0.6.3) (2026-10-14)
 
 ## [0.6.2](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.1...v0.6.2) (2026-10-12)
@@ -30,16 +46,4 @@
 ### Bug Fixes
 
 * **api-ts:** remove unit of work on AuthenticateUser to receive repositories ([8fd912d](https://github.com/eduardoaugustolb/affiliate-hub/commit/8fd912d15b95f420a0557aa167f586ed844f3bce))
-
-## [0.5.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.4.0...v0.5.0) (2026-10-04)
-
-
-### Features
-
-* **api-ts:** add CreateProduct use case with retry and unit tests ([313245a](https://github.com/eduardoaugustolb/affiliate-hub/commit/313245ab7d2014d1a1cac22a7ebd6acac39af601))
-* **api-ts:** add product lookup by code with unit tests ([f0a54f6](https://github.com/eduardoaugustolb/affiliate-hub/commit/f0a54f64e31b5f4fe77b6130fdc3e98b0ad7a497))
-* **api-ts:** add session domain and repository contract ([91d677d](https://github.com/eduardoaugustolb/affiliate-hub/commit/91d677d2773bae5c1c72c27260ffa2f20943696d))
-* **api-ts:** add SQL persistence layers with mocks and unit tests ([b606ac7](https://github.com/eduardoaugustolb/affiliate-hub/commit/b606ac7e6874fdf8db0a30c59088fed7bcc726e5))
-* **api-ts:** add user entity and validation with unit tests ([014c821](https://github.com/eduardoaugustolb/affiliate-hub/commit/014c8218907da7e65c9908ff646946d8d35c592e))
-* **api-ts:** add users and sessions database migrations ([28dce72](https://github.com/eduardoaugustolb/affiliate-hub/commit/28dce72c7eb72abebbb1e4f8ff2a1266d5444f84))
 
