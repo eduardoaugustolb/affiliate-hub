@@ -1,6 +1,8 @@
 import { SessionAuthenticator } from "./application/SessionAuthenticator";
 import { AuthenticateUser } from "./application/usecases/commands/AuthenticateUser";
 import { CreateProduct } from "./application/usecases/commands/CreateProduct";
+import { DeleteProduct } from "./application/usecases/commands/DeleteProduct";
+import { UpdateProduct } from "./application/usecases/commands/UpdateProduct";
 import { GetAuthenticatedUser } from "./application/usecases/queries/GetAuthenticatedUser";
 import { GetProductByCode } from "./application/usecases/queries/GetProductByCode";
 import { BunTokenGenerator } from "./external/BunTokenGenerator";
@@ -84,6 +86,8 @@ async function main() {
 		new CreateProduct(productRepo, productCodeGenerator, sessionAuthenticator),
 		new GetProductByCode(productRepo),
 		SESSION_COOKIE_NAME,
+		new UpdateProduct(productRepo, sessionAuthenticator),
+		new DeleteProduct(productRepo, sessionAuthenticator),
 	);
 
 	new AuthRestController(

@@ -241,4 +241,115 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 			expect(response.body).toMatchObject({ code: "PRODUCT_NOT_FOUND" });
 		});
 	});
+	describe("product mutations", () => {
+		let id: string;
+		let code: string;
+		beforeEach(async () => {
+			await userRepo.save(
+				User.create("Product Test", email, passwordHash, "admin"),
+			);
+			const user = await userRepo.findByEmail(email);
+			if (!user) throw new Error("Missing test user");
+			userId = user.getId();
+			id = crypto.randomUUID();
+			do {
+				code = crypto
+					.randomUUID()
+					.replaceAll("-", "")
+					.replaceAll("0", "A")
+					.toUpperCase()
+					.slice(0, 6);
+			} while (await productDAO.findByCode(code));
+			await productDAO.save({ id, code, ...input });
+		});
+		afterEach(async () => {
+			await productDAO.remove(id);
+		});
+		function mutate(
+			method: "PUT" | "DELETE",
+			token?: string,
+			body: unknown = input,
+			targetCode = code,
+		) {
+			const options: HttpClient.Options = {
+				timeoutMs: 5000,
+				headers:
+					token === undefined ? {} : { Cookie: `${cookieName}=${token}` },
+			};
+			return method === "PUT"
+				? httpClient.put(url(`/products/${targetCode}`), body, options)
+				: httpClient.delete(url(`/products/${targetCode}`), options);
+		}
+		it("updates a product through PUT and exposes the persisted values through GET", async () => {
+			const updated = {
+				destinationUrl: `${input.destinationUrl}/updated`,
+				marketplace: "shopee",
+				imageUrl: "https://example.com/updated.jpg",
+				status: "inactive",
+			};
+			const response = await mutate("PUT", await login(), updated);
+			expect(response.statusCode).toBe(204);
+			expect(await productDAO.findById(id)).toMatchObject({
+				id,
+				code,
+				...updated,
+			});
+			const fetched = await httpClient.get(url(`/products/${code}`), {
+				timeoutMs: 5000,
+			});
+			expect(fetched.statusCode).toBe(200);
+			expect(fetched.body).toEqual({ id, code, ...updated });
+		});
+		it("deletes a product through DELETE and makes it unavailable through GET", async () => {
+			const response = await mutate("DELETE", await login());
+			expect(response.statusCode).toBe(204);
+			expect(await productDAO.findById(id)).toBeUndefined();
+			const fetched = await httpClient.get(url(`/products/${code}`), {
+				timeoutMs: 5000,
+			});
+			expect(fetched.statusCode).toBe(404);
+			expect(fetched.body).toMatchObject({ code: "PRODUCT_NOT_FOUND" });
+		});
+		for (const method of ["PUT", "DELETE"] as const) {
+			it.each([undefined, "unknown-token"])(
+				`${method} rejects an invalid session: %j`,
+				async (token) => {
+					const response = await mutate(method, token);
+					expect(response.statusCode).toBe(401);
+					expect(response.body).toMatchObject({ code: "INVALID_CREDENTIALS" });
+					expect(await productDAO.findById(id)).toMatchObject({
+						id,
+						code,
+						...input,
+					});
+				},
+			);
+			it(`${method} returns 404 for an unknown product`, async () => {
+				const response = await mutate(method, await login(), input, "MISSING");
+				expect(response.statusCode).toBe(404);
+				expect(response.body).toMatchObject({ code: "PRODUCT_NOT_FOUND" });
+			});
+		}
+		it("PUT rejects malformed input without changing the product", async () => {
+			const response = await mutate("PUT", await login(), {});
+			expect(response.statusCode).toBe(400);
+			expect(await productDAO.findById(id)).toMatchObject({
+				id,
+				code,
+				...input,
+			});
+		});
+		it("PUT rejects invalid domain data without changing the product", async () => {
+			const response = await mutate("PUT", await login(), {
+				...input,
+				status: "invalid",
+			});
+			expect(response.statusCode).toBe(422);
+			expect(await productDAO.findById(id)).toMatchObject({
+				id,
+				code,
+				...input,
+			});
+		});
+	});
 });
