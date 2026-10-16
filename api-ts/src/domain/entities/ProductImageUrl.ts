@@ -7,7 +7,7 @@ export class ProductImageUrl {
 		if (!ProductImageUrl.validate(url)) {
 			throw new DomainError("Invalid product image URL");
 		}
-		this.url = url;
+		this.url = url.trim();
 	}
 
 	getValue(): string {

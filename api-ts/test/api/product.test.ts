@@ -37,6 +37,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 	let email: string;
 	let passwordHash: string;
 	let input: {
+		name: string;
 		destinationUrl: string;
 		marketplace: string;
 		imageUrl: string;
@@ -86,6 +87,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 		userId = undefined;
 		email = `product-${crypto.randomUUID()}@example.com`;
 		input = {
+			name: "Produto",
 			destinationUrl: `https://example.com/products/${crypto.randomUUID()}`,
 			marketplace: productFake.marketplace,
 			imageUrl: productFake.imageUrl,
@@ -210,6 +212,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				.randomUUID()
 				.replaceAll("-", "")
 				.replaceAll("0", "A")
+				.replaceAll("1", "B")
 				.toUpperCase()
 				.slice(0, 6);
 			const product = Product.create(
@@ -232,6 +235,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				.randomUUID()
 				.replaceAll("-", "")
 				.replaceAll("0", "A")
+				.replaceAll("1", "B")
 				.toUpperCase()
 				.slice(0, 6);
 			const response = await httpClient.get(url(`/products/${code}`), {
@@ -257,6 +261,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 					.randomUUID()
 					.replaceAll("-", "")
 					.replaceAll("0", "A")
+					.replaceAll("1", "B")
 					.toUpperCase()
 					.slice(0, 6);
 			} while (await productDAO.findByCode(code));
@@ -282,6 +287,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 		}
 		it("updates a product through PUT and exposes the persisted values through GET", async () => {
 			const updated = {
+				name: "Produto atualizado",
 				destinationUrl: `${input.destinationUrl}/updated`,
 				marketplace: "shopee",
 				imageUrl: "https://example.com/updated.jpg",

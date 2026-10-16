@@ -2,7 +2,8 @@ import { dateProvider } from "./dateProvider";
 
 export const productRow = {
 	id: "persisted-id",
-	code: "ABC123",
+	code: "ABC234",
+	name: "Produto",
 	destinationUrl: "https://example.com",
 	marketplace: "shein",
 	imageUrl: "https://example.com/image.jpg",

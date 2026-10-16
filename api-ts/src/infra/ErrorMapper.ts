@@ -1,6 +1,7 @@
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { ProductUnavailableError } from "@/application/errors/ProductUnavailableError";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
 import { DomainError } from "@/domain/errors/DomainError";
 import { type HttpRestResponse, HttpStatusCode } from "./http/HttpRestServer";
@@ -19,6 +20,13 @@ export class ErrorMapper {
 				},
 			};
 		}
+
+		if (error instanceof ProductUnavailableError)
+			return {
+				status: HttpStatusCode.GONE,
+				body: { code: error.code, message: error.message },
+				headers: { "Content-Type": "application/json" },
+			};
 
 		if (error instanceof ProductNotFoundError) {
 			return {

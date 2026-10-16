@@ -21,6 +21,7 @@ describe("CreateProduct usecase", () => {
 	let useCase: CreateProduct;
 
 	const input = {
+		name: "Produto",
 		destinationUrl: productFake.destinationUrl,
 		marketplace: productFake.marketplace,
 		imageUrl: productFake.imageUrl,
@@ -79,7 +80,7 @@ describe("CreateProduct usecase", () => {
 	it("should persist a product successfully", async () => {
 		const result = await useCase.execute(actor, input);
 
-		expect(result).toBeUndefined();
+		expect(result).toEqual({ code: "ABC234" });
 	});
 
 	it("should generate an id when creating a product", async () => {
@@ -93,7 +94,7 @@ describe("CreateProduct usecase", () => {
 	});
 
 	it("should generate a product code when creating a product", async () => {
-		const generate = mock(() => "ABC123");
+		const generate = mock(() => "ABC234");
 
 		productCodeGenerator.generate = generate;
 
@@ -129,7 +130,7 @@ describe("CreateProduct usecase", () => {
 
 	it("should retry with a new code when the generated code already exists", async () => {
 		const generate = mock()
-			.mockReturnValueOnce("ABC123")
+			.mockReturnValueOnce("ABC234")
 			.mockReturnValueOnce("DEF456");
 
 		productCodeGenerator.generate = generate;
@@ -148,14 +149,14 @@ describe("CreateProduct usecase", () => {
 
 		const result = await useCase.execute(actor, input);
 
-		expect(result).toBeUndefined();
+		expect(result).toEqual({ code: "DEF456" });
 		expect(generate).toHaveBeenCalledTimes(2);
 		expect(save).toHaveBeenCalledTimes(2);
 	});
 
 	it("should persist the product using the new code after a collision", async () => {
 		productCodeGenerator.generate = mock()
-			.mockReturnValueOnce("ABC123")
+			.mockReturnValueOnce("ABC234")
 			.mockReturnValueOnce("DEF456");
 
 		const savedCodes: string[] = [];
@@ -170,11 +171,11 @@ describe("CreateProduct usecase", () => {
 
 		await useCase.execute(actor, input);
 
-		expect(savedCodes).toEqual(["ABC123", "DEF456"]);
+		expect(savedCodes).toEqual(["ABC234", "DEF456"]);
 	});
 
 	it("should throw an ApplicationError after reaching the maximum number of retries", async () => {
-		productCodeGenerator.generate = mock(() => "ABC123");
+		productCodeGenerator.generate = mock(() => "ABC234");
 
 		const save = mock(async () => {
 			throw new ProductCodeAlreadyExistsError();
@@ -199,7 +200,7 @@ describe("CreateProduct usecase", () => {
 	it("should not retry when repository throws an unrelated error", async () => {
 		const repositoryError = new Error("Database unavailable");
 
-		productCodeGenerator.generate = mock(() => "ABC123");
+		productCodeGenerator.generate = mock(() => "ABC234");
 
 		const save = mock(async () => {
 			throw repositoryError;

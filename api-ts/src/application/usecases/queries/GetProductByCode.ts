@@ -13,7 +13,7 @@ export class GetProductByCode
 	constructor(private productRepository: ProductRepository) {}
 
 	async execute(_: undefined, input: GetProductByCodeInput): Promise<Product> {
-		const code = input.code.trim();
+		const code = input.code.trim().toUpperCase();
 		if (!code) throw new ProductNotFoundError(code);
 		const product = await this.productRepository.findByCode(code);
 		if (!product) throw new ProductNotFoundError(code);

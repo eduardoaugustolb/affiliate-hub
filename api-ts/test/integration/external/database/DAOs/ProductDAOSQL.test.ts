@@ -24,6 +24,7 @@ describe("Product SQL DAO", () => {
 			row.marketplace,
 			row.imageUrl,
 			row.status,
+			row.name,
 		]);
 		for (const value of query.params.filter((v) => typeof v === "string"))
 			expect(query.sql).not.toContain(value as string);
@@ -33,13 +34,14 @@ describe("Product SQL DAO", () => {
 		const query = connection.lastQuery();
 		expect(query.sql).toContain("UPDATE products SET");
 		expect(query.sql).toContain("updated_at = CURRENT_TIMESTAMP");
-		expect(query.sql).toContain("WHERE id = $6");
+		expect(query.sql).toContain("WHERE id = $7");
 		expect(query.params).toEqual([
 			row.code,
 			row.destinationUrl,
 			row.marketplace,
 			row.imageUrl,
 			row.status,
+			row.name,
 			row.id,
 		]);
 	});
@@ -127,5 +129,19 @@ describe("Product SQL DAO", () => {
 		const error = { code: "23505", constraint: "products_pkey" };
 		connection.error = error;
 		return expect(dao.save(row)).rejects.toBe(error);
+	});
+});
+
+describe("Product SQL DAO Bun SQLSTATE", () => {
+	it("maps Bun errno 23505 to the code collision used by creation retries", () => {
+		const connection = new DatabaseConnectionFake();
+		connection.error = {
+			code: "ERR_POSTGRES_SERVER_ERROR",
+			errno: "23505",
+			constraint: "products_code_unique",
+		};
+		expect(new ProductDAOSQL(connection).save(row)).rejects.toBeInstanceOf(
+			ProductCodeAlreadyExistsError,
+		);
 	});
 });

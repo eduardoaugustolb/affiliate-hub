@@ -7,7 +7,7 @@ export class ProductDestinationUrl {
 		if (!ProductDestinationUrl.validate(url)) {
 			throw new DomainError("Invalid product destination URL");
 		}
-		this.url = url;
+		this.url = url.trim();
 	}
 
 	public getValue(): string {

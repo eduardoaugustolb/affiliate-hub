@@ -1,5 +1,6 @@
 import { type Context, Hono } from "hono";
 import { generateCookie, getCookie } from "hono/cookie";
+import { BadRequestError } from "@/application/errors/BadRequestError";
 import { ErrorMapper } from "@/infra/ErrorMapper";
 import { HttpRestResponseBuilder } from "@/infra/http/HttpRestResponseBuilder";
 import type {
@@ -30,25 +31,29 @@ export class HonoHttpServerAdapter implements HttpRestServer {
 		) => Promise<HttpRestResponse>,
 	): void {
 		this.app.on(method, [path], async (ctx: Context) => {
-			const rawBody = await ctx.req.text();
-			let body: unknown;
-			if (rawBody.length > 0) {
-				body = JSON.parse(rawBody);
-			}
-			const params = ctx.req.param();
-			const query = ctx.req.query();
-			const headers = ctx.req.header();
-			const req: HttpRestRequest = {
-				cookies: getCookie(ctx),
-				body,
-				params,
-				query,
-				headers,
-			};
-
-			const res = new HttpRestResponseBuilder();
-
 			try {
+				const rawBody = await ctx.req.text();
+				let body: unknown;
+				if (rawBody.length > 0) {
+					try {
+						body = JSON.parse(rawBody);
+					} catch {
+						throw new BadRequestError("Invalid JSON payload");
+					}
+				}
+				const params = ctx.req.param();
+				const query = ctx.req.query();
+				const headers = ctx.req.header();
+				const req: HttpRestRequest = {
+					cookies: getCookie(ctx),
+					body,
+					params,
+					query,
+					headers,
+				};
+
+				const res = new HttpRestResponseBuilder();
+
 				const result = await handler(req, res);
 				return this.respond(result);
 			} catch (error: unknown) {

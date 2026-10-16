@@ -101,6 +101,7 @@ describe("ProductRepositoryDatabase", () => {
 			marketplace: row.marketplace,
 			imageUrl: row.imageUrl,
 			status: row.status,
+			name: row.name,
 		});
 	});
 	it("should reject updates without an id", async () => {

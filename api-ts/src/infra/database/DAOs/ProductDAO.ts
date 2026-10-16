@@ -1,6 +1,7 @@
 export type ProductDTO = {
 	id: string;
 	code: string;
+	name: string;
 	destinationUrl: string;
 	marketplace: string;
 	imageUrl: string;
@@ -10,6 +11,7 @@ export type ProductDTO = {
 };
 export type InputProductDTO = Omit<ProductDTO, "createdAt" | "updatedAt">;
 export interface ProductDAO {
+	list(limit: number, offset: number): Promise<ProductDTO[]>;
 	save(entity: InputProductDTO): Promise<void>;
 	update(entity: InputProductDTO): Promise<void>;
 	remove(id: string): Promise<void>;

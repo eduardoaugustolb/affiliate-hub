@@ -5,6 +5,8 @@ import type { CreateProduct } from "@/application/usecases/commands/CreateProduc
 import type { DeleteProduct } from "@/application/usecases/commands/DeleteProduct";
 import type { UpdateProduct } from "@/application/usecases/commands/UpdateProduct";
 import type { GetProductByCode } from "@/application/usecases/queries/GetProductByCode";
+import type { ListProducts } from "@/application/usecases/queries/ListProducts";
+import type { Product } from "@/domain/entities/Product";
 import {
 	HttpMethod,
 	type HttpRestServer,
@@ -18,17 +20,32 @@ export class ProductRestController {
 		sessionCookieName: string,
 		updateProduct: UpdateProduct,
 		deleteProduct: DeleteProduct,
+		listProducts: ListProducts,
 	) {
+		httpServer.register(HttpMethod.GET, "/products", async (req, res) => {
+			const sessionToken = req.cookies[sessionCookieName];
+			if (!sessionToken) throw new InvalidCredentialsError();
+			const limit = Number(req.query.limit ?? 25),
+				offset = Number(req.query.offset ?? 0);
+			const products = await listProducts.execute(
+				{ sessionToken },
+				{ limit, offset },
+			);
+			return res
+				.header("Cache-Control", "no-store")
+				.json(products.map(productDTO));
+		});
+
 		httpServer.register(HttpMethod.POST, "/products", async (req, res) => {
 			const sessionToken = req.cookies[sessionCookieName];
 			if (!sessionToken) throw new InvalidCredentialsError();
-			const { destinationUrl, marketplace, imageUrl, status } =
+			const { name, destinationUrl, marketplace, imageUrl, status } =
 				parseProductInput(req.body);
-			await createProduct.execute(
+			const created = await createProduct.execute(
 				{ sessionToken },
-				{ destinationUrl, marketplace, imageUrl, status },
+				{ name, destinationUrl, marketplace, imageUrl, status },
 			);
-			return res.empty(HttpStatusCode.CREATED);
+			return res.status(HttpStatusCode.CREATED).json(created);
 		});
 		httpServer.register(HttpMethod.PUT, "/products/:code", async (req, res) => {
 			const sessionToken = req.cookies[sessionCookieName];
@@ -61,14 +78,7 @@ export class ProductRestController {
 			const product = await getProductByCode.execute(undefined, {
 				code,
 			});
-			return res.json({
-				id: product.getId(),
-				code: product.getCode(),
-				destinationUrl: product.getDestinationUrl(),
-				marketplace: product.getMarketplace(),
-				imageUrl: product.getImageUrl(),
-				status: product.getStatus(),
-			});
+			return res.json(productDTO(product));
 		});
 	}
 }
@@ -76,16 +86,27 @@ export class ProductRestController {
 function parseProductInput(body: unknown) {
 	if (!body || typeof body !== "object" || Array.isArray(body))
 		throw new BadRequestError("Invalid product payload");
-	const { destinationUrl, marketplace, imageUrl, status } = body as Record<
-		string,
-		unknown
-	>;
+	const { name, destinationUrl, marketplace, imageUrl, status } =
+		body as Record<string, unknown>;
 	if (
+		typeof name !== "string" ||
 		typeof destinationUrl !== "string" ||
 		typeof marketplace !== "string" ||
 		typeof imageUrl !== "string" ||
 		typeof status !== "string"
 	)
 		throw new BadRequestError("Product fields must be strings");
-	return { destinationUrl, marketplace, imageUrl, status };
+	return { name, destinationUrl, marketplace, imageUrl, status };
+}
+
+export function productDTO(product: Product) {
+	return {
+		id: product.getId(),
+		code: product.getCode(),
+		name: product.getName(),
+		destinationUrl: product.getDestinationUrl(),
+		marketplace: product.getMarketplace(),
+		imageUrl: product.getImageUrl(),
+		status: product.getStatus(),
+	};
 }

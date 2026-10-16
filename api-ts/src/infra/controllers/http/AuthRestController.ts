@@ -1,6 +1,8 @@
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
+import { AuthenticationPolicy } from "@/application/policy/AuthenticationPolicy";
 import type { AuthenticateUser } from "@/application/usecases/commands/AuthenticateUser";
+import type { Logout } from "@/application/usecases/commands/Logout";
 import type { GetAuthenticatedUser } from "@/application/usecases/queries/GetAuthenticatedUser";
 import { Email } from "@/domain/entities/Email";
 import {
@@ -15,7 +17,29 @@ export class AuthRestController {
 		private authenticateUser: AuthenticateUser,
 		private getAuthenticatedUser: GetAuthenticatedUser,
 		private sessionCookieName: string,
+		logout: Logout,
 	) {
+		this.httpServer.register(
+			HttpMethod.POST,
+			"/auth/logout",
+			async (req, res) => {
+				await logout.execute({
+					sessionToken: req.cookies[this.sessionCookieName] ?? "",
+				});
+				return res
+					.header("Cache-Control", "no-store")
+					.clearCookie(this.sessionCookieName, {
+						path: "/",
+						httpOnly: true,
+						sameSite: "Strict",
+						secure:
+							this.sessionCookieName.startsWith("__Host-") ||
+							process.env.NODE_ENV === "production" ||
+							process.env.BUN_ENV === "production",
+					})
+					.empty();
+			},
+		);
 		this.httpServer.register(HttpMethod.GET, "/auth/me", async (req, res) => {
 			const sessionCookie = req.cookies[this.sessionCookieName];
 			if (!sessionCookie) throw new InvalidCredentialsError();
@@ -23,7 +47,7 @@ export class AuthRestController {
 				sessionToken: sessionCookie,
 			});
 
-			return res.json(session);
+			return res.header("Cache-Control", "no-store").json(session);
 		});
 
 		this.httpServer.register(
@@ -60,12 +84,16 @@ export class AuthRestController {
 
 				res.setCookie(this.sessionCookieName, sessionCookie, {
 					path: "/",
+					maxAge: AuthenticationPolicy.sessionDurationMs / 1000,
 					httpOnly: true,
 					sameSite: "Strict",
-					secure: this.sessionCookieName.startsWith("__Host-"),
+					secure:
+						this.sessionCookieName.startsWith("__Host-") ||
+						process.env.NODE_ENV === "production" ||
+						process.env.BUN_ENV === "production",
 				});
 
-				return res.empty(HttpStatusCode.OK);
+				return res.header("Cache-Control", "no-store").empty(HttpStatusCode.OK);
 			},
 		);
 	}

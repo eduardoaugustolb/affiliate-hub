@@ -7,7 +7,7 @@ export class ProductMarketplace {
 		if (!ProductMarketplace.validate(marketplace)) {
 			throw new DomainError("Invalid product marketplace");
 		}
-		this.marketplace = marketplace;
+		this.marketplace = marketplace.trim();
 	}
 
 	getValue(): string {

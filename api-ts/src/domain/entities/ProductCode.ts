@@ -1,20 +1,14 @@
 import { DomainError } from "../errors/DomainError";
 
 export class ProductCode {
-	constructor(private readonly code: string) {
-		if (!ProductCode.validate(code)) {
-			throw new DomainError("Invalid product code");
-		}
+	private readonly code: string;
+	// Stored codes issued before the MVP rules may contain 1; keep old posts working.
+	constructor(code: string, legacy = false) {
+		this.code = code.trim().toUpperCase();
+		const pattern = legacy ? /^[A-HJ-NP-Z1-9]{4,6}$/ : /^[A-HJ-NP-Z2-9]{4,6}$/;
+		if (!pattern.test(this.code)) throw new DomainError("Invalid product code");
 	}
-
 	getValue(): string {
 		return this.code;
-	}
-
-	private static validate(code: string): boolean {
-		const trimmedCode = code.trim();
-		const codeRegex = /^[A-HJ-NP-Z1-9]+$/;
-
-		return codeRegex.test(trimmedCode);
 	}
 }

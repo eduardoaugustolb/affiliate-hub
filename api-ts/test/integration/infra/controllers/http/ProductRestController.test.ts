@@ -9,6 +9,7 @@ import { CreateProduct } from "@/application/usecases/commands/CreateProduct";
 import { DeleteProduct } from "@/application/usecases/commands/DeleteProduct";
 import { UpdateProduct } from "@/application/usecases/commands/UpdateProduct";
 import { GetProductByCode } from "@/application/usecases/queries/GetProductByCode";
+import { ListProducts } from "@/application/usecases/queries/ListProducts";
 import { Product } from "@/domain/entities/Product";
 import { Session } from "@/domain/entities/Session";
 import { HonoHttpServerAdapter } from "@/external/http/HonoHttpServerAdapter";
@@ -47,9 +48,11 @@ async function setup() {
 		"custom-session",
 		new UpdateProduct(repo, session.authenticator),
 		new DeleteProduct(repo, session.authenticator),
+		new ListProducts(repo, session.authenticator),
 	);
 	await server.listen(0);
 	const input = {
+		name: "Produto atualizado",
 		destinationUrl: "https://example.com/updated",
 		marketplace: "shopee",
 		imageUrl: "https://example.com/new.jpg",

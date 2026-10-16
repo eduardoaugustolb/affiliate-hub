@@ -7,7 +7,7 @@ export class ProductStatus {
 		if (!ProductStatus.validate(status)) {
 			throw new DomainError("Invalid product status");
 		}
-		this.status = status;
+		this.status = status.trim();
 	}
 
 	getValue(): string {

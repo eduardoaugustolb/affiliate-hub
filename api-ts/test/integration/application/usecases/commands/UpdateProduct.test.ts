@@ -29,6 +29,7 @@ describe("UpdateProduct", () => {
 		const original = await repo.findByCode(productFake.code);
 		if (!original) throw new Error("Missing product fixture");
 		const input = {
+			name: "Produto atualizado",
 			code: productFake.code,
 			destinationUrl: "https://example.com/updated",
 			marketplace: "shopee",

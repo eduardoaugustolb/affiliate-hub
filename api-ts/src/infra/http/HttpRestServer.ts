@@ -9,6 +9,9 @@ export enum HttpMethod {
 
 export enum HttpStatusCode {
 	OK = 200,
+	FOUND = 302,
+	SEE_OTHER = 303,
+	GONE = 410,
 	CREATED = 201,
 	NO_CONTENT = 204,
 	BAD_REQUEST = 400,

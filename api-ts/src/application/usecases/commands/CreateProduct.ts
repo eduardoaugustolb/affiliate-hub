@@ -11,13 +11,14 @@ import type { ProductRepository } from "../../repositories/ProductRepository";
 import type { Command } from "./Command";
 
 type CreateProductInput = {
+	name: string;
 	destinationUrl: string;
 	marketplace: string;
 	imageUrl: string;
 	status: string;
 };
 
-type CreateProductOutput = undefined;
+type CreateProductOutput = { code: string };
 
 type CreateProductActor = SessionActor;
 
@@ -49,11 +50,12 @@ export class CreateProduct
 				input.marketplace,
 				input.imageUrl,
 				input.status,
+				input.name,
 			);
 
 			try {
 				await this.repo.save(product);
-				return undefined;
+				return { code: product.getCode() };
 			} catch (error) {
 				if (error instanceof ProductCodeAlreadyExistsError) {
 					continue;

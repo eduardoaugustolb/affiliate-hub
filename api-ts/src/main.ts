@@ -2,9 +2,13 @@ import { SessionAuthenticator } from "./application/SessionAuthenticator";
 import { AuthenticateUser } from "./application/usecases/commands/AuthenticateUser";
 import { CreateProduct } from "./application/usecases/commands/CreateProduct";
 import { DeleteProduct } from "./application/usecases/commands/DeleteProduct";
+import { Logout } from "./application/usecases/commands/Logout";
 import { UpdateProduct } from "./application/usecases/commands/UpdateProduct";
 import { GetAuthenticatedUser } from "./application/usecases/queries/GetAuthenticatedUser";
 import { GetProductByCode } from "./application/usecases/queries/GetProductByCode";
+import { ListProducts } from "./application/usecases/queries/ListProducts";
+import { ResolveProduct } from "./application/usecases/queries/ResolveProduct";
+import { BunProductCodeGenerator } from "./external/BunProductCodeGenerator";
 import { BunTokenGenerator } from "./external/BunTokenGenerator";
 import { BunUUIDIdGenerator } from "./external/BunUUIDIdGenerator";
 import { BunSQLAdapter } from "./external/database/BunSQLAdapter";
@@ -19,6 +23,7 @@ import { RuntimeDateProvider } from "./external/RuntimeDateProvider";
 import { environmentVarsSchema, ZodValidator } from "./external/ZodValidator";
 import { AuthRestController } from "./infra/controllers/http/AuthRestController";
 import { ProductRestController } from "./infra/controllers/http/ProductRestController";
+import { WebController } from "./infra/controllers/http/WebController";
 import { ProductRepositoryDatabase } from "./infra/database/repositories/ProductRepositoryDatabase";
 import { SessionRepositoryDatabase } from "./infra/database/repositories/SessionRepositoryDatabase";
 import { UserRepositoryDatabase } from "./infra/database/repositories/UserRepositoryDatabase";
@@ -30,7 +35,8 @@ async function main() {
 	);
 	const {
 		DATABASE_URL,
-		SESSION_COOKIE_NAME = process.env.NODE_ENV === "production"
+		SESSION_COOKIE_NAME = process.env.NODE_ENV === "production" ||
+		process.env.BUN_ENV === "production"
 			? "__Host-session"
 			: "session",
 	} = process.env;
@@ -72,15 +78,7 @@ async function main() {
 		new ProductDAOSQL(database),
 		idGenerator,
 	);
-	const productCodeGenerator = {
-		generate: () => {
-			const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
-			return Array.from(
-				crypto.getRandomValues(new Uint8Array(6)),
-				(value) => alphabet[value % alphabet.length],
-			).join("");
-		},
-	};
+	const productCodeGenerator = new BunProductCodeGenerator();
 	new ProductRestController(
 		restApi,
 		new CreateProduct(productRepo, productCodeGenerator, sessionAuthenticator),
@@ -88,6 +86,7 @@ async function main() {
 		SESSION_COOKIE_NAME,
 		new UpdateProduct(productRepo, sessionAuthenticator),
 		new DeleteProduct(productRepo, sessionAuthenticator),
+		new ListProducts(productRepo, sessionAuthenticator),
 	);
 
 	new AuthRestController(
@@ -95,9 +94,16 @@ async function main() {
 		authenticateUser,
 		getAuthenticatedUser,
 		SESSION_COOKIE_NAME,
+		new Logout(sessionRepo, sessionTokenHasher, dateProvider),
 	);
 	restApi.register(HttpMethod.GET, "/health", async (_, res) => res.text("OK"));
 
+	new WebController(
+		restApi,
+		new ResolveProduct(productRepo),
+		getAuthenticatedUser,
+		SESSION_COOKIE_NAME,
+	);
 	try {
 		await restApi.listen(Number(process.env.PORT ?? 3000));
 	} catch (error) {

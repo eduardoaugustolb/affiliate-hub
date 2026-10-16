@@ -13,8 +13,28 @@ describe("ProductCode entity", () => {
 	);
 
 	it("should be created with a valid code", () => {
-		const code = new ProductCode("A123");
+		const code = new ProductCode("A234");
 		expect(code).toBeInstanceOf(ProductCode);
-		expect(code.getValue()).toBe("A123");
+		expect(code.getValue()).toBe("A234");
 	});
+});
+
+describe("ProductCode MVP rules", () => {
+	it.each(["a7k2", " A7k2 "])("normalizes %s", (code) =>
+		expect(new ProductCode(code).getValue()).toBe("A7K2"),
+	);
+	it.each([
+		"A",
+		"ABC",
+		"AAAAAAA",
+		"A1BC",
+		"AB0C",
+		"ABOC",
+		"ABIC",
+		"https://example.com",
+	])("rejects invalid code %s", (code) =>
+		expect(() => new ProductCode(code)).toThrow(DomainError),
+	);
+	it("preserves previously issued codes containing 1 when rehydrating", () =>
+		expect(new ProductCode("ab1234", true).getValue()).toBe("AB1234"));
 });

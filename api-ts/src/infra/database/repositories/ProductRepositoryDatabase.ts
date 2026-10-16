@@ -8,6 +8,20 @@ export class ProductRepositoryDatabase implements ProductRepository {
 		private readonly dao: ProductDAO,
 		private readonly idGenerator: IdGenerator,
 	) {}
+	async list(limit: number, offset: number): Promise<Product[]> {
+		const rows = await this.dao.list(limit, offset);
+		return rows.map((row) =>
+			Product.rehydrate(
+				row.id,
+				row.code,
+				row.destinationUrl,
+				row.marketplace,
+				row.imageUrl,
+				row.status,
+				row.name,
+			),
+		);
+	}
 	async findById(value: string): Promise<Product | undefined> {
 		const row = await this.dao.findById(value);
 		return row
@@ -18,6 +32,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 					row.marketplace,
 					row.imageUrl,
 					row.status,
+					row.name,
 				)
 			: undefined;
 	}
@@ -31,6 +46,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 					row.marketplace,
 					row.imageUrl,
 					row.status,
+					row.name,
 				)
 			: undefined;
 	}
@@ -42,6 +58,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 			marketplace: entity.getMarketplace(),
 			imageUrl: entity.getImageUrl(),
 			status: entity.getStatus(),
+			name: entity.getName(),
 		});
 	}
 	async update(entity: Product): Promise<void> {
@@ -53,6 +70,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 			marketplace: entity.getMarketplace(),
 			imageUrl: entity.getImageUrl(),
 			status: entity.getStatus(),
+			name: entity.getName(),
 		});
 	}
 	async remove(id: string): Promise<void> {

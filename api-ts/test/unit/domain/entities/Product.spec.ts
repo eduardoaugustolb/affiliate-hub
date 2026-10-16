@@ -196,3 +196,29 @@ describe("Product entity", () => {
 		},
 	);
 });
+
+describe("Product administrative name", () => {
+	it("trims the administrative name", () => {
+		const product = Product.create(
+			"A7K2",
+			productFake.destinationUrl,
+			productFake.marketplace,
+			productFake.imageUrl,
+			productFake.status,
+			"  Camiseta preta  ",
+		);
+		expect(product.getName()).toBe("Camiseta preta");
+	});
+	it.each(["", "  ", "a".repeat(161)])("rejects invalid names: %j", (name) => {
+		expect(() =>
+			Product.create(
+				"A7K2",
+				productFake.destinationUrl,
+				productFake.marketplace,
+				productFake.imageUrl,
+				productFake.status,
+				name,
+			),
+		).toThrow(DomainError);
+	});
+});

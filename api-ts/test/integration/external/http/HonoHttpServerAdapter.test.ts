@@ -328,3 +328,25 @@ describe("HonoHttpServerAdapter response methods", () => {
 		},
 	);
 });
+
+describe("HonoHttpServerAdapter malformed JSON", () => {
+	it("returns 400 instead of 500 before invoking the handler", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoHttpServerAdapter(runtime);
+		let invoked = false;
+		server.register(HttpMethod.POST, "/products", async (_, res) => {
+			invoked = true;
+			return res.empty();
+		});
+		await server.listen(0);
+		const response = await runtime.handler?.(
+			new Request("http://localhost/products", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: "{",
+			}),
+		);
+		expect(response?.status).toBe(400);
+		expect(invoked).toBe(false);
+	});
+});

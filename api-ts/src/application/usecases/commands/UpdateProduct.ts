@@ -9,6 +9,7 @@ import { Product } from "@/domain/entities/Product";
 import type { Command } from "./Command";
 
 export type UpdateProductInput = {
+	name: string;
 	code: string;
 	destinationUrl: string;
 	marketplace: string;
@@ -30,7 +31,7 @@ export class UpdateProduct
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can update products");
-		const code = input.code.trim();
+		const code = input.code.trim().toUpperCase();
 		if (!code) throw new ProductNotFoundError(code);
 		const product = await this.repo.findByCode(code);
 		if (!product) throw new ProductNotFoundError(code);
@@ -41,6 +42,7 @@ export class UpdateProduct
 			input.marketplace,
 			input.imageUrl,
 			input.status,
+			input.name,
 		);
 		await this.repo.update(updated);
 		return undefined;

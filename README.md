@@ -4,18 +4,17 @@ A product resolver for creators who post outfit roundups and product finds on so
 
 **Flow:** social post with a code → product code → destination link.
 
-> This project is under development. The repository currently contains the TypeScript API, domain rules, PostgreSQL persistence, and tests. The only HTTP route currently exposed is `GET /health`; the public home page and admin dashboard have not been implemented yet.
+> The local MVP includes the public resolver, a private admin dashboard, cookie authentication, product management, and PostgreSQL persistence. Image upload is deferred: products use an HTTPS image URL. Production hosting and a domain have not been configured.
 
 ## Current status
 
-- Product creation and code generation use cases.
-- Product lookup by code.
-- Domain and persistence layers for products, users, and sessions.
-- A script to create the first administrator.
-- An HTTP API built with Hono and running on Bun.
-- Unit and integration tests run with `bun test`.
+- Public home with code lookup and direct `/:productCode` redirects.
+- Case-insensitive codes, inactive-product handling, and permanent code reservations after deletion.
+- Private dashboard: login/logout, named product list, creation, editing, activation/deactivation, image preview, and copy-code actions.
+- First-admin provisioning script and migrations.
+- HTTP and application behavior tests using `bun test`.
 
-The [MVP product brief](PRD.MVP.md) describes the planned flow and features. Some of the work it covers is not available in the application yet.
+See [API and web documentation](api-ts/README.md) for routes, setup, production requirements, and verification limits. The original [MVP product brief](PRD.MVP.md) remains the reference for the wider scope, including deferred image uploads.
 
 ## Requirements
 
@@ -49,11 +48,12 @@ Once the database is available, run the migrations and start the API:
 
 ```bash
 cd api-ts
-bun run knex migrate:latest
-bun run src/main.ts
+bun run migrate
+bun run admin:create
+bun run dev
 ```
 
-The API listens on port `3000`. Check that it is running:
+The app listens on port `3000`. Open `http://localhost:3000/` for the public home or `/admin` for the dashboard. Check that it is running:
 
 ```bash
 curl http://localhost:3000/health
@@ -70,9 +70,9 @@ Run these from `api-ts/`:
 | `bun test` | Run unit and integration tests |
 | `bun run check` | Check formatting and Biome rules |
 | `bun run lint` | Run the Biome linter |
-| `bun run knex migrate:latest` | Apply pending migrations |
+| `bun run migrate` | Apply pending migrations |
 | `bun run knex migrate:rollback` | Roll back the latest migration batch |
-| `bun run scripts/createAdmin.ts` | Prompt for details and create the first administrator |
+| `bun run admin:create` | Prompt for details and create the first administrator |
 
 The administrator script also requires `DATABASE_URL` in the environment. The application prevents creating another first administrator once one already exists.
 

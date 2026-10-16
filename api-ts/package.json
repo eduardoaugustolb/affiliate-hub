@@ -20,7 +20,11 @@
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"lint:write": "biome lint --write .",
-		"test": "bun test"
+		"test": "bun test",
+		"dev": "bun --watch src/main.ts",
+		"start": "bun src/main.ts",
+		"migrate": "bun scripts/migrate.ts",
+		"admin:create": "bun scripts/createAdmin.ts"
 	},
 	"dependencies": {
 		"hono": "^4.13.9",

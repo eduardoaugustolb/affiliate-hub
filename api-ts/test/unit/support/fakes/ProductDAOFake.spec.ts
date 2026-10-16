@@ -3,7 +3,8 @@ import { ProductDAOFake } from "@test/support/fakes/ProductDAOFake";
 
 const row = {
 	id: "id-1",
-	code: "ABC123",
+	code: "ABC234",
+	name: "Produto",
 	destinationUrl: "https://example.com",
 	marketplace: "shein",
 	imageUrl: "https://example.com/image.jpg",
@@ -17,7 +18,7 @@ describe("Product DAO fake", () => {
 	it("should store and retrieve records", async () => {
 		await dao.save(row);
 		expect(await dao.findById(row.id)).toMatchObject(row);
-		expect(await dao.findByCode("ABC123")).toMatchObject(row);
+		expect(await dao.findByCode("ABC234")).toMatchObject(row);
 	});
 	it("should reject duplicate ids without overwriting existing data", async () => {
 		await dao.save(row);
@@ -58,5 +59,14 @@ describe("Product DAO fake", () => {
 		await dao.remove(row.id);
 		await dao.remove(row.id);
 		expect(await dao.findById(row.id)).toBe(undefined);
+	});
+});
+
+describe("Product DAO fake code reservation", () => {
+	it("keeps the code reserved after deleting a product", async () => {
+		const dao = new ProductDAOFake();
+		await dao.save(row);
+		await dao.remove(row.id);
+		expect(dao.save({ ...row, id: "new-id" })).rejects.toThrow();
 	});
 });

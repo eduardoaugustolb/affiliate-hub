@@ -23,7 +23,7 @@ export class DeleteProduct
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can delete products");
-		const code = input.code.trim();
+		const code = input.code.trim().toUpperCase();
 		if (!code) throw new ProductNotFoundError(code);
 		const product = await this.repo.findByCode(code);
 		if (!product) throw new ProductNotFoundError(code);
