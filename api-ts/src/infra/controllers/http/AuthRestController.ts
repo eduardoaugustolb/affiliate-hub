@@ -1,6 +1,5 @@
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
-import type { SessionTokenHasher } from "@/application/SessionTokenHasher";
 import type { AuthenticateUser } from "@/application/usecases/commands/AuthenticateUser";
 import type { GetAuthenticatedUser } from "@/application/usecases/queries/GetAuthenticatedUser";
 import { Email } from "@/domain/entities/Email";
@@ -16,13 +15,12 @@ export class AuthRestController {
 		private authenticateUser: AuthenticateUser,
 		private getAuthenticatedUser: GetAuthenticatedUser,
 		private sessionCookieName: string,
-		private sessionTokenHasher: SessionTokenHasher,
 	) {
 		this.httpServer.register(HttpMethod.GET, "/auth/me", async (req, res) => {
 			const sessionCookie = req.cookies[this.sessionCookieName];
 			if (!sessionCookie) throw new InvalidCredentialsError();
 			const session = await this.getAuthenticatedUser.execute({
-				sessionTokenHash: await this.sessionTokenHasher.hash(sessionCookie),
+				sessionToken: sessionCookie,
 			});
 
 			return res.json(session);

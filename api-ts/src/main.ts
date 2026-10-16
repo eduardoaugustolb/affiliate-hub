@@ -1,8 +1,12 @@
+import { SessionAuthenticator } from "./application/SessionAuthenticator";
 import { AuthenticateUser } from "./application/usecases/commands/AuthenticateUser";
+import { CreateProduct } from "./application/usecases/commands/CreateProduct";
 import { GetAuthenticatedUser } from "./application/usecases/queries/GetAuthenticatedUser";
+import { GetProductByCode } from "./application/usecases/queries/GetProductByCode";
 import { BunTokenGenerator } from "./external/BunTokenGenerator";
 import { BunUUIDIdGenerator } from "./external/BunUUIDIdGenerator";
 import { BunSQLAdapter } from "./external/database/BunSQLAdapter";
+import { ProductDAOSQL } from "./external/database/DAOs/ProductDAOSQL";
 import { SessionDAOSQL } from "./external/database/DAOs/SessionDAOSQL";
 import { UserDAOSQL } from "./external/database/DAOs/UserDAOSQL";
 import { BunPasswordHasher } from "./external/hash/BunPasswordHasher";
@@ -12,6 +16,8 @@ import { HonoHttpServerAdapter } from "./external/http/HonoHttpServerAdapter";
 import { RuntimeDateProvider } from "./external/RuntimeDateProvider";
 import { environmentVarsSchema, ZodValidator } from "./external/ZodValidator";
 import { AuthRestController } from "./infra/controllers/http/AuthRestController";
+import { ProductRestController } from "./infra/controllers/http/ProductRestController";
+import { ProductRepositoryDatabase } from "./infra/database/repositories/ProductRepositoryDatabase";
 import { SessionRepositoryDatabase } from "./infra/database/repositories/SessionRepositoryDatabase";
 import { UserRepositoryDatabase } from "./infra/database/repositories/UserRepositoryDatabase";
 import { HttpMethod } from "./infra/http/HttpRestServer";
@@ -53,10 +59,31 @@ async function main() {
 		new BunTokenGenerator(),
 		sessionTokenHasher,
 	);
-	const getAuthenticatedUser = new GetAuthenticatedUser(
+	const sessionAuthenticator = new SessionAuthenticator(
 		userRepo,
 		sessionRepo,
+		sessionTokenHasher,
 		dateProvider,
+	);
+	const getAuthenticatedUser = new GetAuthenticatedUser(sessionAuthenticator);
+	const productRepo = new ProductRepositoryDatabase(
+		new ProductDAOSQL(database),
+		idGenerator,
+	);
+	const productCodeGenerator = {
+		generate: () => {
+			const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
+			return Array.from(
+				crypto.getRandomValues(new Uint8Array(6)),
+				(value) => alphabet[value % alphabet.length],
+			).join("");
+		},
+	};
+	new ProductRestController(
+		restApi,
+		new CreateProduct(productRepo, productCodeGenerator, sessionAuthenticator),
+		new GetProductByCode(productRepo),
+		SESSION_COOKIE_NAME,
 	);
 
 	new AuthRestController(
@@ -64,7 +91,6 @@ async function main() {
 		authenticateUser,
 		getAuthenticatedUser,
 		SESSION_COOKIE_NAME,
-		sessionTokenHasher,
 	);
 	restApi.register(HttpMethod.GET, "/health", async (_, res) => res.text("OK"));
 

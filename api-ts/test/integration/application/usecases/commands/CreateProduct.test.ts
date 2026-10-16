@@ -1,9 +1,12 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
 import { ProductCodeGeneratorFake } from "@test/support/fakes/ProductCodeGeneratorFake";
 import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
+import { authenticatedSession } from "@test/support/fixtures/authenticatedSession";
 import { productFake } from "@test/support/fixtures/productFake";
 import { ApplicationError } from "@/application/errors/ApplicationError";
+import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
+import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeAlreadyExistsError";
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { ProductCodeGenerator } from "@/application/ProductCodeGenerator";
@@ -24,16 +27,57 @@ describe("CreateProduct usecase", () => {
 		status: productFake.status,
 	};
 
-	beforeEach(() => {
+	let actor: { sessionToken: string };
+	beforeEach(async () => {
 		idGenerator = new IdGeneratorFake();
 		repo = new ProductRepositoryFake(idGenerator);
 		productCodeGenerator = new ProductCodeGeneratorFake();
 
-		useCase = new CreateProduct(repo, productCodeGenerator);
+		const session = await authenticatedSession();
+		actor = session.actor;
+		useCase = new CreateProduct(
+			repo,
+			productCodeGenerator,
+			session.authenticator,
+		);
 	});
 
+	it("rejects an invalid session before generating or saving a product", async () => {
+		const save = spyOn(repo, "save");
+		const generate = spyOn(productCodeGenerator, "generate");
+		try {
+			await useCase.execute({ sessionToken: "unknown" }, input);
+			throw new Error("Expected rejection");
+		} catch (error) {
+			expect(error).toBeInstanceOf(InvalidCredentialsError);
+		}
+		expect(save).not.toHaveBeenCalled();
+		expect(generate).not.toHaveBeenCalled();
+	});
+	it("rejects a non-admin before generating or saving a product", async () => {
+		const session = await authenticatedSession();
+		spyOn(session.authenticator, "authenticate").mockResolvedValue(
+			session.user,
+		);
+		spyOn(session.user, "getRole").mockReturnValue("user");
+		const command = new CreateProduct(
+			repo,
+			productCodeGenerator,
+			session.authenticator,
+		);
+		const save = spyOn(repo, "save");
+		const generate = spyOn(productCodeGenerator, "generate");
+		try {
+			await command.execute(session.actor, input);
+			throw new Error("Expected rejection");
+		} catch (error) {
+			expect(error).toBeInstanceOf(ForbiddenOperationError);
+		}
+		expect(save).not.toHaveBeenCalled();
+		expect(generate).not.toHaveBeenCalled();
+	});
 	it("should persist a product successfully", async () => {
-		const result = await useCase.execute(undefined, input);
+		const result = await useCase.execute(actor, input);
 
 		expect(result).toBeUndefined();
 	});
@@ -43,7 +87,7 @@ describe("CreateProduct usecase", () => {
 
 		idGenerator.generate = generate;
 
-		await useCase.execute(undefined, input);
+		await useCase.execute(actor, input);
 
 		expect(generate).toHaveBeenCalledTimes(1);
 	});
@@ -53,7 +97,7 @@ describe("CreateProduct usecase", () => {
 
 		productCodeGenerator.generate = generate;
 
-		await useCase.execute(undefined, input);
+		await useCase.execute(actor, input);
 
 		expect(generate).toHaveBeenCalledTimes(1);
 	});
@@ -63,7 +107,7 @@ describe("CreateProduct usecase", () => {
 
 		repo.save = save;
 
-		await useCase.execute(undefined, input);
+		await useCase.execute(actor, input);
 
 		expect(save).toHaveBeenCalledTimes(1);
 
@@ -102,7 +146,7 @@ describe("CreateProduct usecase", () => {
 
 		repo.save = save;
 
-		const result = await useCase.execute(undefined, input);
+		const result = await useCase.execute(actor, input);
 
 		expect(result).toBeUndefined();
 		expect(generate).toHaveBeenCalledTimes(2);
@@ -124,7 +168,7 @@ describe("CreateProduct usecase", () => {
 			}
 		});
 
-		await useCase.execute(undefined, input);
+		await useCase.execute(actor, input);
 
 		expect(savedCodes).toEqual(["ABC123", "DEF456"]);
 	});
@@ -139,7 +183,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute(undefined, input);
+			await useCase.execute(actor, input);
 
 			throw new Error("Expected use case to throw");
 		} catch (error) {
@@ -164,7 +208,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute(undefined, input);
+			await useCase.execute(actor, input);
 
 			throw new Error("Expected use case to throw");
 		} catch (error) {
@@ -179,7 +223,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid destinationUrl",
 		async (destinationUrl) => {
 			try {
-				await useCase.execute(undefined, {
+				await useCase.execute(actor, {
 					...input,
 					destinationUrl,
 				});
@@ -197,7 +241,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid imageUrl",
 		async (imageUrl) => {
 			try {
-				await useCase.execute(undefined, {
+				await useCase.execute(actor, {
 					...input,
 					imageUrl,
 				});
@@ -213,7 +257,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid status",
 		async (status) => {
 			try {
-				await useCase.execute(undefined, {
+				await useCase.execute(actor, {
 					...input,
 					status,
 				});
@@ -229,7 +273,7 @@ describe("CreateProduct usecase", () => {
 		"should throw an error when trying to persist a product with invalid marketplace",
 		async (marketplace) => {
 			try {
-				await useCase.execute(undefined, {
+				await useCase.execute(actor, {
 					...input,
 					marketplace,
 				});
@@ -247,7 +291,7 @@ describe("CreateProduct usecase", () => {
 		repo.save = save;
 
 		try {
-			await useCase.execute(undefined, {
+			await useCase.execute(actor, {
 				...input,
 				destinationUrl: "invalid",
 			});

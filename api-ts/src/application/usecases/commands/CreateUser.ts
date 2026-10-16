@@ -1,3 +1,7 @@
+import type {
+	SessionActor,
+	SessionAuthenticator,
+} from "@/application/SessionAuthenticator";
 import { User } from "@/domain/entities/User";
 import { ForbiddenOperationError } from "../../errors/ForbiddenOperationError";
 import type { PasswordHasher } from "../../PasswordHasher";
@@ -12,14 +16,24 @@ export type CreateUserInput = {
 	role: string;
 };
 
-export class CreateUser implements Command<User, CreateUserInput, undefined> {
+export type CreateUserActor = SessionActor;
+
+export class CreateUser
+	implements Command<CreateUserActor, CreateUserInput, undefined>
+{
 	constructor(
 		private readonly userRepo: UserRepository,
+		private readonly sessionAuthenticator: SessionAuthenticator,
 		private readonly passwordHasher: PasswordHasher,
 	) {}
 
-	async execute(actor: User, input: CreateUserInput): Promise<undefined> {
-		if (!UserCreationPolicy.canCreate(actor)) {
+	async execute(
+		actor: CreateUserActor,
+		input: CreateUserInput,
+	): Promise<undefined> {
+		const actorUser = await this.sessionAuthenticator.authenticate(actor);
+
+		if (!UserCreationPolicy.canCreate(actorUser)) {
 			throw new ForbiddenOperationError("Only admins can create users");
 		}
 

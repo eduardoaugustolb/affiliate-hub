@@ -30,7 +30,7 @@ import type { HttpClient } from "@/infra/http/HttpClient";
 const { TEST_DATABASE_URL, TEST_API_URL } = process.env;
 const cookieName =
 	process.env.SESSION_COOKIE_NAME ??
-	(process.env.NODE_ENV === "production" ? "__Host-session" : "session");
+	(process.env.BUN_ENV === "production" ? "__Host-session" : "session");
 
 describe.skipIf(!TEST_DATABASE_URL || !TEST_API_URL)(
 	"Authentication API",

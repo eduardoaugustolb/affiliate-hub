@@ -6,6 +6,7 @@ import { InvalidCredentialsError } from "@/application/errors/InvalidCredentials
 import type { IdGenerator } from "@/application/IdGenerator";
 import type { SessionRepository } from "@/application/repositories/SessionRepository";
 import type { UserRepository } from "@/application/repositories/UserRepository";
+import { SessionAuthenticator } from "@/application/SessionAuthenticator";
 import { GetAuthenticatedUser } from "@/application/usecases/queries/GetAuthenticatedUser";
 import { Session } from "@/domain/entities/Session";
 import { User } from "@/domain/entities/User";
@@ -26,7 +27,14 @@ describe("GetAuthenticatedUser use case", () => {
 		};
 		userRepo = new UserRepositoryFake(idGenerator);
 		sessionRepo = new SessionRepositoryFake(idGenerator, dateProvider);
-		usecase = new GetAuthenticatedUser(userRepo, sessionRepo, dateProvider);
+		usecase = new GetAuthenticatedUser(
+			new SessionAuthenticator(
+				userRepo,
+				sessionRepo,
+				{ hash: async (token) => token },
+				dateProvider,
+			),
+		);
 	});
 
 	it("returns the user associated with a valid session", async () => {
@@ -43,9 +51,7 @@ describe("GetAuthenticatedUser use case", () => {
 		);
 		await sessionRepo.save(session);
 
-		expect(
-			usecase.execute({ sessionTokenHash: "token-hash" }),
-		).resolves.toEqual({
+		expect(usecase.execute({ sessionToken: "token-hash" })).resolves.toEqual({
 			id: savedUser.getId(),
 			name: "Alice",
 			email: "alice@example.com",
@@ -55,7 +61,7 @@ describe("GetAuthenticatedUser use case", () => {
 
 	it("rejects a session token that does not exist", () => {
 		return expect(
-			usecase.execute({ sessionTokenHash: "unknown-token" }),
+			usecase.execute({ sessionToken: "unknown-token" }),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 
@@ -67,7 +73,7 @@ describe("GetAuthenticatedUser use case", () => {
 			return findByTokenHash(tokenHash);
 		};
 
-		expect(usecase.execute({ sessionTokenHash: "  " })).rejects.toBeInstanceOf(
+		expect(usecase.execute({ sessionToken: "  " })).rejects.toBeInstanceOf(
 			InvalidCredentialsError,
 		);
 		expect(wasQueried).toBe(false);
@@ -84,7 +90,7 @@ describe("GetAuthenticatedUser use case", () => {
 		);
 
 		expect(
-			usecase.execute({ sessionTokenHash: "orphaned-token" }),
+			usecase.execute({ sessionToken: "orphaned-token" }),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 });
@@ -109,12 +115,15 @@ describe("GetAuthenticatedUser expired sessions", () => {
 		);
 		now = dateProvider.add(120_000);
 		const usecase = new GetAuthenticatedUser(
-			userRepo,
-			sessionRepo,
-			dateProvider,
+			new SessionAuthenticator(
+				userRepo,
+				sessionRepo,
+				{ hash: async (token) => token },
+				dateProvider,
+			),
 		);
 		expect(
-			usecase.execute({ sessionTokenHash: "expired-token" }),
+			usecase.execute({ sessionToken: "expired-token" }),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
 });
