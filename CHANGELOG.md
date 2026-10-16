@@ -1,3 +1,11 @@
+## [0.8.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.7.0...v0.8.0) (2026-10-16)
+
+
+### Features
+
+* **auth:** centralize session validation and protect product creation ([fc010e6](https://github.com/eduardoaugustolb/affiliate-hub/commit/fc010e630d4a5b887b49b740ab9d3313fe028ca5))
+* **products:** add authenticated update and delete routes ([3097e4a](https://github.com/eduardoaugustolb/affiliate-hub/commit/3097e4afa470bc0d1cc56ebb7bfec113788e7d20))
+
 ## [0.7.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.3...v0.7.0) (2026-10-15)
 
 
@@ -29,21 +37,4 @@
 ### Bug Fixes
 
 * **ci:** remove unavailable husky prepare script ([7dc9126](https://github.com/eduardoaugustolb/affiliate-hub/commit/7dc9126d9d5153ae17e38722af8676500fb19fe2))
-
-## [0.6.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.5.0...v0.6.0) (2026-10-12)
-
-
-### Features
-
-* add admin bootstrap script ([f7b19c5](https://github.com/eduardoaugustolb/affiliate-hub/commit/f7b19c5395a668293c972b9c25c3e4e9a2486e79))
-* add user authentication sessions ([568b519](https://github.com/eduardoaugustolb/affiliate-hub/commit/568b519baa4e8f941c206f678c235bdb644f7831))
-* **admin:** prompt for bootstrap credentials ([a6a929d](https://github.com/eduardoaugustolb/affiliate-hub/commit/a6a929d3246aadc48163ebf410dc88e37929f2a2))
-* find first admin in user repository ([5a369c7](https://github.com/eduardoaugustolb/affiliate-hub/commit/5a369c79ebf46b686f15cea8a7de37f2decb159c))
-* **infra:** create affiliate database automatically ([b6a8e01](https://github.com/eduardoaugustolb/affiliate-hub/commit/b6a8e01d58d11f86322cd17e7528a37ced674a00))
-* restrict user creation to admins ([c301b49](https://github.com/eduardoaugustolb/affiliate-hub/commit/c301b4903c31ed37720223180e6390cae94322e7))
-
-
-### Bug Fixes
-
-* **api-ts:** remove unit of work on AuthenticateUser to receive repositories ([8fd912d](https://github.com/eduardoaugustolb/affiliate-hub/commit/8fd912d15b95f420a0557aa167f586ed844f3bce))
 
