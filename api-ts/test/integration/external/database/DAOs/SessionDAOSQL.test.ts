@@ -41,7 +41,7 @@ describe("Session SQL DAO", () => {
 		]);
 	});
 	it("should bind the id on deletion", async () => {
-		await dao.deleteById("id' OR 1=1 --");
+		await dao.deleteById({ id: "id' OR 1=1 --" });
 		expect(connection.queries[0]).toEqual({
 			sql: "DELETE FROM sessions WHERE id = $1",
 			params: ["id' OR 1=1 --"],
@@ -49,7 +49,7 @@ describe("Session SQL DAO", () => {
 	});
 	it("should find by id using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findById("lookup")).toEqual(row);
+		expect(await dao.findById({ id: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE id = $1");
@@ -60,11 +60,11 @@ describe("Session SQL DAO", () => {
 		expect(query.sql).toContain('revoked_at AS "revokedAt"');
 	});
 	it("should return null when id is missing", async () => {
-		expect(await dao.findById("missing")).toEqual(null);
+		expect(await dao.findById({ id: "missing" })).toEqual(null);
 	});
 	it("should find by tokenHash using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findByTokenHash("lookup")).toEqual(row);
+		expect(await dao.findByTokenHash({ tokenHash: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE token_hash = $1");
@@ -75,7 +75,7 @@ describe("Session SQL DAO", () => {
 		expect(query.sql).toContain('revoked_at AS "revokedAt"');
 	});
 	it("should return null when tokenHash is missing", async () => {
-		expect(await dao.findByTokenHash("missing")).toEqual(null);
+		expect(await dao.findByTokenHash({ tokenHash: "missing" })).toEqual(null);
 	});
 	it.each(["save", "update", "deleteById", "findById"] as const)(
 		"should propagate errors from %s",
@@ -85,7 +85,7 @@ describe("Session SQL DAO", () => {
 			const call =
 				method === "save" || method === "update"
 					? dao[method](row)
-					: dao[method](row.id);
+					: dao[method]({ id: row.id });
 			return expect(call).rejects.toBe(error);
 		},
 	);

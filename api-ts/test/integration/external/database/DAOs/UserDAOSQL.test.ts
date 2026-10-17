@@ -42,7 +42,7 @@ describe("User SQL DAO", () => {
 		]);
 	});
 	it("should bind the id on deletion", async () => {
-		await dao.deleteById("id' OR 1=1 --");
+		await dao.deleteById({ id: "id' OR 1=1 --" });
 		expect(connection.queries[0]).toEqual({
 			sql: "DELETE FROM users WHERE id = $1",
 			params: ["id' OR 1=1 --"],
@@ -50,7 +50,7 @@ describe("User SQL DAO", () => {
 	});
 	it("should find by id using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findById("lookup")).toEqual(row);
+		expect(await dao.findById({ id: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE id = $1");
@@ -58,11 +58,11 @@ describe("User SQL DAO", () => {
 		expect(query.sql).toContain('password_hash AS "passwordHash"');
 	});
 	it("should return null when id is missing", async () => {
-		expect(await dao.findById("missing")).toEqual(null);
+		expect(await dao.findById({ id: "missing" })).toEqual(null);
 	});
 	it("should find by email using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findByEmail("lookup")).toEqual(row);
+		expect(await dao.findByEmail({ email: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE email = $1");
@@ -70,7 +70,7 @@ describe("User SQL DAO", () => {
 		expect(query.sql).toContain('password_hash AS "passwordHash"');
 	});
 	it("should return null when email is missing", async () => {
-		expect(await dao.findByEmail("missing")).toEqual(null);
+		expect(await dao.findByEmail({ email: "missing" })).toEqual(null);
 	});
 	it("should find the first admin by creation date", async () => {
 		connection.rows = [row];
@@ -91,7 +91,7 @@ describe("User SQL DAO", () => {
 			const call =
 				method === "save" || method === "update"
 					? dao[method](row)
-					: dao[method](row.id);
+					: dao[method]({ id: row.id });
 			return expect(call).rejects.toBe(error);
 		},
 	);

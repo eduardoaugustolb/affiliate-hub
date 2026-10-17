@@ -11,8 +11,8 @@ export type InputUserDTO = Omit<UserDTO, "createdAt" | "updatedAt">;
 export interface UserDAO {
 	save(entity: InputUserDTO): Promise<void>;
 	update(entity: InputUserDTO): Promise<void>;
-	deleteById(id: string): Promise<void>;
-	findById(id: string): Promise<UserDTO | null>;
-	findByEmail(value: string): Promise<UserDTO | null>;
+	deleteById(input: Pick<UserDTO, "id">): Promise<void>;
+	findById(input: Pick<UserDTO, "id">): Promise<UserDTO | null>;
+	findByEmail(input: Pick<UserDTO, "email">): Promise<UserDTO | null>;
 	findFirstAdmin(): Promise<UserDTO | null>;
 }

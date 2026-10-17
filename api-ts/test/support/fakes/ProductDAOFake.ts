@@ -1,13 +1,14 @@
 import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeAlreadyExistsError";
 import type {
 	InputProductDTO,
+	ListProductsDTO,
 	ProductDAO,
 	ProductDTO,
 } from "@/infra/database/DAOs/ProductDAO";
 export class ProductDAOFake implements ProductDAO {
 	private readonly reserved = new Set<string>();
 	readonly db = new Map<string, ProductDTO>();
-	async list(limit: number, offset: number): Promise<ProductDTO[]> {
+	async list({ limit, offset }: ListProductsDTO): Promise<ProductDTO[]> {
 		return [...this.db.values()]
 			.sort(
 				(a, b) =>
@@ -36,19 +37,27 @@ export class ProductDAOFake implements ProductDAO {
 		if (existing)
 			this.db.set(entity.id, { ...existing, ...entity, updatedAt: new Date() });
 	}
-	async remove(id: string): Promise<void> {
+	async remove({ id }: Pick<ProductDTO, "id">): Promise<void> {
 		this.db.delete(id);
 	}
-	async findById(id: string): Promise<ProductDTO | undefined> {
+	async findById({
+		id,
+	}: Pick<ProductDTO, "id">): Promise<ProductDTO | undefined> {
 		return this.db.get(id) ?? undefined;
 	}
-	async findByCode(value: string): Promise<ProductDTO | undefined> {
+	async findByCode({
+		code: value,
+	}: Pick<ProductDTO, "code">): Promise<ProductDTO | undefined> {
 		return [...this.db.values()].find((row) => row.code === value) ?? undefined;
 	}
-	async findByMarketplace(value: string): Promise<ProductDTO[]> {
+	async findByMarketplace({
+		marketplace: value,
+	}: Pick<ProductDTO, "marketplace">): Promise<ProductDTO[]> {
 		return [...this.db.values()].filter((row) => row.marketplace === value);
 	}
-	async findByDestinationUrl(value: string): Promise<ProductDTO[]> {
+	async findByDestinationUrl({
+		destinationUrl: value,
+	}: Pick<ProductDTO, "destinationUrl">): Promise<ProductDTO[]> {
 		return [...this.db.values()].filter((row) => row.destinationUrl === value);
 	}
 }

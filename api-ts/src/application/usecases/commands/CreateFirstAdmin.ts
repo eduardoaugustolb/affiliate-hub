@@ -11,7 +11,7 @@ export type CreateFirstAdminInput = {
 };
 
 export class CreateFirstAdmin
-	implements Command<undefined, CreateFirstAdminInput, undefined>
+	implements Command<undefined, CreateFirstAdminInput>
 {
 	constructor(
 		private userRepo: UserRepository,
@@ -21,7 +21,7 @@ export class CreateFirstAdmin
 	async execute(
 		_actor: undefined,
 		input: CreateFirstAdminInput,
-	): Promise<undefined> {
+	): Promise<void> {
 		const firstAdminExists = !!(await this.userRepo.findFirstAdmin());
 		if (firstAdminExists) throw new UserAlreadyExistsError();
 		const passwordHash = await this.passwordHasher.hash(input.password);

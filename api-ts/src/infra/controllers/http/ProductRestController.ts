@@ -6,7 +6,6 @@ import type { DeleteProduct } from "@/application/usecases/commands/DeleteProduc
 import type { UpdateProduct } from "@/application/usecases/commands/UpdateProduct";
 import type { GetProductByCode } from "@/application/usecases/queries/GetProductByCode";
 import type { ListProducts } from "@/application/usecases/queries/ListProducts";
-import type { Product } from "@/domain/entities/Product";
 import {
 	HttpMethod,
 	type HttpRestServer,
@@ -31,9 +30,7 @@ export class ProductRestController {
 				{ sessionToken },
 				{ limit, offset },
 			);
-			return res
-				.header("Cache-Control", "no-store")
-				.json(products.map(productDTO));
+			return res.header("Cache-Control", "no-store").json(products);
 		});
 
 		httpServer.register(HttpMethod.POST, "/products", async (req, res) => {
@@ -41,11 +38,11 @@ export class ProductRestController {
 			if (!sessionToken) throw new InvalidCredentialsError();
 			const { name, destinationUrl, marketplace, imageUrl, status } =
 				parseProductInput(req.body);
-			const created = await createProduct.execute(
+			await createProduct.execute(
 				{ sessionToken },
 				{ name, destinationUrl, marketplace, imageUrl, status },
 			);
-			return res.status(HttpStatusCode.CREATED).json(created);
+			return res.empty(HttpStatusCode.CREATED);
 		});
 		httpServer.register(HttpMethod.PUT, "/products/:code", async (req, res) => {
 			const sessionToken = req.cookies[sessionCookieName];
@@ -75,10 +72,10 @@ export class ProductRestController {
 			const code = req.params.code;
 			if (!code?.trim()) throw new ProductNotFoundError(code ?? "");
 
-			const product = await getProductByCode.execute(undefined, {
+			const productDTO = await getProductByCode.execute(undefined, {
 				code,
 			});
-			return res.json(productDTO(product));
+			return res.json(productDTO);
 		});
 	}
 }
@@ -97,16 +94,4 @@ function parseProductInput(body: unknown) {
 	)
 		throw new BadRequestError("Product fields must be strings");
 	return { name, destinationUrl, marketplace, imageUrl, status };
-}
-
-export function productDTO(product: Product) {
-	return {
-		id: product.getId(),
-		code: product.getCode(),
-		name: product.getName(),
-		destinationUrl: product.getDestinationUrl(),
-		marketplace: product.getMarketplace(),
-		imageUrl: product.getImageUrl(),
-		status: product.getStatus(),
-	};
 }

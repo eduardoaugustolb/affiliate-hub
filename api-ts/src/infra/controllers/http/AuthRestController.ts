@@ -1,6 +1,7 @@
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { AuthenticationPolicy } from "@/application/policy/AuthenticationPolicy";
+import type { SessionTokenGenerator } from "@/application/SessionTokenGenerator";
 import type { AuthenticateUser } from "@/application/usecases/commands/AuthenticateUser";
 import type { Logout } from "@/application/usecases/commands/Logout";
 import type { GetAuthenticatedUser } from "@/application/usecases/queries/GetAuthenticatedUser";
@@ -18,6 +19,7 @@ export class AuthRestController {
 		private getAuthenticatedUser: GetAuthenticatedUser,
 		private sessionCookieName: string,
 		logout: Logout,
+		sessionTokenGenerator: SessionTokenGenerator,
 	) {
 		this.httpServer.register(
 			HttpMethod.POST,
@@ -77,7 +79,11 @@ export class AuthRestController {
 					throw new BadRequestError("Invalid email");
 				}
 
-				const sessionCookie = await this.authenticateUser.execute(undefined, {
+				const sessionCookie = sessionTokenGenerator.generate(
+					AuthenticationPolicy.sessionTokenBytes,
+				);
+				await this.authenticateUser.execute(undefined, {
+					sessionToken: sessionCookie,
 					email,
 					password,
 				});

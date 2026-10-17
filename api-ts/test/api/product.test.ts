@@ -98,10 +98,10 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 	afterEach(async () => {
 		// Only delete records owned by this test, including products created by HTTP.
 		try {
-			for (const product of await productDAO.findByDestinationUrl(
-				input.destinationUrl,
-			)) {
-				await productDAO.remove(product.id);
+			for (const product of await productDAO.findByDestinationUrl({
+				destinationUrl: input.destinationUrl,
+			})) {
+				await productDAO.remove({ id: product.id });
 			}
 		} finally {
 			// Deleting the user also cascades deletion to its sessions.
@@ -126,9 +126,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 		it("creates and persists a product for an authenticated admin", async () => {
 			const response = await create(input, await login());
 			expect(response.statusCode).toBe(201);
-			const products = await productDAO.findByDestinationUrl(
-				input.destinationUrl,
-			);
+			const products = await productDAO.findByDestinationUrl({
+				destinationUrl: input.destinationUrl,
+			});
 			expect(products).toHaveLength(1);
 			const product = products[0];
 			if (!product) throw new Error("Product was not persisted");
@@ -144,6 +144,8 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				id: product.id,
 				code: product.code,
 				...input,
+				createdAt: product.createdAt.toISOString(),
+				updatedAt: product.updatedAt.toISOString(),
 			});
 		});
 
@@ -154,7 +156,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				expect(response.statusCode).toBe(401);
 				expect(response.body).toMatchObject({ code: "INVALID_CREDENTIALS" });
 				expect(
-					await productDAO.findByDestinationUrl(input.destinationUrl),
+					await productDAO.findByDestinationUrl({
+						destinationUrl: input.destinationUrl,
+					}),
 				).toEqual([]);
 			},
 		);
@@ -183,7 +187,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 			const response = await create(body, await login());
 			expect(response.statusCode).toBe(400);
 			expect(
-				await productDAO.findByDestinationUrl(input.destinationUrl),
+				await productDAO.findByDestinationUrl({
+					destinationUrl: input.destinationUrl,
+				}),
 			).toEqual([]);
 		});
 
@@ -199,7 +205,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 			);
 			expect(response.statusCode).toBe(422);
 			expect(
-				await productDAO.findByDestinationUrl(input.destinationUrl),
+				await productDAO.findByDestinationUrl({
+					destinationUrl: input.destinationUrl,
+				}),
 			).toEqual([]);
 		});
 	});
@@ -227,7 +235,13 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				timeoutMs: 5000,
 			});
 			expect(response.statusCode).toBe(200);
-			expect(response.body).toEqual({ id, code, ...input });
+			expect(response.body).toEqual({
+				id,
+				code,
+				...input,
+				createdAt: expect.any(String),
+				updatedAt: expect.any(String),
+			});
 		});
 
 		it("returns 404 for an unknown code", async () => {
@@ -264,11 +278,11 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 					.replaceAll("1", "B")
 					.toUpperCase()
 					.slice(0, 6);
-			} while (await productDAO.findByCode(code));
+			} while (await productDAO.findByCode({ code: code }));
 			await productDAO.save({ id, code, ...input });
 		});
 		afterEach(async () => {
-			await productDAO.remove(id);
+			await productDAO.remove({ id: id });
 		});
 		function mutate(
 			method: "PUT" | "DELETE",
@@ -295,7 +309,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 			};
 			const response = await mutate("PUT", await login(), updated);
 			expect(response.statusCode).toBe(204);
-			expect(await productDAO.findById(id)).toMatchObject({
+			expect(await productDAO.findById({ id: id })).toMatchObject({
 				id,
 				code,
 				...updated,
@@ -304,12 +318,18 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				timeoutMs: 5000,
 			});
 			expect(fetched.statusCode).toBe(200);
-			expect(fetched.body).toEqual({ id, code, ...updated });
+			expect(fetched.body).toEqual({
+				id,
+				code,
+				...updated,
+				createdAt: expect.any(String),
+				updatedAt: expect.any(String),
+			});
 		});
 		it("deletes a product through DELETE and makes it unavailable through GET", async () => {
 			const response = await mutate("DELETE", await login());
 			expect(response.statusCode).toBe(204);
-			expect(await productDAO.findById(id)).toBeUndefined();
+			expect(await productDAO.findById({ id: id })).toBeUndefined();
 			const fetched = await httpClient.get(url(`/products/${code}`), {
 				timeoutMs: 5000,
 			});
@@ -323,7 +343,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 					const response = await mutate(method, token);
 					expect(response.statusCode).toBe(401);
 					expect(response.body).toMatchObject({ code: "INVALID_CREDENTIALS" });
-					expect(await productDAO.findById(id)).toMatchObject({
+					expect(await productDAO.findById({ id: id })).toMatchObject({
 						id,
 						code,
 						...input,
@@ -339,7 +359,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 		it("PUT rejects malformed input without changing the product", async () => {
 			const response = await mutate("PUT", await login(), {});
 			expect(response.statusCode).toBe(400);
-			expect(await productDAO.findById(id)).toMatchObject({
+			expect(await productDAO.findById({ id: id })).toMatchObject({
 				id,
 				code,
 				...input,
@@ -351,7 +371,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				status: "invalid",
 			});
 			expect(response.statusCode).toBe(422);
-			expect(await productDAO.findById(id)).toMatchObject({
+			expect(await productDAO.findById({ id: id })).toMatchObject({
 				id,
 				code,
 				...input,

@@ -5,13 +5,13 @@ import { Session } from "@/domain/entities/Session";
 import { DomainError } from "@/domain/errors/DomainError";
 import type { DateProvider } from "@/infra/DateProvider";
 import type { Command } from "./Command";
-export class Logout implements Command<SessionActor, undefined, undefined> {
+export class Logout implements Command<SessionActor, undefined> {
 	constructor(
 		private readonly repo: SessionRepository,
 		private readonly hasher: SessionTokenHasher,
 		private readonly clock: DateProvider,
 	) {}
-	async execute(actor: SessionActor): Promise<undefined> {
+	async execute(actor: SessionActor): Promise<void> {
 		if (!actor.sessionToken.trim()) return;
 		const session = await this.repo
 			.findByTokenHash(await this.hasher.hash(actor.sessionToken))

@@ -1,3 +1,4 @@
+export type ListProductsDTO = { limit: number; offset: number };
 export type ProductDTO = {
 	id: string;
 	code: string;
@@ -11,12 +12,16 @@ export type ProductDTO = {
 };
 export type InputProductDTO = Omit<ProductDTO, "createdAt" | "updatedAt">;
 export interface ProductDAO {
-	list(limit: number, offset: number): Promise<ProductDTO[]>;
+	list(input: ListProductsDTO): Promise<ProductDTO[]>;
 	save(entity: InputProductDTO): Promise<void>;
 	update(entity: InputProductDTO): Promise<void>;
-	remove(id: string): Promise<void>;
-	findById(id: string): Promise<ProductDTO | undefined>;
-	findByCode(value: string): Promise<ProductDTO | undefined>;
-	findByMarketplace(value: string): Promise<ProductDTO[]>;
-	findByDestinationUrl(value: string): Promise<ProductDTO[]>;
+	remove(input: Pick<ProductDTO, "id">): Promise<void>;
+	findById(input: Pick<ProductDTO, "id">): Promise<ProductDTO | undefined>;
+	findByCode(input: Pick<ProductDTO, "code">): Promise<ProductDTO | undefined>;
+	findByMarketplace(
+		input: Pick<ProductDTO, "marketplace">,
+	): Promise<ProductDTO[]>;
+	findByDestinationUrl(
+		input: Pick<ProductDTO, "destinationUrl">,
+	): Promise<ProductDTO[]>;
 }

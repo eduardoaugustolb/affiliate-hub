@@ -18,13 +18,10 @@ type CreateProductInput = {
 	status: string;
 };
 
-type CreateProductOutput = { code: string };
-
 type CreateProductActor = SessionActor;
 
 export class CreateProduct
-	implements
-		Command<CreateProductActor, CreateProductInput, CreateProductOutput>
+	implements Command<CreateProductActor, CreateProductInput>
 {
 	constructor(
 		private readonly repo: ProductRepository,
@@ -35,7 +32,7 @@ export class CreateProduct
 	async execute(
 		actor: CreateProductActor,
 		input: CreateProductInput,
-	): Promise<CreateProductOutput> {
+	): Promise<void> {
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can create products");
@@ -55,7 +52,7 @@ export class CreateProduct
 
 			try {
 				await this.repo.save(product);
-				return { code: product.getCode() };
+				return;
 			} catch (error) {
 				if (error instanceof ProductCodeAlreadyExistsError) {
 					continue;

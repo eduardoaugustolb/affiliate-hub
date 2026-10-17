@@ -1,7 +1,7 @@
 import { describe, expect, it, spyOn } from "bun:test";
 import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
 import { ProductCodeGeneratorFake } from "@test/support/fakes/ProductCodeGeneratorFake";
-import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
+import { ProductDAOFake } from "@test/support/fakes/ProductDAOFake";
 import { authenticatedSession } from "@test/support/fixtures/authenticatedSession";
 import { dateProvider } from "@test/support/fixtures/dateProvider";
 import { productFake } from "@test/support/fixtures/productFake";
@@ -14,11 +14,13 @@ import { Product } from "@/domain/entities/Product";
 import { Session } from "@/domain/entities/Session";
 import { HonoHttpServerAdapter } from "@/external/http/HonoHttpServerAdapter";
 import { ProductRestController } from "@/infra/controllers/http/ProductRestController";
+import { ProductRepositoryDatabase } from "@/infra/database/repositories/ProductRepositoryDatabase";
 import type { FetchHandler } from "@/infra/http/HttpRestRuntime";
 
 async function setup() {
 	const session = await authenticatedSession();
-	const repo = new ProductRepositoryFake(new IdGeneratorFake());
+	const dao = new ProductDAOFake();
+	const repo = new ProductRepositoryDatabase(dao, new IdGeneratorFake());
 	await repo.save(
 		Product.create(
 			productFake.code,
@@ -44,11 +46,11 @@ async function setup() {
 			new ProductCodeGeneratorFake(),
 			session.authenticator,
 		),
-		new GetProductByCode(repo),
+		new GetProductByCode(dao),
 		"custom-session",
 		new UpdateProduct(repo, session.authenticator),
 		new DeleteProduct(repo, session.authenticator),
-		new ListProducts(repo, session.authenticator),
+		new ListProducts(dao, session.authenticator),
 	);
 	await server.listen(0);
 	const input = {

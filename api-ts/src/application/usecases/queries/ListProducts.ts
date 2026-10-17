@@ -1,23 +1,23 @@
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
-import type { ProductRepository } from "@/application/repositories/ProductRepository";
 import type {
 	SessionActor,
 	SessionAuthenticator,
 } from "@/application/SessionAuthenticator";
-import type { Product } from "@/domain/entities/Product";
+import type { ProductDAO, ProductDTO } from "@/infra/database/DAOs/ProductDAO";
 import type { Query } from "./Query";
 export class ListProducts
-	implements Query<SessionActor, { limit: number; offset: number }, Product[]>
+	implements
+		Query<SessionActor, { limit: number; offset: number }, ProductDTO[]>
 {
 	constructor(
-		private readonly repo: ProductRepository,
+		private readonly dao: ProductDAO,
 		private readonly authenticator: SessionAuthenticator,
 	) {}
 	async execute(
 		actor: SessionActor,
 		input: { limit: number; offset: number },
-	): Promise<Product[]> {
+	): Promise<ProductDTO[]> {
 		const user = await this.authenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can list products");
@@ -29,6 +29,6 @@ export class ListProducts
 			input.offset < 0
 		)
 			throw new BadRequestError("Invalid pagination");
-		return this.repo.list(input.limit, input.offset);
+		return this.dao.list({ limit: input.limit, offset: input.offset });
 	}
 }

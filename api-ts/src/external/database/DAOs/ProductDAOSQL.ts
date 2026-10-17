@@ -1,13 +1,14 @@
 import { ProductCodeAlreadyExistsError } from "@/application/errors/ProductCodeAlreadyExistsError";
 import type {
 	InputProductDTO,
+	ListProductsDTO,
 	ProductDAO,
 	ProductDTO,
 } from "@/infra/database/DAOs/ProductDAO";
 import type { DatabaseConnection } from "@/infra/database/DatabaseConnection";
 export class ProductDAOSQL implements ProductDAO {
 	constructor(private readonly connection: DatabaseConnection) {}
-	async list(limit: number, offset: number): Promise<ProductDTO[]> {
+	async list({ limit, offset }: ListProductsDTO): Promise<ProductDTO[]> {
 		return this.connection.query<ProductDTO>(
 			'SELECT id, code, name, destination_url AS "destinationUrl", marketplace, image_url AS "imageUrl", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM products ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2',
 			[limit, offset],
@@ -67,31 +68,39 @@ export class ProductDAOSQL implements ProductDAO {
 			throw error;
 		}
 	}
-	async remove(id: string): Promise<void> {
+	async remove({ id }: Pick<ProductDTO, "id">): Promise<void> {
 		await this.connection.query("DELETE FROM products WHERE id = $1", [id]);
 	}
-	async findById(value: string): Promise<ProductDTO | undefined> {
+	async findById({
+		id: value,
+	}: Pick<ProductDTO, "id">): Promise<ProductDTO | undefined> {
 		const rows = await this.connection.query<ProductDTO>(
 			'SELECT id, code, name, destination_url AS "destinationUrl", marketplace, image_url AS "imageUrl", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM products WHERE id = $1',
 			[value],
 		);
 		return rows[0] ?? undefined;
 	}
-	async findByCode(value: string): Promise<ProductDTO | undefined> {
+	async findByCode({
+		code: value,
+	}: Pick<ProductDTO, "code">): Promise<ProductDTO | undefined> {
 		const rows = await this.connection.query<ProductDTO>(
 			'SELECT id, code, name, destination_url AS "destinationUrl", marketplace, image_url AS "imageUrl", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM products WHERE code = $1',
 			[value],
 		);
 		return rows[0] ?? undefined;
 	}
-	async findByMarketplace(value: string): Promise<ProductDTO[]> {
+	async findByMarketplace({
+		marketplace: value,
+	}: Pick<ProductDTO, "marketplace">): Promise<ProductDTO[]> {
 		const rows = await this.connection.query<ProductDTO>(
 			'SELECT id, code, name, destination_url AS "destinationUrl", marketplace, image_url AS "imageUrl", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM products WHERE marketplace = $1',
 			[value],
 		);
 		return rows;
 	}
-	async findByDestinationUrl(value: string): Promise<ProductDTO[]> {
+	async findByDestinationUrl({
+		destinationUrl: value,
+	}: Pick<ProductDTO, "destinationUrl">): Promise<ProductDTO[]> {
 		const rows = await this.connection.query<ProductDTO>(
 			'SELECT id, code, name, destination_url AS "destinationUrl", marketplace, image_url AS "imageUrl", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM products WHERE destination_url = $1',
 			[value],

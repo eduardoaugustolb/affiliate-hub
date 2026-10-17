@@ -1,17 +1,16 @@
 import { describe, expect, it, spyOn } from "bun:test";
-import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
-import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
+import { ProductDAOFake } from "@test/support/fakes/ProductDAOFake";
 import { authenticatedSession } from "@test/support/fixtures/authenticatedSession";
+import { productFake } from "@test/support/fixtures/productFake";
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ListProducts } from "@/application/usecases/queries/ListProducts";
-import { Product } from "@/domain/entities/Product";
 
 describe("ListProducts", () => {
 	async function setup() {
 		const session = await authenticatedSession();
-		const repo = new ProductRepositoryFake(new IdGeneratorFake());
+		const repo = new ProductDAOFake();
 		const query = new ListProducts(repo, session.authenticator);
 		return { ...session, repo, query };
 	}
@@ -22,17 +21,9 @@ describe("ListProducts", () => {
 			["BBBB", "inactive"],
 			["CCCC", "active"],
 		] as const)
-			await repo.save(
-				Product.create(
-					code,
-					"https://example.com",
-					"shein",
-					"https://example.com/image.jpg",
-					status,
-				),
-			);
+			await repo.save({ ...productFake, id: code, code, status });
 		const result = await query.execute(actor, { limit: 1, offset: 1 });
-		expect(result.map((product) => product.getCode())).toEqual(["BBBB"]);
+		expect(result.map((product) => product.code)).toEqual(["BBBB"]);
 	});
 	it.each([
 		{ limit: 0, offset: 0 },

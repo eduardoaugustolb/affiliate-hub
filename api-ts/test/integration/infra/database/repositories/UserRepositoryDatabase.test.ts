@@ -33,7 +33,7 @@ for (const factory of factories)
 				row.role,
 			);
 			await repo.save(entity);
-			const stored = await dao.findById(row.id);
+			const stored = await dao.findById({ id: row.id });
 			expect(stored).toMatchObject({
 				...row,
 				createdAt: expect.any(Date),
@@ -50,7 +50,7 @@ for (const factory of factories)
 				row.role,
 			);
 			await repo.save(entity);
-			expect(await dao.findById(row.id)).toMatchObject({
+			expect(await dao.findById({ id: row.id })).toMatchObject({
 				...row,
 				createdAt: expect.any(Date),
 				updatedAt: expect.any(Date),

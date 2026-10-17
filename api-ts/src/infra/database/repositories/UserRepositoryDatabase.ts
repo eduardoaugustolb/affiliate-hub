@@ -9,13 +9,13 @@ export class UserRepositoryDatabase implements UserRepository {
 		private readonly idGenerator: IdGenerator,
 	) {}
 	async findById(value: string): Promise<User | null> {
-		const row = await this.dao.findById(value);
+		const row = await this.dao.findById({ id: value });
 		return row
 			? User.rehydrate(row.id, row.name, row.email, row.passwordHash, row.role)
 			: null;
 	}
 	async findByEmail(value: string): Promise<User | null> {
-		const row = await this.dao.findByEmail(value);
+		const row = await this.dao.findByEmail({ email: value });
 		return row
 			? User.rehydrate(row.id, row.name, row.email, row.passwordHash, row.role)
 			: null;
@@ -46,6 +46,6 @@ export class UserRepositoryDatabase implements UserRepository {
 		});
 	}
 	async deleteById(id: string): Promise<void> {
-		await this.dao.deleteById(id);
+		await this.dao.deleteById({ id: id });
 	}
 }

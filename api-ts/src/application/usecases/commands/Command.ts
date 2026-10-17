@@ -1,3 +1,3 @@
-export interface Command<Actor, Input, Output> {
-	execute(actor: Actor, input: Input): Promise<Output>;
+export interface Command<Actor, Input> {
+	execute(actor: Actor, input: Input): Promise<void>;
 }

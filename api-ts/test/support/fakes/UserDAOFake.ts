@@ -26,13 +26,15 @@ export class UserDAOFake implements UserDAO {
 		if (existing)
 			this.db.set(entity.id, { ...existing, ...entity, updatedAt: new Date() });
 	}
-	async deleteById(id: string): Promise<void> {
+	async deleteById({ id }: Pick<UserDTO, "id">): Promise<void> {
 		this.db.delete(id);
 	}
-	async findById(id: string): Promise<UserDTO | null> {
+	async findById({ id }: Pick<UserDTO, "id">): Promise<UserDTO | null> {
 		return this.db.get(id) ?? null;
 	}
-	async findByEmail(value: string): Promise<UserDTO | null> {
+	async findByEmail({
+		email: value,
+	}: Pick<UserDTO, "email">): Promise<UserDTO | null> {
 		return [...this.db.values()].find((row) => row.email === value) ?? null;
 	}
 	async findFirstAdmin(): Promise<UserDTO | null> {

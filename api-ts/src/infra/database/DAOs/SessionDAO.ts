@@ -11,7 +11,9 @@ export type InputSessionDTO = Omit<SessionDTO, "createdAt" | "updatedAt">;
 export interface SessionDAO {
 	save(entity: InputSessionDTO): Promise<void>;
 	update(entity: InputSessionDTO): Promise<void>;
-	deleteById(id: string): Promise<void>;
-	findById(id: string): Promise<SessionDTO | null>;
-	findByTokenHash(value: string): Promise<SessionDTO | null>;
+	deleteById(input: Pick<SessionDTO, "id">): Promise<void>;
+	findById(input: Pick<SessionDTO, "id">): Promise<SessionDTO | null>;
+	findByTokenHash(
+		input: Pick<SessionDTO, "tokenHash">,
+	): Promise<SessionDTO | null>;
 }

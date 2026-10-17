@@ -80,7 +80,7 @@ describe("CreateProduct usecase", () => {
 	it("should persist a product successfully", async () => {
 		const result = await useCase.execute(actor, input);
 
-		expect(result).toEqual({ code: "ABC234" });
+		expect(result).toBeUndefined();
 	});
 
 	it("should generate an id when creating a product", async () => {
@@ -149,7 +149,7 @@ describe("CreateProduct usecase", () => {
 
 		const result = await useCase.execute(actor, input);
 
-		expect(result).toEqual({ code: "DEF456" });
+		expect(result).toBeUndefined();
 		expect(generate).toHaveBeenCalledTimes(2);
 		expect(save).toHaveBeenCalledTimes(2);
 	});

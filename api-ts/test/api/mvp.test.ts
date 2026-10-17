@@ -92,7 +92,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 		});
 		afterEach(async () => {
 			try {
-				for (const id of ids) await products.remove(id);
+				for (const id of ids) await products.remove({ id: id });
 			} finally {
 				if (userId) await users.deleteById(userId);
 			}
@@ -100,7 +100,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 		afterAll(async () => {
 			await database?.close();
 		});
-		it("resolves lowercase codes and the home form with the exact affiliate URL", async () => {
+		it("resolves lowercase codes and query input with the exact affiliate URL", async () => {
 			for (const path of [
 				`/${product.code.toLowerCase()}`,
 				"/resolve?code=" +
@@ -143,8 +143,10 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 			const inactive = await request(`/${product.code}`);
 			expect(inactive.status).toBe(410);
 			expect(inactive.headers.get("Location")).toBeNull();
-			expect(await inactive.text()).toContain("Produto indisponível.");
-			expect((await products.findByCode(product.code))?.name).toBe(
+			expect(await inactive.json()).toMatchObject({
+				code: "PRODUCT_UNAVAILABLE",
+			});
+			expect((await products.findByCode({ code: product.code }))?.name).toBe(
 				updated.name,
 			);
 		});
@@ -161,7 +163,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 			expect(
 				products.save({ ...product, id: crypto.randomUUID() }),
 			).rejects.toBeInstanceOf(ProductCodeAlreadyExistsError);
-			expect(await products.findByCode(product.code)).toBeUndefined();
+			expect(await products.findByCode({ code: product.code })).toBeUndefined();
 		});
 		it("prevents changing an issued code directly in persistence", async () => {
 			try {
@@ -173,7 +175,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 			} catch (error) {
 				expect(String(error)).toContain("Product code is permanent");
 			}
-			expect((await products.findById(product.id))?.code).toBe(product.code);
+			expect((await products.findById({ id: product.id }))?.code).toBe(
+				product.code,
+			);
 		});
 		it("reserves a code atomically under concurrent insertion", async () => {
 			const code = new BunProductCodeGenerator().generate();
@@ -211,24 +215,38 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 					.status,
 			).toBe(400);
 		});
-		it("returns the generated code when creating a named product", async () => {
+		it("creates a named product without a response body; the product is available through a query", async () => {
 			const response = await request("/products", {
 				method: "POST",
 				headers: { Cookie: cookie, "Content-Type": "application/json" },
 				body: JSON.stringify(product),
 			});
 			expect(response.status).toBe(201);
-			const body = (await response.json()) as { code: string };
-			expect(body.code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
-			const created = await products.findByCode(body.code);
+
+			expect(await response.text()).toBe("");
+			const rowsResponse = await request("/products?limit=100&offset=0", {
+				headers: { Cookie: cookie },
+			});
+			expect(rowsResponse.status).toBe(200);
+			const rows = (await rowsResponse.json()) as Array<{
+				id: string;
+				code: string;
+				name: string;
+				destinationUrl: string;
+			}>;
+			const created = rows.find(
+				(row) =>
+					row.destinationUrl === product.destinationUrl &&
+					row.id !== product.id,
+			);
 			if (!created) throw new Error("Missing created product");
 			ids.push(created.id);
+			expect(created.code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
 			expect(created.name).toBe(product.name);
 		});
-		it("protects the dashboard and revokes its session on logout", async () => {
-			expect((await request("/admin")).status).toBe(303);
+		it("revokes API access on logout", async () => {
 			expect(
-				(await request("/admin", { headers: { Cookie: cookie } })).status,
+				(await request("/auth/me", { headers: { Cookie: cookie } })).status,
 			).toBe(200);
 			const response = await request("/auth/logout", {
 				method: "POST",
@@ -239,9 +257,9 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)(
 			expect(
 				(await request("/auth/me", { headers: { Cookie: cookie } })).status,
 			).toBe(401);
-			const page = await request("/admin", { headers: { Cookie: cookie } });
-			expect(page.status).toBe(303);
-			expect(page.headers.get("Location")).toBe("/admin/login");
+			expect(
+				(await request("/products", { headers: { Cookie: cookie } })).status,
+			).toBe(401);
 		});
 	},
 );

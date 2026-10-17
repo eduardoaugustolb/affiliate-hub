@@ -46,7 +46,7 @@ describe("Product SQL DAO", () => {
 		]);
 	});
 	it("should bind the id on deletion", async () => {
-		await dao.remove("id' OR 1=1 --");
+		await dao.remove({ id: "id' OR 1=1 --" });
 		expect(connection.queries[0]).toEqual({
 			sql: "DELETE FROM products WHERE id = $1",
 			params: ["id' OR 1=1 --"],
@@ -54,7 +54,7 @@ describe("Product SQL DAO", () => {
 	});
 	it("should find by id using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findById("lookup")).toEqual(row);
+		expect(await dao.findById({ id: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE id = $1");
@@ -63,11 +63,11 @@ describe("Product SQL DAO", () => {
 		expect(query.sql).toContain('image_url AS "imageUrl"');
 	});
 	it("should return undefined when id is missing", async () => {
-		expect(await dao.findById("missing")).toEqual(undefined);
+		expect(await dao.findById({ id: "missing" })).toEqual(undefined);
 	});
 	it("should find by code using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findByCode("lookup")).toEqual(row);
+		expect(await dao.findByCode({ code: "lookup" })).toEqual(row);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE code = $1");
@@ -76,11 +76,13 @@ describe("Product SQL DAO", () => {
 		expect(query.sql).toContain('image_url AS "imageUrl"');
 	});
 	it("should return undefined when code is missing", async () => {
-		expect(await dao.findByCode("missing")).toEqual(undefined);
+		expect(await dao.findByCode({ code: "missing" })).toEqual(undefined);
 	});
 	it("should find by marketplace using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findByMarketplace("lookup")).toEqual([row]);
+		expect(await dao.findByMarketplace({ marketplace: "lookup" })).toEqual([
+			row,
+		]);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE marketplace = $1");
@@ -89,11 +91,13 @@ describe("Product SQL DAO", () => {
 		expect(query.sql).toContain('image_url AS "imageUrl"');
 	});
 	it("should return an empty list when marketplace is missing", async () => {
-		expect(await dao.findByMarketplace("missing")).toEqual([]);
+		expect(await dao.findByMarketplace({ marketplace: "missing" })).toEqual([]);
 	});
 	it("should find by destinationUrl using bound parameters and camelCase aliases", async () => {
 		connection.rows = [row];
-		expect(await dao.findByDestinationUrl("lookup")).toEqual([row]);
+		expect(
+			await dao.findByDestinationUrl({ destinationUrl: "lookup" }),
+		).toEqual([row]);
 		const query = connection.lastQuery();
 		expect(query.params).toEqual(["lookup"]);
 		expect(query.sql).toContain("WHERE destination_url = $1");
@@ -102,7 +106,9 @@ describe("Product SQL DAO", () => {
 		expect(query.sql).toContain('image_url AS "imageUrl"');
 	});
 	it("should return an empty list when destinationUrl is missing", async () => {
-		expect(await dao.findByDestinationUrl("missing")).toEqual([]);
+		expect(
+			await dao.findByDestinationUrl({ destinationUrl: "missing" }),
+		).toEqual([]);
 	});
 	it.each(["save", "update", "remove", "findById"] as const)(
 		"should propagate errors from %s",
@@ -112,7 +118,7 @@ describe("Product SQL DAO", () => {
 			const call =
 				method === "save" || method === "update"
 					? dao[method](row)
-					: dao[method](row.id);
+					: dao[method]({ id: row.id });
 			return expect(call).rejects.toBe(error);
 		},
 	);

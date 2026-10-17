@@ -1,51 +1,44 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
-import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
+import { ProductDAOFake } from "@test/support/fakes/ProductDAOFake";
 import { productFake } from "@test/support/fixtures/productFake";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
-import type { IdGenerator } from "@/application/IdGenerator";
-import type { ProductRepository } from "@/application/repositories/ProductRepository";
 import { GetProductByCode } from "@/application/usecases/queries/GetProductByCode";
-import { Product } from "@/domain/entities/Product";
+import type { ProductDAO } from "@/infra/database/DAOs/ProductDAO";
 
 describe("GetProductByCode use case", () => {
-	let productRepo: ProductRepository;
-	let idGenerator: IdGenerator;
+	let productDao: ProductDAO;
 	let usecase: GetProductByCode;
 
-	beforeEach(() => {
-		idGenerator = new IdGeneratorFake();
-		productRepo = new ProductRepositoryFake(idGenerator);
+	beforeEach(async () => {
+		productDao = new ProductDAOFake();
 
-		void productRepo.save(
-			Product.create(
-				productFake.code,
-				productFake.destinationUrl,
-				productFake.marketplace,
-				productFake.imageUrl,
-				productFake.status,
-			),
-		);
+		await productDao.save(productFake);
 
-		usecase = new GetProductByCode(productRepo);
+		usecase = new GetProductByCode(productDao);
 	});
 
-	it("should return a product", () => {
-		return expect(
-			usecase.execute(undefined, { code: productFake.code }),
-		).resolves.toBeInstanceOf(Product);
+	it.each([
+		productFake.code,
+		productFake.code.toLowerCase(),
+		` ${productFake.code} `,
+	])("returns a product DTO for code %s", (code) => {
+		return expect(usecase.execute(undefined, { code })).resolves.toEqual({
+			...productFake,
+			createdAt: expect.any(Date),
+			updatedAt: expect.any(Date),
+		});
 	});
 
 	it("should throw ProductNotFoundError when no product is found", () => {
-		return expect(
+		expect(
 			usecase.execute(undefined, { code: "invalid-code" }),
 		).rejects.toBeInstanceOf(ProductNotFoundError);
 	});
 
-	it("should reject an empty code without querying the repository", async () => {
-		const findByCode = productRepo.findByCode.bind(productRepo);
+	it("should reject an empty code without querying the DAO", async () => {
+		const findByCode = productDao.findByCode.bind(productDao);
 		let wasQueried = false;
-		productRepo.findByCode = async (code) => {
+		productDao.findByCode = async (code) => {
 			wasQueried = true;
 			return findByCode(code);
 		};

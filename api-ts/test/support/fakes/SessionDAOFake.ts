@@ -25,13 +25,15 @@ export class SessionDAOFake implements SessionDAO {
 		if (existing)
 			this.db.set(entity.id, { ...existing, ...entity, updatedAt: new Date() });
 	}
-	async deleteById(id: string): Promise<void> {
+	async deleteById({ id }: Pick<SessionDTO, "id">): Promise<void> {
 		this.db.delete(id);
 	}
-	async findById(id: string): Promise<SessionDTO | null> {
+	async findById({ id }: Pick<SessionDTO, "id">): Promise<SessionDTO | null> {
 		return this.db.get(id) ?? null;
 	}
-	async findByTokenHash(value: string): Promise<SessionDTO | null> {
+	async findByTokenHash({
+		tokenHash: value,
+	}: Pick<SessionDTO, "tokenHash">): Promise<SessionDTO | null> {
 		return [...this.db.values()].find((row) => row.tokenHash === value) ?? null;
 	}
 }

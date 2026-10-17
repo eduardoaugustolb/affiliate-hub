@@ -21,19 +21,12 @@ describe("AuthenticateUser", () => {
 			hash: async (s: string) => `hash:${s}`,
 			verify: async (s: string, hash: string) => hash === `hash:${s}`,
 		};
-		const generator = {
-			generate: (bytes: number) => {
-				expect(bytes).toBe(32);
-				return "raw-token";
-			},
-		};
 		const tokenHasher = { hash: async (s: string) => `token-hash:${s}` };
 		const useCase = new AuthenticateUser(
 			userRepo,
 			sessionRepo,
 			dateProvider,
 			passwordHasher,
-			generator,
 			tokenHasher,
 		);
 		return { useCase, userRepo, sessionRepo };
@@ -47,9 +40,10 @@ describe("AuthenticateUser", () => {
 		const result = await useCase.execute(undefined, {
 			email: "alice@example.com",
 			password: "secret",
+			sessionToken: "raw-token",
 		});
-		expect(result).toBe("raw-token");
-		const session = await sessionRepo.findByTokenHash(`token-hash:${result}`);
+		expect(result).toBeUndefined();
+		const session = await sessionRepo.findByTokenHash("token-hash:raw-token");
 		expect(session?.getUserId()).toBeTruthy();
 		expect(session?.getExpiresAt()).toEqual(new Date("2026-10-18T12:00:00Z"));
 		expect(session?.getRevokedAt()).toBeNull();
@@ -61,6 +55,7 @@ describe("AuthenticateUser", () => {
 			useCase.execute(undefined, {
 				email: "missing@example.com",
 				password: "secret",
+				sessionToken: "raw-token",
 			}),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});
@@ -74,6 +69,7 @@ describe("AuthenticateUser", () => {
 			useCase.execute(undefined, {
 				email: "alice@example.com",
 				password: "wrong",
+				sessionToken: "raw-token",
 			}),
 		).rejects.toBeInstanceOf(InvalidCredentialsError);
 	});

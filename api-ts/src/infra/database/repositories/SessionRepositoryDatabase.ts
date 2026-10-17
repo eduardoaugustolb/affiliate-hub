@@ -10,7 +10,7 @@ export class SessionRepositoryDatabase implements SessionRepository {
 		private readonly dateProvider: DateProvider,
 	) {}
 	async findById(value: string): Promise<Session | null> {
-		const row = await this.dao.findById(value);
+		const row = await this.dao.findById({ id: value });
 		return row
 			? Session.rehydrate(
 					row.id,
@@ -23,7 +23,7 @@ export class SessionRepositoryDatabase implements SessionRepository {
 			: null;
 	}
 	async findByTokenHash(value: string): Promise<Session | null> {
-		const row = await this.dao.findByTokenHash(value);
+		const row = await this.dao.findByTokenHash({ tokenHash: value });
 		return row
 			? Session.rehydrate(
 					row.id,
@@ -55,6 +55,6 @@ export class SessionRepositoryDatabase implements SessionRepository {
 		});
 	}
 	async deleteById(id: string): Promise<void> {
-		await this.dao.deleteById(id);
+		await this.dao.deleteById({ id: id });
 	}
 }

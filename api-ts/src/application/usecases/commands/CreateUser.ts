@@ -18,19 +18,14 @@ export type CreateUserInput = {
 
 export type CreateUserActor = SessionActor;
 
-export class CreateUser
-	implements Command<CreateUserActor, CreateUserInput, undefined>
-{
+export class CreateUser implements Command<CreateUserActor, CreateUserInput> {
 	constructor(
 		private readonly userRepo: UserRepository,
 		private readonly sessionAuthenticator: SessionAuthenticator,
 		private readonly passwordHasher: PasswordHasher,
 	) {}
 
-	async execute(
-		actor: CreateUserActor,
-		input: CreateUserInput,
-	): Promise<undefined> {
+	async execute(actor: CreateUserActor, input: CreateUserInput): Promise<void> {
 		const actorUser = await this.sessionAuthenticator.authenticate(actor);
 
 		if (!UserCreationPolicy.canCreate(actorUser)) {

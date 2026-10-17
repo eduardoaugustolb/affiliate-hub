@@ -1,33 +1,23 @@
 import { describe, expect, it, spyOn } from "bun:test";
-import { IdGeneratorFake } from "@test/support/fakes/IdGeneratorFake";
-import { ProductRepositoryFake } from "@test/support/fakes/ProductRepositoryFake";
+import { ProductDAOFake } from "@test/support/fakes/ProductDAOFake";
 import { productFake } from "@test/support/fixtures/productFake";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { ProductUnavailableError } from "@/application/errors/ProductUnavailableError";
 import { ResolveProduct } from "@/application/usecases/queries/ResolveProduct";
-import { Product } from "@/domain/entities/Product";
 
 describe("ResolveProduct", () => {
 	async function setup(status = "active") {
-		const repo = new ProductRepositoryFake(new IdGeneratorFake());
-		await repo.save(
-			Product.create(
-				productFake.code,
-				productFake.destinationUrl,
-				productFake.marketplace,
-				productFake.imageUrl,
-				status,
-			),
-		);
+		const repo = new ProductDAOFake();
+		await repo.save({ ...productFake, status });
 		return { repo, query: new ResolveProduct(repo) };
 	}
 	it.each(["ABC234", "abc234", " AbC234 "])(
 		"resolves equivalent codes: %s",
 		async (code) => {
 			const { query } = await setup();
-			expect(await query.execute(undefined, { code })).toBe(
-				productFake.destinationUrl,
-			);
+			expect(await query.execute(undefined, { code })).toEqual({
+				destinationUrl: productFake.destinationUrl,
+			});
 		},
 	);
 	it.each(["", "abc", "https://example.com", "O0I1", "TOOLONG"])(

@@ -9,7 +9,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 		private readonly idGenerator: IdGenerator,
 	) {}
 	async list(limit: number, offset: number): Promise<Product[]> {
-		const rows = await this.dao.list(limit, offset);
+		const rows = await this.dao.list({ limit: limit, offset: offset });
 		return rows.map((row) =>
 			Product.rehydrate(
 				row.id,
@@ -23,7 +23,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 		);
 	}
 	async findById(value: string): Promise<Product | undefined> {
-		const row = await this.dao.findById(value);
+		const row = await this.dao.findById({ id: value });
 		return row
 			? Product.rehydrate(
 					row.id,
@@ -37,7 +37,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 			: undefined;
 	}
 	async findByCode(value: string): Promise<Product | undefined> {
-		const row = await this.dao.findByCode(value);
+		const row = await this.dao.findByCode({ code: value });
 		return row
 			? Product.rehydrate(
 					row.id,
@@ -74,6 +74,6 @@ export class ProductRepositoryDatabase implements ProductRepository {
 		});
 	}
 	async remove(id: string): Promise<void> {
-		await this.dao.remove(id);
+		await this.dao.remove({ id: id });
 	}
 }

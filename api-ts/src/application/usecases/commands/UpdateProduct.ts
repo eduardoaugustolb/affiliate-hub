@@ -18,16 +18,13 @@ export type UpdateProductInput = {
 };
 
 export class UpdateProduct
-	implements Command<SessionActor, UpdateProductInput, undefined>
+	implements Command<SessionActor, UpdateProductInput>
 {
 	constructor(
 		private readonly repo: ProductRepository,
 		private readonly sessionAuthenticator: SessionAuthenticator,
 	) {}
-	async execute(
-		actor: SessionActor,
-		input: UpdateProductInput,
-	): Promise<undefined> {
+	async execute(actor: SessionActor, input: UpdateProductInput): Promise<void> {
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can update products");
@@ -45,6 +42,6 @@ export class UpdateProduct
 			input.name,
 		);
 		await this.repo.update(updated);
-		return undefined;
+		return;
 	}
 }

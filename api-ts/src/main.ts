@@ -22,8 +22,8 @@ import { HonoHttpServerAdapter } from "./external/http/HonoHttpServerAdapter";
 import { RuntimeDateProvider } from "./external/RuntimeDateProvider";
 import { environmentVarsSchema, ZodValidator } from "./external/ZodValidator";
 import { AuthRestController } from "./infra/controllers/http/AuthRestController";
+import { ProductResolverRestController } from "./infra/controllers/http/ProductResolverRestController";
 import { ProductRestController } from "./infra/controllers/http/ProductRestController";
-import { WebController } from "./infra/controllers/http/WebController";
 import { ProductRepositoryDatabase } from "./infra/database/repositories/ProductRepositoryDatabase";
 import { SessionRepositoryDatabase } from "./infra/database/repositories/SessionRepositoryDatabase";
 import { UserRepositoryDatabase } from "./infra/database/repositories/UserRepositoryDatabase";
@@ -64,7 +64,6 @@ async function main() {
 		sessionRepo,
 		dateProvider,
 		new BunPasswordHasher(),
-		new BunTokenGenerator(),
 		sessionTokenHasher,
 	);
 	const sessionAuthenticator = new SessionAuthenticator(
@@ -74,19 +73,17 @@ async function main() {
 		dateProvider,
 	);
 	const getAuthenticatedUser = new GetAuthenticatedUser(sessionAuthenticator);
-	const productRepo = new ProductRepositoryDatabase(
-		new ProductDAOSQL(database),
-		idGenerator,
-	);
+	const productDao = new ProductDAOSQL(database);
+	const productRepo = new ProductRepositoryDatabase(productDao, idGenerator);
 	const productCodeGenerator = new BunProductCodeGenerator();
 	new ProductRestController(
 		restApi,
 		new CreateProduct(productRepo, productCodeGenerator, sessionAuthenticator),
-		new GetProductByCode(productRepo),
+		new GetProductByCode(productDao),
 		SESSION_COOKIE_NAME,
 		new UpdateProduct(productRepo, sessionAuthenticator),
 		new DeleteProduct(productRepo, sessionAuthenticator),
-		new ListProducts(productRepo, sessionAuthenticator),
+		new ListProducts(productDao, sessionAuthenticator),
 	);
 
 	new AuthRestController(
@@ -95,15 +92,11 @@ async function main() {
 		getAuthenticatedUser,
 		SESSION_COOKIE_NAME,
 		new Logout(sessionRepo, sessionTokenHasher, dateProvider),
+		new BunTokenGenerator(),
 	);
 	restApi.register(HttpMethod.GET, "/health", async (_, res) => res.text("OK"));
 
-	new WebController(
-		restApi,
-		new ResolveProduct(productRepo),
-		getAuthenticatedUser,
-		SESSION_COOKIE_NAME,
-	);
+	new ProductResolverRestController(restApi, new ResolveProduct(productDao));
 	try {
 		await restApi.listen(Number(process.env.PORT ?? 3000));
 	} catch (error) {

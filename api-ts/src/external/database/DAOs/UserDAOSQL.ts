@@ -42,17 +42,19 @@ export class UserDAOSQL implements UserDAO {
 			throw error;
 		}
 	}
-	async deleteById(id: string): Promise<void> {
+	async deleteById({ id }: Pick<UserDTO, "id">): Promise<void> {
 		await this.connection.query("DELETE FROM users WHERE id = $1", [id]);
 	}
-	async findById(value: string): Promise<UserDTO | null> {
+	async findById({ id: value }: Pick<UserDTO, "id">): Promise<UserDTO | null> {
 		const rows = await this.connection.query<UserDTO>(
 			'SELECT id, name, email, password_hash AS "passwordHash", role, created_at AS "createdAt", updated_at AS "updatedAt" FROM users WHERE id = $1',
 			[value],
 		);
 		return rows[0] ?? null;
 	}
-	async findByEmail(value: string): Promise<UserDTO | null> {
+	async findByEmail({
+		email: value,
+	}: Pick<UserDTO, "email">): Promise<UserDTO | null> {
 		const rows = await this.connection.query<UserDTO>(
 			'SELECT id, name, email, password_hash AS "passwordHash", role, created_at AS "createdAt", updated_at AS "updatedAt" FROM users WHERE email = $1',
 			[value],
