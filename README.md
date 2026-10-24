@@ -101,6 +101,8 @@ infra/dev/        # local PostgreSQL with Docker Compose
 
 ## Product overview
 
+A API de automações Instagram inclui campanhas por post, triggers configuráveis, respostas públicas/privadas, DMs recebidas, webhooks assinados e registro durável de envios. Consulte [setup Instagram/Meta](api-ts/docs/instagram-meta-setup.md) para ativação por credenciais de uma conta profissional. A configuração real na Meta e a verificação com essa conta ainda são necessárias. Referência de origem e licença: [Benion](THIRD_PARTY_NOTICES.md).
+
 The code shown in a post stays the same while its affiliate destination can change. That keeps older posts useful when a product link needs to be replaced. The MVP focuses on getting from a product in a social post to its destination without searching by name or marketplace ID.
 
 See [PRD.MVP.md](PRD.MVP.md) for the MVP scope and acceptance criteria, and [CHANGELOG.md](CHANGELOG.md) for the release history.
