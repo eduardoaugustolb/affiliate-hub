@@ -4,17 +4,17 @@ A product resolver for creators who post outfit roundups and product finds on so
 
 **Flow:** social post with a code → product code → destination link.
 
-> The local MVP includes the public resolver, a private admin dashboard, cookie authentication, product management, and PostgreSQL persistence. Image upload is deferred: products use an HTTPS image URL. Production hosting and a domain have not been configured.
+> The repository currently provides the Product Resolver API, cookie authentication, product management, and PostgreSQL persistence. The public home and private dashboard will be built separately with Next.js. Image upload is deferred; products use an HTTPS image URL. Production hosting and a domain have not been configured.
 
 ## Current status
 
-- Public home with code lookup and direct `/:productCode` redirects.
+- Public resolution endpoints with direct `/:productCode` redirects and JSON errors.
 - Case-insensitive codes, inactive-product handling, and permanent code reservations after deletion.
-- Private dashboard: login/logout, named product list, creation, editing, activation/deactivation, image preview, and copy-code actions.
+- Admin API: login/logout, paginated product list, creation, editing, activation/deactivation, and deletion.
 - First-admin provisioning script and migrations.
 - HTTP and application behavior tests using `bun test`.
 
-See [API and web documentation](api-ts/README.md) for routes, setup, production requirements, and verification limits. The original [MVP product brief](PRD.MVP.md) remains the reference for the wider scope, including deferred image uploads.
+See [API documentation](api-ts/README.md) for routes, setup, production requirements, and verification limits. The original [MVP product brief](PRD.MVP.md) remains the reference for the wider scope, including deferred image uploads.
 
 ## Requirements
 
@@ -53,7 +53,7 @@ bun run admin:create
 bun run dev
 ```
 
-The app listens on port `3000`. Open `http://localhost:3000/` for the public home or `/admin` for the dashboard. Check that it is running:
+The API listens on port `3000`. Check that it is running:
 
 ```bash
 curl http://localhost:3000/health

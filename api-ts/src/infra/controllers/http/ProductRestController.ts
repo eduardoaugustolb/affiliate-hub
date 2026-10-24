@@ -1,6 +1,7 @@
 import { BadRequestError } from "@/application/errors/BadRequestError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { productOptionIds } from "@/application/ProductOptionIds";
 import type { CreateProduct } from "@/application/usecases/commands/CreateProduct";
 import type { DeleteProduct } from "@/application/usecases/commands/DeleteProduct";
 import type { UpdateProduct } from "@/application/usecases/commands/UpdateProduct";
@@ -36,12 +37,8 @@ export class ProductRestController {
 		httpServer.register(HttpMethod.POST, "/products", async (req, res) => {
 			const sessionToken = req.cookies[sessionCookieName];
 			if (!sessionToken) throw new InvalidCredentialsError();
-			const { name, destinationUrl, marketplace, imageUrl, status } =
-				parseProductInput(req.body);
-			await createProduct.execute(
-				{ sessionToken },
-				{ name, destinationUrl, marketplace, imageUrl, status },
-			);
+			const input = parseProductInput(req.body);
+			await createProduct.execute({ sessionToken }, input);
 			return res.empty(HttpStatusCode.CREATED);
 		});
 		httpServer.register(HttpMethod.PUT, "/products/:code", async (req, res) => {
@@ -89,9 +86,28 @@ function parseProductInput(body: unknown) {
 		typeof name !== "string" ||
 		typeof destinationUrl !== "string" ||
 		typeof marketplace !== "string" ||
-		typeof imageUrl !== "string" ||
+		(imageUrl !== undefined && typeof imageUrl !== "string") ||
 		typeof status !== "string"
 	)
 		throw new BadRequestError("Product fields must be strings");
-	return { name, destinationUrl, marketplace, imageUrl, status };
+	const imageUrls = (body as Record<string, unknown>).imageUrls;
+	if (
+		imageUrls !== undefined &&
+		(!Array.isArray(imageUrls) ||
+			imageUrls.length < 1 ||
+			imageUrls.length > 20 ||
+			imageUrls.some((url) => typeof url !== "string"))
+	)
+		throw new BadRequestError("Product images must contain 1 to 20 HTTPS URLs");
+	if (imageUrls === undefined && typeof imageUrl !== "string")
+		throw new BadRequestError("Product image is required");
+	return {
+		imageUrls: imageUrls as string[] | undefined,
+		name,
+		destinationUrl,
+		marketplace,
+		imageUrl,
+		status,
+		optionIds: productOptionIds((body as Record<string, unknown>).optionIds),
+	};
 }

@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://www.avara.band/_nuxt/entry.T26Jnyvf.css",
+    "path": "research/references/avara/entry.T26Jnyvf.css",
+    "bytes": 4899,
+    "sha256": "7a429f40fa44c17d49f9076361a0ee5995bd496bc1d50bae3ae4bb9bdbef29b6"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/Df1ct0Jr.js",
+    "path": "research/references/avara/Df1ct0Jr.js",
+    "bytes": 143806,
+    "sha256": "15abf1987a59c57b25dbfae7c1ceb7a4744ab6826e1b5d457d2eae81990e9063"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/BiMEPDOU.js",
+    "path": "research/references/avara/BiMEPDOU.js",
+    "bytes": 759,
+    "sha256": "1a3519cbbe66f49064ca80360a7b07f6bbc868762f655bb2f97beccff18aa25c"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/nuxt-icon.BdpeBhx2.css",
+    "path": "research/references/avara/nuxt-icon.BdpeBhx2.css",
+    "bytes": 254,
+    "sha256": "4544dae2c7249e6d1fa10b598705ec9d936bf828f00a2b728c8993193ed55160"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/BkkWIOyj.js",
+    "path": "research/references/avara/BkkWIOyj.js",
+    "bytes": 1060034,
+    "sha256": "b78b8e10754a70edb879c66f886a53b556e47b60aa98e66a74b6f19c9c34f2f3"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/default.DUsKC7Nt.css",
+    "path": "research/references/avara/default.DUsKC7Nt.css",
+    "bytes": 39044,
+    "sha256": "d746cbac4b0394180248a6ef6d5bb59e77cea55256ef1984cc2b87bff1ca997e"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/CQQSBGBB.js",
+    "path": "research/references/avara/CQQSBGBB.js",
+    "bytes": 9507,
+    "sha256": "4e2970ea919572379eba29028524d89f8b67a97a9e03af4fac69eec690a3715a"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/DDJ8Cmmp.js",
+    "path": "research/references/avara/DDJ8Cmmp.js",
+    "bytes": 247,
+    "sha256": "1554aadbd9aa3f07b88dedfd9d3120b558568a3946db07a1f1770bbc95ac922e"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/error-404.DL_4WIao.css",
+    "path": "research/references/avara/error-404.DL_4WIao.css",
+    "bytes": 3530,
+    "sha256": "edff01b7166ecd1d662b3e3a5e673680bb457e667a1a7a4ffeeae64ba27760eb"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/DvuGFTGy.js",
+    "path": "research/references/avara/DvuGFTGy.js",
+    "bytes": 3392,
+    "sha256": "55629f98eebe88dc107ab210683b05e912638e250ee83f6cffe2d44e0166a237"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/error-500.I1Dtv2V5.css",
+    "path": "research/references/avara/error-500.I1Dtv2V5.css",
+    "bytes": 1882,
+    "sha256": "2d82d3db50a58c54b841057d35eb9e9ea471f78f8a928c670056313967037065"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/kJWkRluQ.js",
+    "path": "research/references/avara/kJWkRluQ.js",
+    "bytes": 535,
+    "sha256": "5adea395d8127dc7b9ca26da13dfdcf6e3f4f12b596161065d077225e49c9c09"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/draco_decoder.js",
+    "path": "research/references/avara/draco_decoder.js",
+    "bytes": 1686,
+    "sha256": "28af309617bc879d2ecf8bf36a6453cdb4a6a47fea5253816f9813a0abc7ab5c"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/draco_wasm_wrapper.js",
+    "path": "research/references/avara/draco_wasm_wrapper.js",
+    "bytes": 1686,
+    "sha256": "28af309617bc879d2ecf8bf36a6453cdb4a6a47fea5253816f9813a0abc7ab5c"
+  },
+  {
+    "url": "https://www.avara.band/_nuxt/basis_transcoder.js",
+    "path": "research/references/avara/basis_transcoder.js",
+    "bytes": 1686,
+    "sha256": "28af309617bc879d2ecf8bf36a6453cdb4a6a47fea5253816f9813a0abc7ab5c"
+  }
+]

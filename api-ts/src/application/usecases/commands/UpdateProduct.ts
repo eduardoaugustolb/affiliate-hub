@@ -1,5 +1,6 @@
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
+import { productOptionIds } from "@/application/ProductOptionIds";
 import type { ProductRepository } from "@/application/repositories/ProductRepository";
 import type {
 	SessionActor,
@@ -13,8 +14,10 @@ export type UpdateProductInput = {
 	code: string;
 	destinationUrl: string;
 	marketplace: string;
-	imageUrl: string;
+	imageUrl?: string;
+	imageUrls?: string[];
 	status: string;
+	optionIds?: string[];
 };
 
 export class UpdateProduct
@@ -28,6 +31,7 @@ export class UpdateProduct
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can update products");
+		const optionIds = productOptionIds(input.optionIds);
 		const code = input.code.trim().toUpperCase();
 		if (!code) throw new ProductNotFoundError(code);
 		const product = await this.repo.findByCode(code);
@@ -37,11 +41,12 @@ export class UpdateProduct
 			product.getCode(),
 			input.destinationUrl,
 			input.marketplace,
-			input.imageUrl,
+			input.imageUrl ?? "",
 			input.status,
 			input.name,
+			input.imageUrls,
 		);
-		await this.repo.update(updated);
+		await this.repo.update(updated, optionIds);
 		return;
 	}
 }

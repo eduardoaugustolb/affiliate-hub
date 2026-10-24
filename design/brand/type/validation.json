@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "glyphs": 159,
+  "unicodeMappings": 192,
+  "checks": [
+    "declared coverage",
+    "TTF/WOFF2 outline and metric parity",
+    "vertical clipping limits",
+    "nonempty alphabet and digits",
+    "distinct O/D and digits 0/6/8/9",
+    "OpenType kerning",
+    "optional original-logo ligature",
+    "NFC/NFD Portuguese accent rendering"
+  ],
+  "browserVerification": false,
+  "woff2Bytes": 7068,
+  "ttfBytes": 21168
+}

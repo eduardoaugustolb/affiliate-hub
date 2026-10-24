@@ -16,6 +16,7 @@ describe("Product SQL DAO", () => {
 		const query = connection.lastQuery();
 		expect(query.sql).toContain("INSERT INTO products");
 		expect(query.sql).toContain("created_at, updated_at");
+		expect(query.sql).toContain("$8::text::jsonb");
 		expect(query.sql).toContain("CURRENT_TIMESTAMP");
 		expect(query.params).toEqual([
 			row.id,
@@ -25,6 +26,7 @@ describe("Product SQL DAO", () => {
 			row.imageUrl,
 			row.status,
 			row.name,
+			JSON.stringify([row.imageUrl]),
 		]);
 		for (const value of query.params.filter((v) => typeof v === "string"))
 			expect(query.sql).not.toContain(value as string);
@@ -35,6 +37,7 @@ describe("Product SQL DAO", () => {
 		expect(query.sql).toContain("UPDATE products SET");
 		expect(query.sql).toContain("updated_at = CURRENT_TIMESTAMP");
 		expect(query.sql).toContain("WHERE id = $7");
+		expect(query.sql).toContain("image_urls = $8::text::jsonb");
 		expect(query.params).toEqual([
 			row.code,
 			row.destinationUrl,
@@ -43,6 +46,7 @@ describe("Product SQL DAO", () => {
 			row.status,
 			row.name,
 			row.id,
+			JSON.stringify([row.imageUrl]),
 		]);
 	});
 	it("should bind the id on deletion", async () => {
@@ -151,3 +155,59 @@ describe("Product SQL DAO Bun SQLSTATE", () => {
 		);
 	});
 });
+
+describe.skipIf(!process.env.POSTGRES_GALLERY_TEST_URL)(
+	"Product gallery with real Bun/Postgres binding",
+	() => {
+		it("persists JSON arrays on insert and update rather than double-encoded JSON strings", async () => {
+			const { BunSQLAdapter } = await import(
+				"@/external/database/BunSQLAdapter"
+			);
+			const dbUrl = process.env.POSTGRES_GALLERY_TEST_URL;
+			if (!dbUrl) throw new Error("Missing explicit PostgreSQL test URL");
+			const db = new BunSQLAdapter({ dbUrl });
+			const tx = await db.transaction();
+			try {
+				// This temporary table shadows products only on this reserved connection.
+				// Rollback removes all test data without touching the application's tables.
+				await tx.query(`CREATE TEMP TABLE products (
+        id varchar PRIMARY KEY, code varchar(6), name varchar,
+        destination_url varchar, marketplace varchar, image_url varchar,
+        status varchar, image_urls jsonb NOT NULL,
+        created_at timestamptz, updated_at timestamptz,
+        CHECK (jsonb_typeof(image_urls)='array' AND jsonb_array_length(image_urls) BETWEEN 1 AND 20 AND image_urls->>0=image_url)
+      ) ON COMMIT DROP`);
+				const dao = new ProductDAOSQL({
+					query: tx.query.bind(tx),
+					transaction: async () => {
+						throw new Error("Unexpected nested transaction");
+					},
+					close: async () => {},
+				});
+				const imageUrls: [string, string] = [
+					"https://example.com/cover.jpg",
+					"https://example.com/back.jpg",
+				];
+				await dao.save({ ...row, imageUrl: imageUrls[0], imageUrls });
+				const [inserted] = await tx.query<{ image_urls: string[] }>(
+					"SELECT image_urls FROM pg_temp.products WHERE id=$1",
+					[row.id],
+				);
+				expect(inserted?.image_urls).toEqual(imageUrls);
+				const updated: [string, string] = [imageUrls[1], imageUrls[0]];
+				await dao.update({ ...row, imageUrl: updated[0], imageUrls: updated });
+				const [saved] = await tx.query<{
+					image_url: string;
+					image_urls: string[];
+				}>("SELECT image_url,image_urls FROM pg_temp.products WHERE id=$1", [
+					row.id,
+				]);
+				expect(saved?.image_urls).toEqual(updated);
+				expect(saved?.image_url).toBe(updated[0]);
+			} finally {
+				await tx.rollback();
+				await db.close();
+			}
+		});
+	},
+);

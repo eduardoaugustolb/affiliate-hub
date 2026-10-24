@@ -1,3 +1,5 @@
+import { RedisClient } from "bun";
+import { CatalogService } from "./application/CatalogService";
 import { SessionAuthenticator } from "./application/SessionAuthenticator";
 import { AuthenticateUser } from "./application/usecases/commands/AuthenticateUser";
 import { CreateProduct } from "./application/usecases/commands/CreateProduct";
@@ -6,12 +8,16 @@ import { Logout } from "./application/usecases/commands/Logout";
 import { UpdateProduct } from "./application/usecases/commands/UpdateProduct";
 import { GetAuthenticatedUser } from "./application/usecases/queries/GetAuthenticatedUser";
 import { GetProductByCode } from "./application/usecases/queries/GetProductByCode";
+import { GetStorefrontEntry } from "./application/usecases/queries/GetStorefrontEntry";
 import { ListProducts } from "./application/usecases/queries/ListProducts";
+import { ListSearchFilters } from "./application/usecases/queries/ListSearchFilters";
 import { ResolveProduct } from "./application/usecases/queries/ResolveProduct";
+import { SearchProducts } from "./application/usecases/queries/SearchProducts";
 import { BunProductCodeGenerator } from "./external/BunProductCodeGenerator";
 import { BunTokenGenerator } from "./external/BunTokenGenerator";
 import { BunUUIDIdGenerator } from "./external/BunUUIDIdGenerator";
 import { BunSQLAdapter } from "./external/database/BunSQLAdapter";
+import { CatalogRepositorySQL } from "./external/database/DAOs/CatalogRepositorySQL";
 import { ProductDAOSQL } from "./external/database/DAOs/ProductDAOSQL";
 import { SessionDAOSQL } from "./external/database/DAOs/SessionDAOSQL";
 import { UserDAOSQL } from "./external/database/DAOs/UserDAOSQL";
@@ -19,11 +25,15 @@ import { BunPasswordHasher } from "./external/hash/BunPasswordHasher";
 import { BunSessionTokenHasher } from "./external/hash/BunSessionTokenHasher";
 import { BunRuntimeAdapter } from "./external/http/BunRuntimeAdapter";
 import { HonoHttpServerAdapter } from "./external/http/HonoHttpServerAdapter";
+import { RedisCatalogCache } from "./external/RedisCatalogCache";
 import { RuntimeDateProvider } from "./external/RuntimeDateProvider";
 import { environmentVarsSchema, ZodValidator } from "./external/ZodValidator";
 import { AuthRestController } from "./infra/controllers/http/AuthRestController";
+import { CatalogRestController } from "./infra/controllers/http/CatalogRestController";
 import { ProductResolverRestController } from "./infra/controllers/http/ProductResolverRestController";
 import { ProductRestController } from "./infra/controllers/http/ProductRestController";
+import { SearchRestController } from "./infra/controllers/http/SearchRestController";
+import { StorefrontRestController } from "./infra/controllers/http/StorefrontRestController";
 import { ProductRepositoryDatabase } from "./infra/database/repositories/ProductRepositoryDatabase";
 import { SessionRepositoryDatabase } from "./infra/database/repositories/SessionRepositoryDatabase";
 import { UserRepositoryDatabase } from "./infra/database/repositories/UserRepositoryDatabase";
@@ -72,8 +82,33 @@ async function main() {
 		sessionTokenHasher,
 		dateProvider,
 	);
+	const catalogCache = process.env.REDIS_URL
+		? new RedisCatalogCache(
+				new RedisClient(process.env.REDIS_URL, {
+					connectionTimeout: 500,
+					enableOfflineQueue: false,
+					maxRetries: 1,
+				}),
+				process.env.REDIS_CACHE_PREFIX,
+			)
+		: undefined;
+	const catalog = new CatalogService(
+		new CatalogRepositorySQL(database),
+		sessionAuthenticator,
+		catalogCache,
+	);
+	new CatalogRestController(restApi, catalog, SESSION_COOKIE_NAME);
 	const getAuthenticatedUser = new GetAuthenticatedUser(sessionAuthenticator);
 	const productDao = new ProductDAOSQL(database);
+	new StorefrontRestController(
+		restApi,
+		new GetStorefrontEntry(productDao, new CatalogRepositorySQL(database)),
+	);
+	new SearchRestController(
+		restApi,
+		new SearchProducts(productDao),
+		new ListSearchFilters(catalog),
+	);
 	const productRepo = new ProductRepositoryDatabase(productDao, idGenerator);
 	const productCodeGenerator = new BunProductCodeGenerator();
 	new ProductRestController(

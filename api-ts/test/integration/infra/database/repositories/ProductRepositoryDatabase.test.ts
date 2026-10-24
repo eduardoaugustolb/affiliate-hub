@@ -100,6 +100,7 @@ describe("ProductRepositoryDatabase", () => {
 			destinationUrl: row.destinationUrl,
 			marketplace: row.marketplace,
 			imageUrl: row.imageUrl,
+			imageUrls: [row.imageUrl],
 			status: row.status,
 			name: row.name,
 		});

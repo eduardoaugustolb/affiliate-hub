@@ -1,0 +1,72 @@
+{
+  "before": {
+    "rect": {
+      "x": 24,
+      "y": 505.203125,
+      "width": 330,
+      "height": 494.5,
+      "top": 505.203125,
+      "right": 354,
+      "bottom": 999.703125,
+      "left": 24
+    },
+    "html": "<div class=\"relative overflow-hidden\" data-inview=\"true\"><img data-image=\"front\" alt=\"Off by Design\" draggable=\"false\" width=\"1920\" height=\"2560\" decoding=\"async\" data-nimg=\"1\" class=\"w-full aspect-large h-full object-cover\" style=\"will-change: transform; translate: none; rotate: none; scale: none; transform: translate(0%, 0px);\" sizes=\"(min-width: 768px) 25vw, 100vw\" srcset=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=256&amp;q=75 256w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=384&amp;q=75 384w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=640&amp;q=75 640w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=750&amp;q=75 750w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=828&amp;q=75 828w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1080&amp;q=75 1080w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1200&amp;q=75 1200w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1920&amp;q=75 1920w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=2048&amp;q=75 2048w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=3840&amp;q=75 3840w\" src=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=3840&amp;q=75\"><img data-image=\"back\" alt=\"Off by Design\" draggable=\"false\" width=\"1920\" height=\"2560\" decoding=\"async\" data-nimg=\"1\" class=\"h-full w-full object-cover aspect-large ease-[cubic-bezier(0.87,0, 0.13,1)] absolute inset-0 transition-all duration-500 scale-[1.2] group-hover:scale-[1] [clip-path:polygon(0%_0%,_0%_0%,_0%_100%,_0%_100%)] group-hover:[clip-path:polygon(0%_0%,_100%_0%,_100%_100%,_0%_100%)] filter-[brightness(400%)_contrast(150%)] group-hover:filter-[brightness(100%)_contrast(100%)]\" style=\"color:transparent\" sizes=\"(min-width: 768px) 25vw, 100vw\" srcset=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=256&amp;q=75 256w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=384&amp;q=75 384w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=640&amp;q=75 640w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=750&amp;q=75 750w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=828&amp;q=75 828w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=1080&amp;q=75 1080w, /_next/ima",
+    "images": [
+      {
+        "kind": "front",
+        "src": "https://outfit.hellohello.is/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&w=384&q=75",
+        "clip": "none",
+        "scale": "none",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "filter": "none",
+        "duration": "0s",
+        "easing": "ease"
+      },
+      {
+        "kind": "back",
+        "src": "https://outfit.hellohello.is/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&w=384&q=75",
+        "clip": "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
+        "scale": "1.2",
+        "transform": "none",
+        "filter": "brightness(4) contrast(1.5)",
+        "duration": "0.5s",
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+      }
+    ]
+  },
+  "after": {
+    "rect": {
+      "x": 24,
+      "y": 505.203125,
+      "width": 330,
+      "height": 494.5,
+      "top": 505.203125,
+      "right": 354,
+      "bottom": 999.703125,
+      "left": 24
+    },
+    "html": "<div class=\"relative overflow-hidden\" data-inview=\"true\"><img data-image=\"front\" alt=\"Off by Design\" draggable=\"false\" width=\"1920\" height=\"2560\" decoding=\"async\" data-nimg=\"1\" class=\"w-full aspect-large h-full object-cover\" style=\"will-change: transform; translate: none; rotate: none; scale: none; transform: translate(0%, 0px);\" sizes=\"(min-width: 768px) 25vw, 100vw\" srcset=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=256&amp;q=75 256w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=384&amp;q=75 384w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=640&amp;q=75 640w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=750&amp;q=75 750w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=828&amp;q=75 828w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1080&amp;q=75 1080w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1200&amp;q=75 1200w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=1920&amp;q=75 1920w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=2048&amp;q=75 2048w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=3840&amp;q=75 3840w\" src=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&amp;w=3840&amp;q=75\"><img data-image=\"back\" alt=\"Off by Design\" draggable=\"false\" width=\"1920\" height=\"2560\" decoding=\"async\" data-nimg=\"1\" class=\"h-full w-full object-cover aspect-large ease-[cubic-bezier(0.87,0, 0.13,1)] absolute inset-0 transition-all duration-500 scale-[1.2] group-hover:scale-[1] [clip-path:polygon(0%_0%,_0%_0%,_0%_100%,_0%_100%)] group-hover:[clip-path:polygon(0%_0%,_100%_0%,_100%_100%,_0%_100%)] filter-[brightness(400%)_contrast(150%)] group-hover:filter-[brightness(100%)_contrast(100%)]\" style=\"color:transparent\" sizes=\"(min-width: 768px) 25vw, 100vw\" srcset=\"/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=256&amp;q=75 256w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=384&amp;q=75 384w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=640&amp;q=75 640w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=750&amp;q=75 750w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=828&amp;q=75 828w, /_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&amp;w=1080&amp;q=75 1080w, /_next/ima",
+    "images": [
+      {
+        "kind": "front",
+        "src": "https://outfit.hellohello.is/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit_dfee3661-54e4-43ab-8d38-34388179952d.jpg%3Fv%3D1753359304&w=384&q=75",
+        "clip": "none",
+        "scale": "none",
+        "transform": "matrix(1, 0, 0, 1, 0, 0)",
+        "filter": "none",
+        "duration": "0s",
+        "easing": "ease"
+      },
+      {
+        "kind": "back",
+        "src": "https://outfit.hellohello.is/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0665%2F1455%2F0837%2Ffiles%2Ft-shirt-time-off-outfit-2_6ed63e49-09af-4ab5-9994-7f1fef44c587.jpg%3Fv%3D1753359304&w=384&q=75",
+        "clip": "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        "scale": "1",
+        "transform": "none",
+        "filter": "brightness(1) contrast(1)",
+        "duration": "0.5s",
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+      }
+    ]
+  }
+}

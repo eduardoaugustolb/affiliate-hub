@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLACK HEM — Display 0.1</title>
+<link rel="stylesheet" href="./black-hem.css">
+<style>
+  :root { color-scheme:dark; --paper:#ece9e2; --ink:#080808; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ink); color:var(--paper); font-family:Arial,sans-serif; }
+  main { max-width:1500px; margin:auto; padding:40px clamp(20px,5vw,80px) 90px; }
+  header { display:flex; justify-content:space-between; gap:20px; font-size:12px; letter-spacing:.08em; padding-bottom:30px; border-bottom:1px solid #45443f; }
+  h1 { font:400 clamp(50px,12vw,175px)/1.5 "Black Hem Display",serif; margin:30px 0 10px; white-space:nowrap; }
+  h2 { font:400 12px Arial,sans-serif; color:#a6a39d; text-transform:uppercase; letter-spacing:.12em; margin:0 0 30px; }
+  section { border-top:1px solid #45443f; padding:30px 0; }
+  .label { font-size:12px; color:#a6a39d; }
+  .alphabet { font-size:clamp(30px,5.4vw,75px); overflow-wrap:anywhere; }
+  .light { background:var(--paper); color:var(--ink); padding:30px; margin-top:20px; }
+  .light .label {color:#585650;}
+  .controls { display:flex; flex-wrap:wrap; gap:22px; align-items:center; margin-bottom:25px; font-size:14px; }
+  label { display:flex; gap:10px; align-items:center; }
+  input[type=range] { accent-color:var(--paper); max-width:160px; }
+  textarea { display:block; width:100%; min-height:100px; resize:vertical; background:#151513; border:1px solid #5e5b56; color:var(--paper); padding:15px; font:16px/1.5 Arial,sans-serif; }
+  #preview { font-size:90px; padding:30px 0; overflow-wrap:anywhere; min-height:180px; }
+  .sizes p { margin:0; padding:15px 0; overflow-wrap:anywhere; }
+  a { color:inherit; text-underline-offset:4px; }
+  footer { display:flex; flex-wrap:wrap; gap:20px; border-top:1px solid #45443f; padding-top:25px; font-size:14px; }
+  .note {font-size:14px; line-height:1.6; max-width:750px; color:#bbb8b1;}
+  @media(max-width:600px) {header{flex-direction:column;} h1{font-size:11.5vw;} .light{padding:20px;} #preview{font-size:60px;}}
+</style>
+<main>
+  <header><span>BLACK HEM / TIPOGRAFIA PRÓPRIA</span><span>DISPLAY REGULAR — PROTÓTIPO 0.1</span></header>
+  <h1 class="black-hem-wordmark">BLACK HEM</h1>
+  <p class="note">Fonte para marca, títulos e chamadas. As letras do nome partem da prancha aprovada. A expansão do alfabeto é uma primeira proposta; esta versão usa formas maiúsculas também ao digitar minúsculas.</p>
+  <section>
+    <h2>01 / Experimente</h2>
+    <div class="controls">
+      <label>Tamanho <input id="size" type="range" min="32" max="180" value="90"><output id="sizeValue" for="size">90 px</output></label>
+      <label>Espaçamento <input id="tracking" type="range" min="-2" max="10" value="0" step="0.5"><output id="trackingValue" for="tracking">0 px</output></label>
+      <label><input id="lockup" type="checkbox"> Logo original (texto BLACK HEM)</label>
+    </div>
+    <label for="text">Digite uma chamada</label>
+    <textarea id="text" spellcheck="false">AFTER HOURS</textarea>
+    <div id="preview" class="black-hem-display" aria-label="Prévia do texto">AFTER HOURS</div>
+  </section>
+  <section>
+    <h2>02 / Caracteres</h2>
+    <div class="alphabet black-hem-display">ABCDEFGHIJKLM<br>NOPQRSTUVWXYZ<br>0123456789<br>ÁÀÂÃÉÊÍÓÔÕÚÜÇ<br>.,:;!? / + = # R$</div>
+    <p class="note">A–Z, números, pontuação essencial e acentos latinos. Não é uma família para texto corrido: use uma fonte de leitura em descrições, formulários, valores e códigos de produto.</p>
+  </section>
+  <section>
+    <h2>03 / Escala e contraste</h2>
+    <div class="sizes black-hem-display">
+      <p style="font-size:96px">AFTER HOURS</p>
+      <p style="font-size:64px">EDIÇÃO NOTURNA</p>
+      <p style="font-size:48px">SELEÇÃO BLACK HEM</p>
+      <p style="font-size:32px">COLEÇÃO / ACESSÓRIOS</p>
+    </div>
+    <div class="light"><span class="label">POSITIVO / LOGO ORIGINAL</span><div class="black-hem-wordmark" style="font-size:clamp(40px,9vw,130px)">BLACK HEM</div></div>
+  </section>
+  <section>
+    <h2>04 / Texto e logo</h2>
+    <p class="label">Letras individuais, com espaçamento editável</p>
+    <div class="black-hem-display" style="font-size:clamp(40px,9vw,130px)">BLACK HEM</div>
+    <p class="label">Ligatura opcional, preservando a composição completa da prancha</p>
+    <div class="black-hem-wordmark" style="font-size:clamp(40px,9vw,130px)">BLACK HEM</div>
+  </section>
+  <footer><a href="./fonts/black-hem-display-regular.ttf" download>Baixar TTF</a><a href="./fonts/black-hem-display-regular.woff2" download>Baixar WOFF2</a><a href="./sources/svg/BLACKHEM-logo.svg">Logo vetorial SVG</a><a href="./README.md">Guia de uso</a></footer>
+</main>
+<script>
+  const text=document.querySelector('#text'), preview=document.querySelector('#preview');
+  const size=document.querySelector('#size'), tracking=document.querySelector('#tracking'), lockup=document.querySelector('#lockup');
+  function update(){
+    preview.textContent=text.value;
+    preview.style.fontSize=`${size.value}px`;
+    preview.style.letterSpacing=`${tracking.value}px`;
+    preview.style.fontVariantLigatures=lockup.checked?'discretionary-ligatures':'normal';
+    document.querySelector('#sizeValue').value=`${size.value} px`;
+    document.querySelector('#trackingValue').value=`${tracking.value} px`;
+  }
+  for(const control of [text,size,tracking,lockup])control.addEventListener('input',update);
+  update();
+</script>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://www.kvs.services/assets/index-BxXKCyO8.js",
+    "path": "research/references/kvs/index-BxXKCyO8.js",
+    "bytes": 1119665,
+    "sha256": "00be91017558bd056abb993ac82c1d81d98f7236dc45ac4912eafdb333a4dace"
+  },
+  {
+    "url": "https://www.kvs.services/assets/index-BrWY-5MB.css",
+    "path": "research/references/kvs/index-BrWY-5MB.css",
+    "bytes": 42741,
+    "sha256": "1daf4eb5eabca20f5d53f3a019f466425ce6815c024fa92710c63759aff3eaf7"
+  },
+  {
+    "url": "https://www.kvs.services/assets/01f2aec4d8f44353/script.js",
+    "path": "research/references/kvs/script.js",
+    "bytes": 6095,
+    "sha256": "f8247ecd3e299e774dca6357b0d5f9dd084aa2532ec6fc31f0bb44445961392d"
+  },
+  {
+    "url": "https://www.kvs.services/assets/4a0fce408350dc3f/script.js",
+    "path": "research/references/kvs/script.js",
+    "bytes": 6095,
+    "sha256": "f8247ecd3e299e774dca6357b0d5f9dd084aa2532ec6fc31f0bb44445961392d"
+  }
+]

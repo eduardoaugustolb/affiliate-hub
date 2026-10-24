@@ -1,0 +1,468 @@
+@import "tailwindcss" source("../");
+
+@theme {
+  --color-ink: #080808;
+  --color-bone: #ece9e2;
+  --color-muted: #96938d;
+  --color-surface: #111110;
+  --color-line: #ece9e224;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "Courier New", monospace;
+  --radius-editorial: 1.5rem;
+}
+
+:root {
+  --site-header-height: 5rem;
+  --hero-title-gap: 1.5rem;
+}
+
+@theme inline {
+  --font-display: var(--font-black-hem), Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-padding-top: 6.5rem;
+  }
+  body {
+    margin: 0;
+  }
+  ::selection {
+    background: var(--color-bone);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: none;
+  }
+  a:focus-visible {
+    color: var(--color-bone);
+    text-decoration: underline;
+  }
+  button:focus-visible {
+    background-color: var(--color-bone);
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  a {
+    text-underline-offset: 0.3em;
+  }
+}
+
+/* Static pre-hydration state; GSAP owns every animated property. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-intro[data-intro="pending"] #hero-title,
+  .hero-intro [data-hero-reveal][data-entrance="pending"] {
+    visibility: hidden;
+  }
+}
+
+/* App primitives: one motion and interaction language across store and admin. */
+.app-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  min-height: 3rem;
+  min-width: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid transparent;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  appearance: none;
+  border-radius: 0;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+    background-color 0.22s,
+    color 0.22s,
+    border-color 0.22s,
+    box-shadow 0.22s;
+}
+.app-button--primary {
+  background: var(--color-bone);
+  color: var(--color-ink);
+  border-color: var(--color-bone);
+}
+.app-button--outline {
+  background: transparent;
+  color: var(--color-bone);
+  border-color: var(--color-line);
+}
+.app-button--text {
+  background: transparent;
+  color: var(--color-bone);
+  padding-inline: 0.5rem;
+}
+.app-button-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: inherit;
+  gap: inherit;
+  width: 100%;
+  min-width: 0;
+}
+.app-button-label > span {
+  max-width: 100%;
+  overflow: hidden;
+}
+.app-button:not(:disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+.app-button:focus-visible {
+  outline: 2px solid var(--color-bone);
+  outline-offset: 4px;
+}
+.app-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+@media (hover: hover) {
+  .app-button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #ece9e214;
+  }
+  .app-button--primary:not(:disabled):hover {
+    background: #fff;
+    border-color: #fff;
+  }
+  .app-button--outline:not(:disabled):hover {
+    background: var(--color-bone);
+    color: var(--color-ink);
+    border-color: var(--color-bone);
+  }
+  .app-button--text:not(:disabled):hover {
+    background: #ece9e20b;
+  }
+}
+.app-check-field {
+  display: inline-flex;
+  min-width: 0;
+}
+.app-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-bone);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-align: left;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.app-checkbox-box {
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  border: 1px solid var(--color-muted);
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.app-checkbox-box svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  opacity: 0;
+  transform: scale(0.65);
+  transition:
+    opacity 0.18s,
+    transform 0.18s;
+}
+.app-checkbox[aria-checked="true"] {
+  background: #ece9e20c;
+}
+.app-checkbox[aria-checked="true"] .app-checkbox-box {
+  background: var(--color-bone);
+  color: var(--color-ink);
+  border-color: var(--color-bone);
+}
+.app-checkbox[aria-checked="true"] svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.app-checkbox:not(:disabled):hover {
+  border-color: var(--color-line);
+}
+.app-checkbox:focus-visible {
+  outline: 2px solid var(--color-bone);
+  outline-offset: 3px;
+}
+.app-checkbox:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.app-skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: #ece9e211;
+  min-height: 0.25rem;
+}
+.app-skeleton::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    #ece9e20c 50%,
+    transparent 80%
+  );
+  animation: skeleton-sweep 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.catalog-product-caption {
+  display: grid;
+  min-height: 4.5rem;
+  align-content: start;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+@media (min-width: 768px) {
+  .catalog-product-caption {
+    padding-top: 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-button,
+  .app-checkbox,
+  .app-checkbox-box,
+  .app-checkbox-box svg {
+    transition: none;
+  }
+  .app-button:not(:disabled):hover,
+  .app-button:not(:disabled):active {
+    transform: none;
+  }
+  .app-skeleton::after {
+    animation: none;
+  }
+}
+
+/* Outfit reveal geometry with jitter-to-sharp, replacing the brightness flash. */
+.catalog-card [data-image="back"] {
+  clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
+  scale: 1.2;
+  transition:
+    clip-path 500ms cubic-bezier(0.4, 0, 0.2, 1),
+    scale 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.catalog-card:has([data-product-link]:focus-visible) [data-image="back"] {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  scale: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .catalog-card:hover [data-image="back"] {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    scale: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-intro[data-products="pending"] [data-catalog-card] {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catalog-card [data-image="back"] {
+    transition: none;
+  }
+}
+
+.catalog-card-grain {
+  background-image: radial-gradient(var(--color-ink) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+.color-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--color-line);
+  padding: 0.65rem 1rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+.color-link:hover,
+.color-link[aria-current="page"] {
+  color: var(--color-ink);
+  background: var(--color-bone);
+  border-color: var(--color-bone);
+}
+
+.marketplace-link {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: color 300ms;
+}
+.marketplace-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-bone);
+  transform: translateY(101%);
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.marketplace-link:is(:hover, :focus-visible) {
+  color: var(--color-ink);
+}
+.marketplace-link:is(:hover, :focus-visible)::before {
+  transform: translateY(0);
+}
+.marketplace-link-icon {
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.marketplace-link:is(:hover, :focus-visible) .marketplace-link-icon {
+  transform: translate(3px, -3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marketplace-link,
+  .marketplace-link::before,
+  .marketplace-link-icon {
+    transition: none;
+  }
+  .marketplace-link:is(:hover, :focus-visible) .marketplace-link-icon {
+    transform: none;
+  }
+}
+
+/* Reserve the first viewport for the photo and its primary action. */
+.product-page {
+  --product-available-height: calc(100svh - var(--site-header-height) - 6.5rem);
+}
+.product-page > a {
+  margin-bottom: 1rem;
+}
+.product-layout {
+  display: grid;
+  grid-template-areas: "gallery" "cta" "info" "options";
+  gap: 1rem;
+}
+.product-gallery {
+  grid-area: gallery;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: max(3rem, calc(var(--product-available-height) - 5.5rem));
+}
+.product-gallery-frame {
+  flex: 1;
+  min-height: 0;
+}
+.product-gallery-frame [data-gallery-slide] {
+  height: 100%;
+}
+.product-gallery [data-gallery-thumb] {
+  width: clamp(2rem, 5svh, 4rem);
+}
+.product-info {
+  grid-area: info;
+}
+.product-cta {
+  grid-area: cta;
+  min-width: 0;
+}
+.product-options {
+  grid-area: options;
+}
+.product-cta .marketplace-link {
+  min-height: 4.5rem;
+  width: 100%;
+  border: 1px solid var(--color-bone);
+  background: var(--color-bone);
+  color: var(--color-ink);
+  padding: 1.25rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+  font-weight: 600;
+}
+.product-cta .marketplace-link::before {
+  background: var(--color-ink);
+}
+.product-cta .marketplace-link:is(:hover, :focus-visible) {
+  color: var(--color-bone);
+}
+@media (min-width: 768px) {
+  .product-page {
+    --product-available-height: calc(
+      100svh -
+      var(--site-header-height) -
+      7.25rem
+    );
+  }
+}
+@media (min-width: 1024px) {
+  .product-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.5fr) minmax(0, 0.5fr);
+    grid-template-rows: minmax(0, max-content) minmax(0, max-content) minmax(
+        0,
+        1fr
+      );
+    grid-template-areas: "gallery info info" "gallery cta options" "gallery . .";
+    gap: 1.5rem;
+    height: max(8rem, var(--product-available-height));
+  }
+  .product-gallery {
+    height: 100%;
+  }
+  .product-info {
+    min-height: 0;
+    max-height: calc(
+      var(--product-available-height) -
+      min(30svh, 10rem) -
+      3rem
+    );
+    overflow-y: auto;
+  }
+  .product-cta {
+    align-self: start;
+  }
+  .product-options {
+    max-height: min(30svh, 10rem);
+    overflow-y: auto;
+  }
+}
+@media (max-height: 600px) {
+  .store-header {
+    min-height: 3.5rem;
+  }
+  .store-main {
+    padding-top: 0.75rem;
+  }
+  .product-page {
+    --product-available-height: calc(100svh - 8.75rem);
+  }
+  .product-page > a {
+    min-height: 2.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .product-gallery-thumbnails {
+    display: none;
+  }
+  .product-gallery-controls button {
+    height: 2.25rem;
+  }
+}

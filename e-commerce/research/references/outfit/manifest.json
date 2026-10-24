@@ -1,0 +1,140 @@
+[
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/17e9ee77cb815775.css?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/17e9ee77cb815775.css",
+    "bytes": 67481,
+    "sha256": "21d9a09e74a63a9da626b75daffc629b76cc3ba1e7236c1c975a4a8e01c9be78"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/86ea34bb0e5fb8ab.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/86ea34bb0e5fb8ab.js",
+    "bytes": 20161,
+    "sha256": "d74b2410947afd13045b5c7c4ea2ba568020cc6bc745cf4d6b70d0e12809edf3"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/c14706c362f51a1a.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/c14706c362f51a1a.js",
+    "bytes": 33320,
+    "sha256": "042061e91097df88465aba35689105c186a3cf1a820d7a8aad803341629c6886"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/b6c772e00f0f005f.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/b6c772e00f0f005f.js",
+    "bytes": 223560,
+    "sha256": "1e0ea12ab4d20974c7b437540f7a5ab6194a812526dfb625ee8c5be91a04733d"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/38bd56dfee9fa215.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/38bd56dfee9fa215.js",
+    "bytes": 123082,
+    "sha256": "87048bc4761244873833dacfff53d8b4b5cd4f055c57ca579b48df93b5328c17"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/turbopack-3882f364d49ff303.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/turbopack-3882f364d49ff303.js",
+    "bytes": 10250,
+    "sha256": "474c9ce899b3eb91963a86d246f479b321a9385838bf23ad59b4af771b2eb293"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/6fb404aee9b90fa0.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/6fb404aee9b90fa0.js",
+    "bytes": 33011,
+    "sha256": "75ea928a6482f400b5a850aa7ee62e3c770986fb0f7e69294ecb3830a4e41936"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/089244e09cd5f247.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/089244e09cd5f247.js",
+    "bytes": 25045,
+    "sha256": "d759d28c86aa14b3a73c83d24e67bf0801ce818f0d42f505f4f95050ecf76ca3"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/a609ad6183f125a1.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/a609ad6183f125a1.js",
+    "bytes": 29045,
+    "sha256": "aa459d8328e37cb8417d95f8c7262159b1e190217de0c03dbda7132ec0d98cd6"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/6b38f2fa28789911.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/6b38f2fa28789911.js",
+    "bytes": 73723,
+    "sha256": "cf15742080b80db031e891a221ed5291150ceb1c40b731cdd7b1d23376a372c9"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/6d05fc79f6e60f38.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/6d05fc79f6e60f38.js",
+    "bytes": 44379,
+    "sha256": "798de60bda05183a48c21b3c70c05ff8b79b8c2ad65b720bb7ead9b08cdbae94"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/2954a56d58889b60.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/2954a56d58889b60.js",
+    "bytes": 70063,
+    "sha256": "9e1ef88e636896d86eb7860e13f052fa93cac9eadec905d0d17d1827dcc74335"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/be5163f90bdc0a39.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/be5163f90bdc0a39.js",
+    "bytes": 23349,
+    "sha256": "33d76e1c29d673c5d00be2d58378194898384d00da3b450d3e45f223759d8d2c"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/fd7fd4fa0934b5b3.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/fd7fd4fa0934b5b3.js",
+    "bytes": 282,
+    "sha256": "87e27735e310dfdd6664f64bc99d888e0e51a660c1064c91d32a33df4633b80b"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/27f4c8a00df2eed7.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/27f4c8a00df2eed7.js",
+    "bytes": 30722,
+    "sha256": "8d4598c6d453a46877e98811661fe777db5529f98ba516a73c78ba2f2df62cd6"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/7cd946b08d12c831.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/7cd946b08d12c831.js",
+    "bytes": 789,
+    "sha256": "4d1eb3347d2a48f7a4e825a2c78ad0e8e0a8d032de1c6f4f3100642eb28ab373"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/d71e6e0a240cbbbc.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/d71e6e0a240cbbbc.js",
+    "bytes": 17093,
+    "sha256": "925480c4c96f3324993fc1981a8237a7d0986fb53ab3c78d862a3dc2c74a8e3a"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/ad7f365c0e6f31e5.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/ad7f365c0e6f31e5.js",
+    "bytes": 8697,
+    "sha256": "3a4ef8511697cdd37f382d565b16ffb5a099123efe2797e90e1c3d5b32cd9ace"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/a6dad97d9634a72d.js?dpl=dpl_6a3wAsgxsLnKmvm7cibQhYPVmSDS",
+    "path": "research/references/outfit/a6dad97d9634a72d.js",
+    "bytes": 112594,
+    "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683"
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/static/chunks/86ea34bb0e5fb8ab.js",
+    "status": 404
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/static/chunks/c14706c362f51a1a.js",
+    "status": 404
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/static/chunks/b6c772e00f0f005f.js",
+    "status": 404
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/static/chunks/38bd56dfee9fa215.js",
+    "status": 404
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/static/chunks/db0e59da9a5cc495.js",
+    "status": 404
+  },
+  {
+    "url": "https://outfit.hellohello.is/_next/static/chunks/gtm.js",
+    "status": 404
+  }
+]

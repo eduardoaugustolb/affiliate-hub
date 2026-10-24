@@ -1,0 +1,655 @@
+{
+  "magic": 1179937895,
+  "version": 2,
+  "declaredBytes": 2003248,
+  "actualBytes": 2003248,
+  "asset": {
+    "generator": "Khronos glTF Blender I/O v5.0.21",
+    "version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "kvs",
+      "mesh": 0
+    },
+    {
+      "name": "kvs_cell",
+      "mesh": 1
+    },
+    {
+      "name": "kvs_cell.001",
+      "mesh": 2
+    },
+    {
+      "name": "kvs_cell.002",
+      "mesh": 3
+    },
+    {
+      "name": "kvs_cell.003",
+      "mesh": 4
+    },
+    {
+      "name": "kvs_cell.004",
+      "mesh": 5
+    },
+    {
+      "name": "kvs_cell.005",
+      "mesh": 6
+    },
+    {
+      "name": "kvs_cell.006",
+      "mesh": 7
+    },
+    {
+      "name": "kvs_cell.007",
+      "mesh": 8
+    },
+    {
+      "name": "kvs_cell.008",
+      "mesh": 9
+    },
+    {
+      "name": "kvs_cell.009",
+      "mesh": 10
+    },
+    {
+      "name": "kvs_cell.010",
+      "mesh": 11
+    },
+    {
+      "name": "kvs_cell.011",
+      "mesh": 12
+    },
+    {
+      "name": "kvs_cell.012",
+      "mesh": 13
+    },
+    {
+      "name": "kvs_cell.013",
+      "mesh": 14
+    },
+    {
+      "name": "kvs_cell.014",
+      "mesh": 15
+    },
+    {
+      "name": "kvs_cell.015",
+      "mesh": 16
+    },
+    {
+      "name": "kvs_cell.016",
+      "mesh": 17
+    },
+    {
+      "name": "kvs_cell.017",
+      "mesh": 18
+    },
+    {
+      "name": "kvs_cell.018",
+      "mesh": 19
+    },
+    {
+      "name": "kvs_cell.019",
+      "mesh": 20
+    },
+    {
+      "name": "kvs_cell.020",
+      "mesh": 21
+    },
+    {
+      "name": "kvs_cell.021",
+      "mesh": 22
+    },
+    {
+      "name": "kvs_cell.022",
+      "mesh": 23
+    },
+    {
+      "name": "kvs_cell.023",
+      "mesh": 24
+    },
+    {
+      "name": "kvs_cell.024",
+      "mesh": 25
+    },
+    {
+      "name": "kvs_cell.025",
+      "mesh": 26
+    },
+    {
+      "name": "kvs_cell.026",
+      "mesh": 27
+    },
+    {
+      "name": "kvs_cell.027",
+      "mesh": 28
+    },
+    {
+      "name": "kvs_cell.028",
+      "mesh": 29
+    },
+    {
+      "name": "kvs_cell.029",
+      "mesh": 30
+    },
+    {
+      "name": "kvs_cell.030",
+      "mesh": 31
+    },
+    {
+      "name": "kvs_cell.031",
+      "mesh": 32
+    },
+    {
+      "name": "kvs_cell.032",
+      "mesh": 33
+    },
+    {
+      "name": "kvs_cell.033",
+      "mesh": 34
+    },
+    {
+      "name": "kvs_cell.034",
+      "mesh": 35
+    },
+    {
+      "name": "kvs_cell.035",
+      "mesh": 36
+    },
+    {
+      "name": "kvs_cell.036",
+      "mesh": 37
+    },
+    {
+      "name": "kvs_cell.037",
+      "mesh": 38
+    },
+    {
+      "name": "kvs_cell.038",
+      "mesh": 39
+    },
+    {
+      "name": "kvs_cell.039",
+      "mesh": 40
+    },
+    {
+      "name": "kvs_cell.040",
+      "mesh": 41
+    },
+    {
+      "name": "kvs_cell.041",
+      "mesh": 42
+    },
+    {
+      "name": "kvs_cell.042",
+      "mesh": 43
+    },
+    {
+      "name": "kvs_cell.043",
+      "mesh": 44
+    },
+    {
+      "name": "kvs_cell.044",
+      "mesh": 45
+    },
+    {
+      "name": "kvs_cell.045",
+      "mesh": 46
+    },
+    {
+      "name": "kvs_cell.046",
+      "mesh": 47
+    },
+    {
+      "name": "kvs_cell.047",
+      "mesh": 48
+    },
+    {
+      "name": "kvs_cell.048",
+      "mesh": 49
+    },
+    {
+      "name": "kvs_cell.049",
+      "mesh": 50
+    },
+    {
+      "name": "kvs_cell.050",
+      "mesh": 51
+    },
+    {
+      "name": "kvs_cell.051",
+      "mesh": 52
+    },
+    {
+      "name": "kvs_cell.052",
+      "mesh": 53
+    },
+    {
+      "name": "kvs_cell.053",
+      "mesh": 54
+    },
+    {
+      "name": "kvs_cell.054",
+      "mesh": 55
+    },
+    {
+      "name": "kvs_cell.055",
+      "mesh": 56
+    },
+    {
+      "name": "kvs_cell.056",
+      "mesh": 57
+    },
+    {
+      "name": "kvs_cell.057",
+      "mesh": 58
+    },
+    {
+      "name": "kvs_cell.058",
+      "mesh": 59
+    },
+    {
+      "name": "kvs_cell.059",
+      "mesh": 60
+    },
+    {
+      "name": "kvs_cell.060",
+      "mesh": 61
+    },
+    {
+      "name": "kvs_cell.061",
+      "mesh": 62
+    },
+    {
+      "name": "kvs_cell.062",
+      "mesh": 63
+    },
+    {
+      "name": "kvs_cell.063",
+      "mesh": 64
+    },
+    {
+      "name": "kvs_cell.064",
+      "mesh": 65
+    },
+    {
+      "name": "kvs_cell.065",
+      "mesh": 66
+    },
+    {
+      "name": "kvs_cell.066",
+      "mesh": 67
+    },
+    {
+      "name": "kvs_cell.067",
+      "mesh": 68
+    },
+    {
+      "name": "kvs_cell.068",
+      "mesh": 69
+    },
+    {
+      "name": "kvs_cell.069",
+      "mesh": 70
+    },
+    {
+      "name": "kvs_cell.070",
+      "mesh": 71
+    },
+    {
+      "name": "kvs_cell.071",
+      "mesh": 72
+    },
+    {
+      "name": "kvs_cell.072",
+      "mesh": 73
+    },
+    {
+      "name": "kvs_cell.073",
+      "mesh": 74
+    },
+    {
+      "name": "kvs_cell.074",
+      "mesh": 75
+    },
+    {
+      "name": "kvs_cell.075",
+      "mesh": 76
+    },
+    {
+      "name": "kvs_cell.076",
+      "mesh": 77
+    },
+    {
+      "name": "kvs_cell.077",
+      "mesh": 78
+    },
+    {
+      "name": "kvs_cell.078",
+      "mesh": 79
+    },
+    {
+      "name": "kvs_cell.079",
+      "mesh": 80
+    },
+    {
+      "name": "kvs_cell.080",
+      "mesh": 81
+    },
+    {
+      "name": "kvs_cell.081",
+      "mesh": 82
+    },
+    {
+      "name": "kvs_cell.082",
+      "mesh": 83
+    },
+    {
+      "name": "kvs_cell.083",
+      "mesh": 84
+    },
+    {
+      "name": "kvs_cell.084",
+      "mesh": 85
+    },
+    {
+      "name": "kvs_cell.085",
+      "mesh": 86
+    },
+    {
+      "name": "kvs_cell.086",
+      "mesh": 87
+    },
+    {
+      "name": "kvs_cell.087",
+      "mesh": 88
+    },
+    {
+      "name": "kvs_cell.088",
+      "mesh": 89
+    },
+    {
+      "name": "kvs_cell.089",
+      "mesh": 90
+    },
+    {
+      "name": "kvs_cell.090",
+      "mesh": 91
+    },
+    {
+      "name": "kvs_cell.091",
+      "mesh": 92
+    },
+    {
+      "name": "kvs_cell.092",
+      "mesh": 93
+    },
+    {
+      "name": "kvs_cell.093",
+      "mesh": 94
+    },
+    {
+      "name": "kvs_cell.094",
+      "mesh": 95
+    },
+    {
+      "name": "kvs_cell.095",
+      "mesh": 96
+    },
+    {
+      "name": "kvs_cell.096",
+      "mesh": 97
+    },
+    {
+      "name": "kvs_cell.097",
+      "mesh": 98
+    },
+    {
+      "name": "kvs_cell.098",
+      "mesh": 99
+    },
+    {
+      "name": "kvs_cell.099",
+      "mesh": 100
+    },
+    {
+      "name": "kvs_cell.100",
+      "mesh": 101
+    },
+    {
+      "name": "kvs_cell.101",
+      "mesh": 102
+    },
+    {
+      "name": "kvs_cell.102",
+      "mesh": 103
+    },
+    {
+      "name": "kvs_cell.103",
+      "mesh": 104
+    },
+    {
+      "name": "kvs_cell.104",
+      "mesh": 105
+    },
+    {
+      "name": "kvs_cell.105",
+      "mesh": 106
+    },
+    {
+      "name": "kvs_cell.106",
+      "mesh": 107
+    },
+    {
+      "name": "kvs_cell.107",
+      "mesh": 108
+    },
+    {
+      "name": "kvs_cell.108",
+      "mesh": 109
+    },
+    {
+      "name": "kvs_cell.109",
+      "mesh": 110
+    },
+    {
+      "name": "kvs_cell.110",
+      "mesh": 111
+    },
+    {
+      "name": "kvs_cell.111",
+      "mesh": 112
+    },
+    {
+      "name": "kvs_cell.112",
+      "mesh": 113
+    },
+    {
+      "name": "kvs_cell.113",
+      "mesh": 114
+    },
+    {
+      "name": "kvs_cell.114",
+      "mesh": 115
+    },
+    {
+      "name": "kvs_cell.115",
+      "mesh": 116
+    },
+    {
+      "name": "kvs_cell.116",
+      "mesh": 117
+    },
+    {
+      "name": "kvs_cell.117",
+      "mesh": 118
+    },
+    {
+      "name": "kvs_cell.118",
+      "mesh": 119
+    },
+    {
+      "name": "kvs_cell.119",
+      "mesh": 120
+    },
+    {
+      "name": "kvs_cell.120",
+      "mesh": 121
+    },
+    {
+      "name": "kvs_cell.121",
+      "mesh": 122
+    },
+    {
+      "name": "kvs_cell.122",
+      "mesh": 123
+    },
+    {
+      "name": "kvs_cell.123",
+      "mesh": 124
+    },
+    {
+      "name": "kvs_cell.124",
+      "mesh": 125
+    },
+    {
+      "name": "kvs_cell.125",
+      "mesh": 126
+    },
+    {
+      "name": "kvs_cell.126",
+      "mesh": 127
+    },
+    {
+      "name": "kvs_cell.127",
+      "mesh": 128
+    },
+    {
+      "name": "kvs_cell.128",
+      "mesh": 129
+    },
+    {
+      "name": "kvs_cell.129",
+      "mesh": 130
+    },
+    {
+      "name": "kvs_cell.130",
+      "mesh": 131
+    },
+    {
+      "name": "kvs_cell.131"
+    },
+    {
+      "name": "kvs_cell.132",
+      "mesh": 132
+    },
+    {
+      "name": "kvs_cell.133",
+      "mesh": 133
+    },
+    {
+      "name": "kvs_cell.134",
+      "mesh": 134
+    },
+    {
+      "name": "kvs_cell.135",
+      "mesh": 135
+    },
+    {
+      "name": "kvs_cell.136",
+      "mesh": 136
+    },
+    {
+      "name": "kvs_cell.137",
+      "mesh": 137
+    },
+    {
+      "name": "kvs_cell.138",
+      "mesh": 138
+    },
+    {
+      "name": "kvs_cell.139",
+      "mesh": 139
+    },
+    {
+      "name": "kvs_cell.140",
+      "mesh": 140
+    },
+    {
+      "name": "kvs_cell.141",
+      "mesh": 141
+    },
+    {
+      "name": "kvs_cell.142",
+      "mesh": 142
+    },
+    {
+      "name": "kvs_cell.143",
+      "mesh": 143
+    },
+    {
+      "name": "kvs_cell.144",
+      "mesh": 144
+    },
+    {
+      "name": "kvs_cell.145",
+      "mesh": 145
+    },
+    {
+      "name": "kvs_cell.146",
+      "mesh": 146
+    },
+    {
+      "name": "kvs_cell.147",
+      "mesh": 147
+    },
+    {
+      "name": "kvs_cell.148",
+      "mesh": 148
+    },
+    {
+      "name": "kvs_cell.149",
+      "mesh": 149
+    },
+    {
+      "name": "kvs_cell.150",
+      "mesh": 150
+    },
+    {
+      "name": "kvs_cell.151",
+      "mesh": 151
+    },
+    {
+      "name": "kvs_cell.152",
+      "mesh": 152
+    },
+    {
+      "name": "kvs_cell.153",
+      "mesh": 153
+    },
+    {
+      "name": "kvs_cell.154",
+      "mesh": 154
+    },
+    {
+      "name": "kvs_cell.155",
+      "mesh": 155
+    },
+    {
+      "name": "kvs_cell.156",
+      "mesh": 156
+    },
+    {
+      "name": "kvs_cell.157",
+      "mesh": 157
+    },
+    {
+      "name": "kvs_cell.158",
+      "mesh": 158
+    }
+  ],
+  "meshes": 159,
+  "extensionsUsed": [
+    "KHR_draco_mesh_compression"
+  ]
+}

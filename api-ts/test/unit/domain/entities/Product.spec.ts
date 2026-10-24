@@ -222,3 +222,41 @@ describe("Product administrative name", () => {
 		).toThrow(DomainError);
 	});
 });
+
+describe("Product gallery", () => {
+	const create = (urls?: string[]) =>
+		Product.create(
+			productFake.code,
+			productFake.destinationUrl,
+			productFake.marketplace,
+			productFake.imageUrl,
+			productFake.status,
+			"Produto",
+			urls,
+		);
+	it("supports legacy single images", () => {
+		expect(create().getImageUrls()).toEqual([productFake.imageUrl]);
+	});
+	it("keeps ordered unique images and uses the first as cover", () => {
+		const urls: [string, string] = [
+			"https://example.com/red.jpg",
+			"https://example.com/blue.jpg",
+		];
+		const product = create([...urls, urls[0]]);
+		expect(product.getImageUrls()).toEqual(urls);
+		expect(product.getImageUrl()).toBe(urls[0]);
+		product.getImageUrls().pop();
+		expect(product.getImageUrls()).toEqual(urls);
+	});
+	it.each(
+		[
+			[],
+			["http://example.com/a.jpg"],
+			Array(21).fill("https://example.com/a.jpg"),
+			[null],
+			"invalid",
+		].map((urls) => [urls]),
+	)("rejects malformed galleries %j", (urls) => {
+		expect(() => create(urls as string[])).toThrow(DomainError);
+	});
+});

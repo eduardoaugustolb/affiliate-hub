@@ -1,0 +1,12 @@
+▲ Next.js 16.4.2
+- Local: ⚠ Warning: Next.js ignored package-lock.json in /home/eduardoaugustolb because it is outside✓ Running next.config.ts took 39ms
+uardoaugustolb/Documents/www/my-projects/apps/affiliate-hub).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+⨯ Error: Não foi possível carregar os dados. Tente novamente.
+    at g (.next/server/chunks/ssr/_1vg7_lk9evq82._.js:311:3525)
+    at async h (.next/server/chunks/ssr/_1vg7_lk9evq82._.js:311:3920) {
+  status: 503,
+  digest: '1372008107'
+}
+error: script "start" exited with code 143

@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Black Hem Display";
+  src: url("./fonts/black-hem-display-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.black-hem-display {
+  font-family: "Black Hem Display", Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
+  font-kerning: normal;
+  line-height: 1.4;
+}
+
+/* Use only for the exact text BLACK HEM; other text uses normal glyphs. */
+.black-hem-wordmark {
+  font-family: "Black Hem Display", Georgia, serif;
+  font-weight: 400;
+  font-synthesis: none;
+  font-variant-ligatures: discretionary-ligatures;
+  letter-spacing: 0;
+  line-height: 1.5;
+}

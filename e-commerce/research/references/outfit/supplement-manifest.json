@@ -1,0 +1,38 @@
+[
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-01.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-01.jpg",
+    "valid": true
+  },
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-02.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-02.jpg",
+    "valid": true
+  },
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-03.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-03.jpg",
+    "valid": true
+  },
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-04.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-04.jpg",
+    "valid": true
+  },
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-05.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-05.jpg",
+    "valid": true
+  },
+  {
+    "url": "https://outfit.hellohello.is/preloader/image-06.jpg",
+    "status": 200,
+    "path": "research/references/outfit/preloader/image-06.jpg",
+    "valid": true
+  }
+]

@@ -1,6 +1,6 @@
 # PRD — MVP Product Resolver
 
-> Ajuste de escopo em 16/10/2026: upload/storage de imagens adiado. A versão local usa URL HTTPS da imagem com preview. A stack efetiva preserva Bun, Hono, PostgreSQL/Bun.sql, Knex para migrações, HTML/CSS/JavaScript e `bun test`; Next.js, Drizzle e Vitest listados originalmente não são requisitos desta entrega. Ainda não há domínio ou ambiente de produção. Consulte `api-ts/README.md` para o estado implementado.
+> Ajuste de escopo em 16/10/2026: upload/storage de imagens adiado; a API recebe uma URL HTTPS em imageUrl. O diretório api-ts contém somente a API, com Bun, Hono, PostgreSQL/Bun.sql, Knex para migrações e bun test. A home e o dashboard serão desenvolvidos separadamente com Next.js, conforme previsto neste PRD. Ainda não há domínio ou ambiente de produção. Consulte api-ts/README.md para o estado implementado.
 
 ## 1. Visão geral
 

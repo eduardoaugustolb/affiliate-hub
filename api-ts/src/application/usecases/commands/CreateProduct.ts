@@ -1,4 +1,5 @@
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
+import { productOptionIds } from "@/application/ProductOptionIds";
 import type {
 	SessionActor,
 	SessionAuthenticator,
@@ -14,8 +15,10 @@ type CreateProductInput = {
 	name: string;
 	destinationUrl: string;
 	marketplace: string;
-	imageUrl: string;
+	imageUrl?: string;
+	imageUrls?: string[];
 	status: string;
+	optionIds?: string[];
 };
 
 type CreateProductActor = SessionActor;
@@ -36,6 +39,7 @@ export class CreateProduct
 		const user = await this.sessionAuthenticator.authenticate(actor);
 		if (user.getRole() !== "admin")
 			throw new ForbiddenOperationError("Only admins can create products");
+		const optionIds = productOptionIds(input.optionIds);
 		const maxRetries = 10;
 
 		for (let retries = 0; retries < maxRetries; retries++) {
@@ -45,13 +49,14 @@ export class CreateProduct
 				code,
 				input.destinationUrl,
 				input.marketplace,
-				input.imageUrl,
+				input.imageUrl ?? "",
 				input.status,
 				input.name,
+				input.imageUrls,
 			);
 
 			try {
-				await this.repo.save(product);
+				await this.repo.save(product, optionIds);
 				return;
 			} catch (error) {
 				if (error instanceof ProductCodeAlreadyExistsError) {

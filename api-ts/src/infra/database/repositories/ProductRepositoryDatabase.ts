@@ -19,6 +19,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 				row.imageUrl,
 				row.status,
 				row.name,
+				row.imageUrls,
 			),
 		);
 	}
@@ -33,6 +34,7 @@ export class ProductRepositoryDatabase implements ProductRepository {
 					row.imageUrl,
 					row.status,
 					row.name,
+					row.imageUrls,
 				)
 			: undefined;
 	}
@@ -47,31 +49,40 @@ export class ProductRepositoryDatabase implements ProductRepository {
 					row.imageUrl,
 					row.status,
 					row.name,
+					row.imageUrls,
 				)
 			: undefined;
 	}
-	async save(entity: Product): Promise<void> {
-		await this.dao.save({
-			id: entity.getId() || this.idGenerator.generate(),
-			code: entity.getCode(),
-			destinationUrl: entity.getDestinationUrl(),
-			marketplace: entity.getMarketplace(),
-			imageUrl: entity.getImageUrl(),
-			status: entity.getStatus(),
-			name: entity.getName(),
-		});
+	async save(entity: Product, optionIds?: string[]): Promise<void> {
+		await this.dao.save(
+			{
+				id: entity.getId() || this.idGenerator.generate(),
+				code: entity.getCode(),
+				destinationUrl: entity.getDestinationUrl(),
+				marketplace: entity.getMarketplace(),
+				imageUrl: entity.getImageUrl(),
+				imageUrls: entity.getImageUrls(),
+				status: entity.getStatus(),
+				name: entity.getName(),
+			},
+			...(optionIds === undefined ? [] : [optionIds]),
+		);
 	}
-	async update(entity: Product): Promise<void> {
+	async update(entity: Product, optionIds?: string[]): Promise<void> {
 		if (!entity.getId()) throw new Error("Cannot update product without an id");
-		await this.dao.update({
-			id: entity.getId() || this.idGenerator.generate(),
-			code: entity.getCode(),
-			destinationUrl: entity.getDestinationUrl(),
-			marketplace: entity.getMarketplace(),
-			imageUrl: entity.getImageUrl(),
-			status: entity.getStatus(),
-			name: entity.getName(),
-		});
+		await this.dao.update(
+			{
+				id: entity.getId() || this.idGenerator.generate(),
+				code: entity.getCode(),
+				destinationUrl: entity.getDestinationUrl(),
+				marketplace: entity.getMarketplace(),
+				imageUrl: entity.getImageUrl(),
+				imageUrls: entity.getImageUrls(),
+				status: entity.getStatus(),
+				name: entity.getName(),
+			},
+			...(optionIds === undefined ? [] : [optionIds]),
+		);
 	}
 	async remove(id: string): Promise<void> {
 		await this.dao.remove({ id: id });

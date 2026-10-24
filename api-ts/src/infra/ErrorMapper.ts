@@ -1,5 +1,6 @@
 import { ForbiddenOperationError } from "@/application/errors/ForbiddenOperationError";
 import { InvalidCredentialsError } from "@/application/errors/InvalidCredentialsError";
+import { OutfitNotFoundError } from "@/application/errors/OutfitNotFoundError";
 import { ProductNotFoundError } from "@/application/errors/ProductNotFoundError";
 import { ProductUnavailableError } from "@/application/errors/ProductUnavailableError";
 import { UserAlreadyExistsError } from "@/application/errors/UserAlreadyExistsError";
@@ -28,7 +29,10 @@ export class ErrorMapper {
 				headers: { "Content-Type": "application/json" },
 			};
 
-		if (error instanceof ProductNotFoundError) {
+		if (
+			error instanceof ProductNotFoundError ||
+			error instanceof OutfitNotFoundError
+		) {
 			return {
 				status: HttpStatusCode.NOT_FOUND,
 				body: {

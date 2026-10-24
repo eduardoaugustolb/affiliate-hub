@@ -10,6 +10,7 @@ export class Product {
 	private readonly destinationUrl: ProductDestinationUrl;
 	private readonly marketplace: ProductMarketplace;
 	private readonly imageUrl: ProductImageUrl;
+	private readonly imageUrls: string[];
 	private readonly status: ProductStatus;
 
 	private constructor(
@@ -21,6 +22,7 @@ export class Product {
 		status: string,
 		private readonly name: string,
 		legacyCode = false,
+		imageUrls?: string[],
 	) {
 		if (!name.trim() || name.trim().length > 160)
 			throw new DomainError("Invalid product name");
@@ -28,7 +30,22 @@ export class Product {
 		this.code = new ProductCode(code, legacyCode);
 		this.destinationUrl = new ProductDestinationUrl(destinationUrl);
 		this.marketplace = new ProductMarketplace(marketplace);
-		this.imageUrl = new ProductImageUrl(imageUrl);
+		if (
+			imageUrls !== undefined &&
+			(!Array.isArray(imageUrls) ||
+				!imageUrls.length ||
+				imageUrls.length > 20 ||
+				imageUrls.some((url) => typeof url !== "string"))
+		)
+			throw new DomainError("Product images must contain 1 to 20 HTTPS URLs");
+		this.imageUrls = [
+			...new Set(
+				(imageUrls ?? [imageUrl]).map((url) =>
+					new ProductImageUrl(url).getValue(),
+				),
+			),
+		];
+		this.imageUrl = new ProductImageUrl(this.imageUrls[0] ?? imageUrl);
 		this.status = new ProductStatus(status);
 	}
 
@@ -56,6 +73,10 @@ export class Product {
 		return this.imageUrl.getValue();
 	}
 
+	getImageUrls(): string[] {
+		return [...this.imageUrls];
+	}
+
 	getStatus(): string {
 		return this.status.getValue();
 	}
@@ -67,6 +88,7 @@ export class Product {
 		imageUrl: string,
 		status: string,
 		name = "Produto",
+		imageUrls?: string[],
 	) {
 		return new Product(
 			"",
@@ -76,6 +98,8 @@ export class Product {
 			imageUrl,
 			status,
 			name,
+			false,
+			imageUrls,
 		);
 	}
 
@@ -87,6 +111,7 @@ export class Product {
 		imageUrl: string,
 		status: string,
 		name = "Produto",
+		imageUrls?: string[],
 	) {
 		return new Product(
 			id,
@@ -97,6 +122,7 @@ export class Product {
 			status,
 			name,
 			true,
+			imageUrls,
 		);
 	}
 }

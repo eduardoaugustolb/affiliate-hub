@@ -1,0 +1,5 @@
+import{readdir}from'node:fs/promises';
+const base='https://outfit.hellohello.is/';const dir='research/references/outfit';let queue:string[]=[];for(const f of await readdir(dir)){if(!/\.(html|js)$/.test(f))continue;const s=await Bun.file(`${dir}/${f}`).text();for(const m of s.matchAll(/["']((?:\/_next\/)?static\/chunks\/[^"']+\.js)["']/g))queue.push(m[1].startsWith('/')?m[1]:'/_next/'+m[1]);}const manifest=[];
+for(const path of new Set(queue)){const dest=dir+'/'+path.split('/').pop();if(await Bun.file(dest).exists())continue;const r=await fetch(new URL(path,base),{signal:AbortSignal.timeout(15000)});const body=await r.text();if(r.ok&&!/^\s*</.test(body))await Bun.write(dest,body);manifest.push({url:new URL(path,base).href,status:r.status,path:dest,valid:r.ok&&!/^\s*</.test(body)});}
+for(let i=1;i<=6;i++){const path=`/preloader/image-0${i}.jpg`;const r=await fetch(new URL(path,base));if(r.ok){const dest=dir+path;await Bun.write(dest,await r.arrayBuffer());manifest.push({url:new URL(path,base).href,status:r.status,path:dest,valid:true});}}
+await Bun.write(dir+'/supplement-manifest.json',JSON.stringify(manifest,null,2));console.log(manifest);

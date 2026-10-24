@@ -39,6 +39,7 @@ export class ProductRepositoryFake implements ProductRepository {
 			product.getImageUrl(),
 			product.getStatus(),
 			product.getName(),
+			product.getImageUrls(),
 		);
 		this.db.set(product.getId(), product);
 	}

@@ -1,0 +1,88 @@
+{
+  "name": "BLACK HEM / Cut",
+  "version": "0.1.0",
+  "viewBox": "0 0 24 24",
+  "strokeWidth": 1.5,
+  "icons": [
+    {
+      "name": "arrow-right",
+      "file": "arrow-right.svg"
+    },
+    {
+      "name": "arrow-left",
+      "file": "arrow-left.svg"
+    },
+    {
+      "name": "arrow-up",
+      "file": "arrow-up.svg"
+    },
+    {
+      "name": "arrow-down",
+      "file": "arrow-down.svg"
+    },
+    {
+      "name": "external-link",
+      "file": "external-link.svg"
+    },
+    {
+      "name": "search",
+      "file": "search.svg"
+    },
+    {
+      "name": "zoom-in",
+      "file": "zoom-in.svg"
+    },
+    {
+      "name": "zoom-out",
+      "file": "zoom-out.svg"
+    },
+    {
+      "name": "grid",
+      "file": "grid.svg"
+    },
+    {
+      "name": "layers",
+      "file": "layers.svg"
+    },
+    {
+      "name": "tag",
+      "file": "tag.svg"
+    },
+    {
+      "name": "menu",
+      "file": "menu.svg"
+    },
+    {
+      "name": "close",
+      "file": "close.svg"
+    },
+    {
+      "name": "plus",
+      "file": "plus.svg"
+    },
+    {
+      "name": "minus",
+      "file": "minus.svg"
+    },
+    {
+      "name": "check",
+      "file": "check.svg"
+    },
+    {
+      "name": "filter",
+      "file": "filter.svg"
+    },
+    {
+      "name": "heart",
+      "file": "heart.svg"
+    },
+    {
+      "name": "bag",
+      "file": "bag.svg"
+    },
+    {
+      "name": "info",
+      "file": "info.svg"
+    }
+  ]
+}
