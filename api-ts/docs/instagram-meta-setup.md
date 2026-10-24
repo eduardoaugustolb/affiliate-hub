@@ -1,6 +1,6 @@
 # Setup do bot de Instagram com Meta
 
-Verificado em 24/10/2026. Status: API de campanhas, regras, webhooks, worker, persistência implementados e verificados com testes sintéticos/PostgreSQL isolado. Ativação inicial por token configurado no servidor, para uma conta profissional. OAuth no dashboard e renovação automática ainda não implementados. Nenhuma conta Meta real foi conectada nem mensagem real enviada nesta etapa.
+Verificado em 24/10/2026. Status: API de campanhas, regras, webhooks, worker, persistência e página `/admin/instagram` implementados e verificados com testes sintéticos/PostgreSQL isolado. Ativação inicial por token configurado no servidor, para uma conta profissional. OAuth no dashboard e renovação automática ainda não implementados. Nenhuma conta Meta real foi conectada nem mensagem real enviada nesta etapa.
 
 Referência: [fork Benion](https://github.com/eduardoaugustolb/benion), upstream `c291f10213c2972eefd0da287df15ca52e820a33`. A implementação foi adaptada à arquitetura TypeScript/PostgreSQL do Hub; [atribuição e licença MIT](../../THIRD_PARTY_NOTICES.md).
 
@@ -213,7 +213,7 @@ Preparar demonstração gravada do fluxo e instruções reproduzíveis para revi
 - Controller de webhook com acesso ao corpo bruto para assinatura.
 - Inbox/outbox persistente e worker com deduplicação, retries e estados de resultado incerto.
 - Persistência de posts monitorados, associação numerada de outfits, triggers, templates e ações por origem.
-- API para o dashboard: cadastro por URL, regras, prévia, pausa por campanha e histórico. A tela administrativa será entregue em uma PR dependente.
+- API e página `/admin/instagram`: cadastro por URL, regras, prévia, pausa por campanha e histórico. A tela usa os primitives existentes e o transporte autenticado do frontend; não envia credenciais Meta ao navegador.
 - Resolução oficial de URL para mídia da conta e filtro por `media_id` nos eventos.
 - Casos de uso de comentário → regra → resposta pública/privada e DM recebida → regra → resposta na conversa.
 - Adaptadores para resposta pública, resposta privada ao comentário e resposta à DM recebida.
@@ -225,8 +225,9 @@ Pendentes de operação: credenciais do proprietário, domínio HTTPS com acesso
 
 - TDD: testes de gatilhos, regras, processamento, gerenciamento e corpo HTTP bruto foram executados falhando antes da implementação e passaram depois.
 - 42 testes Instagram passaram: domínio, casos de uso, transporte Meta simulado, assinatura/normalização, HTTP e PostgreSQL real isolado, com 138 assertions.
+- 20 testes da DAL frontend passaram, incluindo autorização, allowlist de campos e isolamento de credenciais/sessão.
 - Suíte completa da API com PostgreSQL e HTTP isolados: 637 testes passaram, nenhum falhou e um teste Redis foi pulado por depender de instância própria. As três expectativas antigas de produtos foram atualizadas para incluir `imageUrls`, campo já existente no contrato.
-- TypeScript e Biome da API passaram. A interface administrativa será verificada na PR correspondente; estes testes não comprovam operação com a conta Meta real.
+- TypeScript e Biome da API/frontend e build de produção do frontend passaram. Inspeção visual em navegador autenticado ainda não foi realizada; a referência visual orientou o layout, mas os testes acima não comprovam aparência em tela.
 
 Para repetir a parte PostgreSQL, apontar `INSTAGRAM_TEST_DATABASE_URL` para uma base **isolada e migrada**, depois executar em `api-ts/`:
 
