@@ -1,3 +1,11 @@
+## [0.9.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.8.0...v0.9.0) (2026-10-24)
+
+
+### Features
+
+* add Black Hem storefront, catalog search and admin interface ([27fb82c](https://github.com/eduardoaugustolb/affiliate-hub/commit/27fb82c9a15a19fe23772fc0f00f07e5ad61516e))
+* **mvp:** add public resolver and admin dashboard ([8ce5456](https://github.com/eduardoaugustolb/affiliate-hub/commit/8ce54567d94ba59e30db1cd2677c6acd2ceec209))
+
 ## [0.8.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.7.0...v0.8.0) (2026-10-16)
 
 
@@ -30,11 +38,4 @@
 ### Bug Fixes
 
 * **products:** reject empty lookup codes ([c19b1dd](https://github.com/eduardoaugustolb/affiliate-hub/commit/c19b1dd54cee6be6e8182a5f965ce56bffd75985))
-
-## [0.6.1](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.0...v0.6.1) (2026-10-12)
-
-
-### Bug Fixes
-
-* **ci:** remove unavailable husky prepare script ([7dc9126](https://github.com/eduardoaugustolb/affiliate-hub/commit/7dc9126d9d5153ae17e38722af8676500fb19fe2))
 
