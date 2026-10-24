@@ -7,7 +7,7 @@ import { getProduct, getProductOptions, listProducts } from "./products";
 
 export async function getAdminData(
   params: QueryParams,
-  tab: "products" | "filters" | "outfits",
+  tab: "products" | "filters" | "outfits" | "instagram",
 ): Promise<AdminData> {
   const offset = pageOffset(queryValue(params, "offset"), 25);
   const data: AdminData = {

@@ -27,7 +27,9 @@ import {
   type Product,
 } from "@/lib/admin";
 import type { BrandIconName } from "@/lib/brand-icons";
+import type { InstagramData } from "@/lib/instagram";
 import { CatalogAdmin } from "./catalog-admin";
+import { InstagramAdmin } from "./instagram-admin";
 import { ProductEditor } from "./product-editor";
 import { ProductTable } from "./product-table";
 
@@ -35,6 +37,7 @@ const sections: { key: string; label: string; icon: BrandIconName }[] = [
   { key: "products", label: "Produtos", icon: "bag" },
   { key: "filters", label: "Filtros", icon: "filter" },
   { key: "outfits", label: "Outfits", icon: "layers" },
+  { key: "instagram", label: "Instagram", icon: "heart" },
 ];
 
 function CatalogOverview({
@@ -134,9 +137,11 @@ function CatalogOverview({
 export function AdminDashboard({
   data,
   section,
+  instagram,
 }: {
   data: AdminData;
-  section: "products" | "filters" | "outfits";
+  section: "products" | "filters" | "outfits" | "instagram";
+  instagram?: InstagramData;
 }) {
   const { user, products, offset, editor } = data;
   const tab = section;
@@ -353,6 +358,7 @@ export function AdminDashboard({
                       ["products", "Produtos"],
                       ["filters", "Filtros"],
                       ["outfits", "Outfits"],
+                      ["instagram", "Instagram"],
                     ].map(([key, label]) =>
                       pathname === `/admin/${key}` ? (
                         <Button
@@ -456,6 +462,7 @@ export function AdminDashboard({
                             products: "Gestão de produtos",
                             filters: "Filtros",
                             outfits: "Outfits",
+                            instagram: "Instagram",
                           }[tab]
                         }
                       </Link>
@@ -477,6 +484,7 @@ export function AdminDashboard({
                       products: "Seu catálogo",
                       filters: "Organize as peças",
                       outfits: "Crie combinações",
+                      instagram: "Converse com seu público",
                     }[tab]
                   }
                 </h1>
@@ -486,6 +494,7 @@ export function AdminDashboard({
                       products: "Uma visão das peças que compõem a BLACK HEM.",
                       filters: "Tamanhos e cores para encontrar a peça certa.",
                       outfits: "Seleções de peças com a sua curadoria.",
+                      instagram: "Leve os outfits do feed para a conversa.",
                     }[tab]
                   }
                 </p>
@@ -653,6 +662,8 @@ export function AdminDashboard({
                   </div>
                 </div>
               </Reveal>
+            ) : tab === "instagram" ? (
+              instagram && <InstagramAdmin data={instagram} onError={fail} />
             ) : (
               <CatalogAdmin
                 key={`${tab}-${data.outfit?.code ?? ""}`}
