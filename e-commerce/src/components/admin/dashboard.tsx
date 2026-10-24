@@ -15,6 +15,7 @@ import {
   saveProductAction,
 } from "@/app/admin/actions";
 import { useScrollLock } from "@/components/providers/smooth-scroll";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { BrandLoader } from "@/components/ui/brand-loader";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
@@ -25,9 +26,110 @@ import {
   actionRequest,
   type Product,
 } from "@/lib/admin";
+import type { BrandIconName } from "@/lib/brand-icons";
 import { CatalogAdmin } from "./catalog-admin";
 import { ProductEditor } from "./product-editor";
 import { ProductTable } from "./product-table";
+
+const sections: { key: string; label: string; icon: BrandIconName }[] = [
+  { key: "products", label: "Produtos", icon: "bag" },
+  { key: "filters", label: "Filtros", icon: "filter" },
+  { key: "outfits", label: "Outfits", icon: "layers" },
+];
+
+function CatalogOverview({
+  products,
+  offset,
+}: {
+  products: Product[];
+  offset: number;
+}) {
+  const active = products.filter(
+    (product) => product.status === "active",
+  ).length;
+  const marketplaces = [
+    ...new Set(products.map((product) => product.marketplace)),
+  ];
+  return (
+    <section
+      className="admin-overview"
+      aria-label={`Resumo da página ${offset / 25 + 1}`}
+    >
+      <div className="admin-panel admin-metric">
+        <div className="admin-row admin-between">
+          <h2>Produtos nesta página</h2>
+          <BrandIcon name="bag" />
+        </div>
+        <strong className="admin-metric-value">
+          {products.length.toString().padStart(2, "0")}
+        </strong>
+        <span className="admin-muted">
+          Página {offset / 25 + 1} do catálogo
+        </span>
+      </div>
+      <div className="admin-panel admin-metric">
+        <div className="admin-row admin-between">
+          <h2>Disponibilidade</h2>
+          <BrandIcon name="check" />
+        </div>
+        <div className="admin-status-counts">
+          <div>
+            <strong>{active}</strong>
+            <span>
+              <i />
+              Ativos
+            </span>
+          </div>
+          <div>
+            <strong>{products.length - active}</strong>
+            <span>
+              <i />
+              Inativos
+            </span>
+          </div>
+        </div>
+        <div className="admin-status-track" aria-hidden="true">
+          <span
+            style={{
+              width: `${products.length ? (active / products.length) * 100 : 0}%`,
+            }}
+          />
+        </div>
+      </div>
+      <div className="admin-panel admin-marketplaces">
+        <div className="admin-row admin-between">
+          <h2>Distribuição por marketplace</h2>
+          <BrandIcon name="grid" />
+        </div>
+        {marketplaces.length ? (
+          marketplaces.map((marketplace) => {
+            const count = products.filter(
+              (product) => product.marketplace === marketplace,
+            ).length;
+            return (
+              <div className="admin-marketplace-row" key={marketplace}>
+                <span>{marketplace}</span>
+                <div aria-hidden="true">
+                  <span
+                    style={{ width: `${(count / products.length) * 100}%` }}
+                  />
+                </div>
+                <strong>{count}</strong>
+              </div>
+            );
+          })
+        ) : (
+          <p className="admin-muted">
+            Os marketplaces aparecem ao cadastrar produtos.
+          </p>
+        )}
+        <p className="admin-muted admin-summary-note">
+          Resumo dos produtos exibidos nesta página.
+        </p>
+      </div>
+    </section>
+  );
+}
 
 export function AdminDashboard({
   data,
@@ -175,17 +277,35 @@ export function AdminDashboard({
   }
   const disabled = busy || pending;
   return (
-    <div className="admin">
+    <div className={`admin${user ? " admin-authenticated" : ""}`}>
       {(pending || busy) && <BrandLoader overlay />}
       <header className="admin-header">
         <a href="/" className="admin-brand">
-          BLACK HEM
+          <span className="admin-monogram" aria-hidden="true">
+            BH
+          </span>
+          <span>BLACK HEM</span>
         </a>
+        {user && (
+          <div className="admin-header-links">
+            <span className="admin-workspace">
+              <BrandIcon name="grid" /> Catálogo
+            </span>
+            <Link href="/" className="admin-store-link">
+              <BrandIcon name="external-link" /> Ver loja
+            </Link>
+          </div>
+        )}
         <div className="admin-row admin-desktop-account">
           <span className="admin-muted admin-context">Administração</span>
           {user && (
             <>
-              <span className="admin-user">{user.name}</span>
+              <span className="admin-user">
+                <span className="admin-avatar" aria-hidden="true">
+                  {user.name.slice(0, 1)}
+                </span>
+                {user.name}
+              </span>
               <Button variant="outline" disabled={disabled} onClick={logout}>
                 Sair
               </Button>
@@ -351,23 +471,38 @@ export function AdminDashboard({
                     )}
                   </ol>
                 </nav>
-                <h1 className="admin-title">Painel de controle</h1>
+                <h1 className="admin-title">
+                  {
+                    {
+                      products: "Seu catálogo",
+                      filters: "Organize as peças",
+                      outfits: "Crie combinações",
+                    }[tab]
+                  }
+                </h1>
+                <p className="admin-muted admin-page-description">
+                  {
+                    {
+                      products: "Uma visão das peças que compõem a BLACK HEM.",
+                      filters: "Tamanhos e cores para encontrar a peça certa.",
+                      outfits: "Seleções de peças com a sua curadoria.",
+                    }[tab]
+                  }
+                </p>
               </div>
             </div>
             <nav aria-label="Seções do admin" className="admin-sections">
-              {[
-                ["products", "Produtos"],
-                ["filters", "Filtros"],
-                ["outfits", "Outfits"],
-              ].map(([key, label]) =>
+              {sections.map(({ key, label, icon }) =>
                 pathname === `/admin/${key}` ? (
                   <Button
                     key={key}
                     variant="outline"
                     disabled
                     aria-current="page"
+                    title={label}
                   >
-                    {label}
+                    <BrandIcon name={icon} />
+                    <span className="admin-nav-label">{label}</span>
                   </Button>
                 ) : (
                   <Link
@@ -375,13 +510,15 @@ export function AdminDashboard({
                     scroll={false}
                     className="app-button app-button--outline"
                     key={key}
+                    title={label}
                     onClick={() => {
                       setDeleting(null);
                       setNotice("");
                       setError("");
                     }}
                   >
-                    {label}
+                    <BrandIcon name={icon} />
+                    <span className="admin-nav-label">{label}</span>
                   </Link>
                 ),
               )}
@@ -401,6 +538,9 @@ export function AdminDashboard({
               </div>
             )}
             {notice && <output className="admin-notice">{notice}</output>}
+            {tab === "products" && !data.error && !editor && (
+              <CatalogOverview products={products} offset={offset} />
+            )}
             {tab === "products" ? (
               <Reveal
                 className="admin-stack"

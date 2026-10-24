@@ -84,7 +84,7 @@ export function ProductTable({
                       : product.marketplace}
                 </td>
                 <td className="admin-product-status" data-label="Status">
-                  <span className="admin-badge">
+                  <span className="admin-badge" data-status={product.status}>
                     {product.status === "active" ? "Ativo" : "Inativo"}
                   </span>
                 </td>
