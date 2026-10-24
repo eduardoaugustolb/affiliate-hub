@@ -29,14 +29,15 @@ export class HonoHttpServerAdapter implements HttpRestServer {
 			req: HttpRestRequest,
 			res: HttpRestResponseBuilder,
 		) => Promise<HttpRestResponse>,
+		options?: { parseJson?: boolean },
 	): void {
 		this.app.on(method, [path], async (ctx: Context) => {
 			try {
-				const rawBody = await ctx.req.text();
+				const rawBody = new Uint8Array(await ctx.req.arrayBuffer());
 				let body: unknown;
-				if (rawBody.length > 0) {
+				if (options?.parseJson !== false && rawBody.length > 0) {
 					try {
-						body = JSON.parse(rawBody);
+						body = JSON.parse(new TextDecoder().decode(rawBody));
 					} catch {
 						throw new BadRequestError("Invalid JSON payload");
 					}
@@ -45,6 +46,7 @@ export class HonoHttpServerAdapter implements HttpRestServer {
 				const query = ctx.req.query();
 				const headers = ctx.req.header();
 				const req: HttpRestRequest = {
+					rawBody,
 					cookies: getCookie(ctx),
 					body,
 					params,
