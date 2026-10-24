@@ -21,6 +21,17 @@ const original = {
 process.env.SESSION_COOKIE_NAME = "session";
 let role = "admin";
 let writeFailure = 0;
+let instagramEnabled = true;
+const instagramConfiguration = {
+  name: "Looks do post",
+  enabled: false,
+  source: "comment" as const,
+  postUrl: "https://www.instagram.com/p/test/",
+  outfits: [{ number: "01", code: "OUT-AAAAAAAAAAAAAAAA" }],
+  rules: [
+    { triggers: ["quero"], target: "all", privateReply: "{lista_outfits}" },
+  ],
+};
 const requests: {
   path: string;
   method: string;
@@ -49,6 +60,49 @@ const api = Bun.serve({
       cookie: req.headers.get("cookie"),
       body: body ? JSON.parse(body) : undefined,
     });
+    if (path === "/integrations/instagram/status")
+      return instagramEnabled
+        ? Response.json({
+            configured: true,
+            username: "blackhem",
+            accessToken: "must-not-leak",
+          })
+        : new Response(null, { status: 404 });
+    if (path === "/integrations/instagram/campaigns")
+      return Response.json([
+        {
+          id: "looks",
+          accountId: "private-id",
+          configuration: instagramConfiguration,
+          accessToken: "must-not-leak",
+        },
+      ]);
+    if (path === "/integrations/instagram/history")
+      return Response.json([
+        {
+          id: "event",
+          type: "send",
+          kind: "comment",
+          status: "accepted",
+          createdAt: "2026-10-24T12:00:00Z",
+          message: "must-not-leak",
+        },
+      ]);
+    if (path === "/integrations/instagram/preview")
+      return Response.json({
+        privateReply: "01 — Look: https://example.com/o/code",
+        rule: instagramConfiguration.rules[0],
+        accessToken: "must-not-leak",
+      });
+    if (
+      path.startsWith("/integrations/instagram/campaigns/") &&
+      req.method === "PUT"
+    )
+      return Response.json({
+        id: "looks",
+        configuration: body ? JSON.parse(body) : {},
+        accessToken: "must-not-leak",
+      });
     if (path === "/storefront/products/ABCD23")
       return Response.json({
         ...product,
@@ -134,10 +188,13 @@ const products = await import("../src/data/products");
 const catalog = await import("../src/data/catalog");
 const entries = await import("../src/data/entries");
 const actions = await import("../src/app/admin/actions");
+const instagram = await import("../src/data/instagram");
+const instagramActions = await import("../src/app/admin/instagram-actions");
 beforeEach(() => {
   token = "";
   role = "admin";
   writeFailure = 0;
+  instagramEnabled = true;
   requests.length = 0;
   stored.length = 0;
 });
@@ -162,6 +219,10 @@ const protectedOperations = [
   () => catalog.createOutfit({}),
   () => catalog.deleteOutfit("LOOK23"),
   () => auth.logout(),
+  () => instagram.getInstagramData(),
+  () => instagram.saveInstagramCampaign("looks", instagramConfiguration),
+  () => instagram.deleteInstagramCampaign("looks"),
+  () => instagram.previewInstagramCampaign(instagramConfiguration, "quero"),
 ];
 test("every private DAL entry point rejects anonymous callers before touching the API", async () => {
   for (const operation of protectedOperations)
@@ -383,4 +444,107 @@ test("mutation failures preserve API status and log safe diagnostics without bac
   } finally {
     log.mockRestore();
   }
+});
+
+test("Instagram private DTOs strip provider credentials and raw payloads while forwarding only the session", async () => {
+  token = "fixture";
+  const page = await instagram.getInstagramData();
+  expect(page.configured).toBe(true);
+  expect(page.campaigns).toHaveLength(1);
+  expect(page.history).toHaveLength(1);
+  expect(JSON.stringify(page)).not.toContain("must-not-leak");
+  expect(JSON.stringify(page)).not.toContain("private-id");
+  const preview = await instagram.previewInstagramCampaign(
+    instagramConfiguration,
+    "quero",
+  );
+  expect(preview).toEqual({
+    matched: true,
+    privateReply: "01 — Look: https://example.com/o/code",
+  });
+  const saved = await instagram.saveInstagramCampaign("looks", {
+    ...instagramConfiguration,
+    accessToken: "injected",
+    accountId: "forged",
+  });
+  expect(Object.keys(saved).sort()).toEqual(["configuration", "id"]);
+  expect(JSON.stringify(saved)).not.toContain("must-not-leak");
+  const write = requests.find((request) => request.method === "PUT");
+  expect(write?.body).toEqual(instagramConfiguration);
+  expect(
+    requests.every((request) => request.cookie === "session=fixture"),
+  ).toBe(true);
+});
+
+test("disabled Instagram integration returns a safe unavailable state without fetching campaigns or history", async () => {
+  token = "fixture";
+  instagramEnabled = false;
+  const page = await instagram.getInstagramData();
+  expect(page).toEqual({
+    configured: false,
+    username: "",
+    campaigns: [],
+    history: [],
+    error: "",
+  });
+  expect(
+    requests.some(
+      (request) =>
+        request.path.endsWith("/campaigns") ||
+        request.path.endsWith("/history"),
+    ),
+  ).toBe(false);
+});
+
+test("Instagram invalid rules and post destinations never reach the API", async () => {
+  token = "fixture";
+  for (const input of [
+    { ...instagramConfiguration, postUrl: "https://evil.example/p/test/" },
+    {
+      ...instagramConfiguration,
+      rules: [
+        ...instagramConfiguration.rules,
+        { ...instagramConfiguration.rules[0], triggers: [" QUERO "] },
+      ],
+    },
+    {
+      ...instagramConfiguration,
+      rules: [{ triggers: ["quero"], target: "all", privateReply: "{url}" }],
+    },
+    {
+      ...instagramConfiguration,
+      source: "message",
+      postUrl: null,
+      rules: [{ triggers: ["quero"], target: "all", publicReply: "Olá" }],
+    },
+    {
+      ...instagramConfiguration,
+      rules: [
+        { triggers: ["quero"], target: "all", privateReply: "á".repeat(501) },
+      ],
+    },
+  ])
+    await expect(
+      instagram.saveInstagramCampaign("looks", input),
+    ).rejects.toMatchObject({ status: 400 });
+  expect(requests.every((request) => request.path === "/auth/me")).toBe(true);
+});
+
+test("Instagram Server Actions authorize direct preview and mutation calls", async () => {
+  expect(
+    await instagramActions.saveInstagramCampaignAction(
+      "looks",
+      instagramConfiguration,
+    ),
+  ).toMatchObject({ ok: false, status: 401 });
+  expect(
+    await instagramActions.previewInstagramCampaignAction(
+      instagramConfiguration,
+      "quero",
+    ),
+  ).toMatchObject({ ok: false, status: 401 });
+  expect(
+    await instagramActions.deleteInstagramCampaignAction("looks"),
+  ).toMatchObject({ ok: false, status: 401 });
+  expect(requests).toHaveLength(0);
 });
