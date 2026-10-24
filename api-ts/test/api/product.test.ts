@@ -144,6 +144,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				id: product.id,
 				code: product.code,
 				...input,
+				imageUrls: [input.imageUrl],
 				createdAt: product.createdAt.toISOString(),
 				updatedAt: product.updatedAt.toISOString(),
 			});
@@ -239,6 +240,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				id,
 				code,
 				...input,
+				imageUrls: [input.imageUrl],
 				createdAt: expect.any(String),
 				updatedAt: expect.any(String),
 			});
@@ -322,6 +324,7 @@ describe.skipIf(!TEST_API_URL || !TEST_DATABASE_URL)("Products API", () => {
 				id,
 				code,
 				...updated,
+				imageUrls: [updated.imageUrl],
 				createdAt: expect.any(String),
 				updatedAt: expect.any(String),
 			});
