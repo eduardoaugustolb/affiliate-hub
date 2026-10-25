@@ -29,6 +29,7 @@ import {
 import type { BrandIconName } from "@/lib/brand-icons";
 import type { InstagramData } from "@/lib/instagram";
 import { CatalogAdmin } from "./catalog-admin";
+import { adminControlClasses } from "./control-styles";
 import { InstagramAdmin } from "./instagram-admin";
 import { ProductEditor } from "./product-editor";
 import { ProductTable } from "./product-table";
@@ -55,27 +56,27 @@ function CatalogOverview({
   ];
   return (
     <section
-      className="admin-overview"
+      className="my-8 grid grid-cols-2 gap-[1.1rem] max-[700px]:gap-3 min-[1100px]:grid-cols-[1fr_1fr_1.5fr] [&_h2]:font-display [&_h2]:text-[1.1rem] [&_h2]:leading-snug [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[#a5a8a0]"
       aria-label={`Resumo da página ${offset / 25 + 1}`}
     >
-      <div className="admin-panel admin-metric">
-        <div className="admin-row admin-between">
+      <div className="min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] flex min-h-52 flex-col gap-4 max-[1100px]:min-h-48 max-[640px]:min-h-44">
+        <div className="flex flex-wrap items-center gap-3 justify-between">
           <h2>Produtos nesta página</h2>
           <BrandIcon name="bag" />
         </div>
-        <strong className="admin-metric-value">
+        <strong className="mt-auto block font-display text-[4.6rem] leading-none text-[#b9f879] max-[700px]:text-[3.5rem]">
           {products.length.toString().padStart(2, "0")}
         </strong>
-        <span className="admin-muted">
+        <span className="text-[#a5a8a0]">
           Página {offset / 25 + 1} do catálogo
         </span>
       </div>
-      <div className="admin-panel admin-metric">
-        <div className="admin-row admin-between">
+      <div className="min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] flex min-h-52 flex-col gap-4 max-[1100px]:min-h-48 max-[640px]:min-h-44">
+        <div className="flex flex-wrap items-center gap-3 justify-between">
           <h2>Disponibilidade</h2>
           <BrandIcon name="check" />
         </div>
-        <div className="admin-status-counts">
+        <div className="mt-auto flex gap-10 max-[700px]:gap-5 max-[640px]:gap-4 [&_strong]:block [&_strong]:font-display [&_strong]:text-5xl [&_strong]:leading-[1.1] max-[700px]:[&_strong]:text-[2.5rem] max-[640px]:[&_strong]:text-4xl [&_span]:mt-1 [&_span]:flex [&_span]:items-center [&_span]:gap-1.5 [&_span]:text-xs [&_span]:text-[#a5a8a0] [&_i]:size-1.5 [&_i]:rounded-full [&_i]:bg-[#b9f879] [&>div+div_i]:bg-[#ffa631]">
           <div>
             <strong>{active}</strong>
             <span>
@@ -91,16 +92,19 @@ function CatalogOverview({
             </span>
           </div>
         </div>
-        <div className="admin-status-track" aria-hidden="true">
-          <span
-            style={{
-              width: `${products.length ? (active / products.length) * 100 : 0}%`,
-            }}
+        <div
+          className="h-1.5 overflow-hidden rounded-full bg-[#ffa631]/30"
+          aria-hidden="true"
+        >
+          <progress
+            value={active}
+            max={products.length || 1}
+            className="block h-full w-full appearance-none border-0 bg-transparent [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-[#b9f879] [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-[#b9f879]"
           />
         </div>
       </div>
-      <div className="admin-panel admin-marketplaces">
-        <div className="admin-row admin-between">
+      <div className="min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] col-span-full flex flex-col gap-5 min-[1100px]:col-span-1">
+        <div className="flex flex-wrap items-center gap-3 justify-between">
           <h2>Distribuição por marketplace</h2>
           <BrandIcon name="grid" />
         </div>
@@ -110,23 +114,27 @@ function CatalogOverview({
               (product) => product.marketplace === marketplace,
             ).length;
             return (
-              <div className="admin-marketplace-row" key={marketplace}>
+              <div
+                className="grid grid-cols-[5.5rem_minmax(0,1fr)_1.5rem] items-center gap-3 text-xs [&>span]:wrap-anywhere [&>span]:capitalize [&_strong]:text-right"
+                key={marketplace}
+              >
                 <span>{marketplace}</span>
-                <div aria-hidden="true">
-                  <span
-                    style={{ width: `${(count / products.length) * 100}%` }}
-                  />
-                </div>
+                <progress
+                  aria-hidden="true"
+                  value={count}
+                  max={products.length || 1}
+                  className="block h-6 w-full appearance-none overflow-hidden rounded-full border-0 bg-white/3 [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-[#b9f879] [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-[#b9f879]"
+                />
                 <strong>{count}</strong>
               </div>
             );
           })
         ) : (
-          <p className="admin-muted">
+          <p className="text-[#a5a8a0]">
             Os marketplaces aparecem ao cadastrar produtos.
           </p>
         )}
-        <p className="admin-muted admin-summary-note">
+        <p className="text-[#a5a8a0] mt-auto text-[0.65rem]">
           Resumo dos produtos exibidos nesta página.
         </p>
       </div>
@@ -282,31 +290,45 @@ export function AdminDashboard({
   }
   const disabled = busy || pending;
   return (
-    <div className={`admin${user ? " admin-authenticated" : ""}`}>
+    <div
+      className={`min-h-dvh min-w-0 bg-[#080908] text-[#f5f6f0] ${adminControlClasses}`}
+    >
       {(pending || busy) && <BrandLoader overlay />}
-      <header className="admin-header">
-        <a href="/" className="admin-brand">
-          <span className="admin-monogram" aria-hidden="true">
+      <header className="relative flex min-h-24 flex-wrap items-center justify-between gap-8 px-8 py-6 max-[1100px]:gap-4 max-[1100px]:p-5 max-[640px]:min-h-20 max-[640px]:flex-nowrap max-[640px]:gap-2.5 max-[640px]:p-4">
+        <a
+          href="/"
+          className="flex items-center gap-3 font-display text-[1.4rem] leading-none [&>span:last-child]:max-[1100px]:hidden [&>span:last-child]:max-[640px]:inline [&>span:last-child]:max-[640px]:text-lg"
+        >
+          <span
+            className="grid size-[2.65rem] place-items-center rounded-full bg-[#f5f6f0] text-[1.6rem] text-[#080908] max-[640px]:size-9 max-[640px]:text-[1.35rem]"
+            aria-hidden="true"
+          >
             BH
           </span>
           <span>BLACK HEM</span>
         </a>
         {user && (
-          <div className="admin-header-links">
-            <span className="admin-workspace">
+          <div className="mr-auto flex items-center gap-2.5 max-[640px]:hidden [&_svg]:size-4">
+            <span className="inline-flex min-h-11 items-center gap-2.5 rounded-full bg-[#20211f] px-4 py-2.5 text-xs text-[#b9f879]">
               <BrandIcon name="grid" /> Catálogo
             </span>
-            <Link href="/" className="admin-store-link">
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center gap-2.5 rounded-full bg-[#20211f] px-4 py-2.5 text-xs"
+            >
               <BrandIcon name="external-link" /> Ver loja
             </Link>
           </div>
         )}
-        <div className="admin-row admin-desktop-account">
-          <span className="admin-muted admin-context">Administração</span>
+        <div className="flex flex-wrap items-center gap-3 text-[0.8rem] max-[640px]:hidden">
+          <span className="text-[#a5a8a0] hidden">Administração</span>
           {user && (
             <>
-              <span className="admin-user">
-                <span className="admin-avatar" aria-hidden="true">
+              <span className="inline-flex min-w-0 items-center gap-2.5 wrap-anywhere">
+                <span
+                  className="grid size-9 shrink-0 place-items-center rounded-full bg-[#30342a] font-semibold text-[#b9f879]"
+                  aria-hidden="true"
+                >
                   {user.name.slice(0, 1)}
                 </span>
                 {user.name}
@@ -318,11 +340,11 @@ export function AdminDashboard({
           )}
         </div>
         {user && (
-          <div className="admin-mobile-menu">
+          <div className="ml-auto hidden max-[640px]:block">
             <Button
               ref={menuToggle}
               variant="text"
-              className="admin-menu-toggle"
+              className="min-h-11! min-w-11! p-2!"
               aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
               aria-expanded={menuOpen}
               aria-controls="admin-mobile-navigation"
@@ -346,13 +368,13 @@ export function AdminDashboard({
             </Button>
             <div
               id="admin-mobile-navigation"
-              className="admin-menu-panel"
+              className="group invisible pointer-events-none absolute inset-x-0 top-full z-40 grid grid-rows-[0fr] rounded-b-3xl bg-[#20211f] opacity-0 shadow-[0_1rem_2rem_#0006] transition-[grid-template-rows,opacity,visibility] duration-300 ease-out data-[open=true]:visible data-[open=true]:pointer-events-auto data-[open=true]:grid-rows-[1fr] data-[open=true]:opacity-100 motion-reduce:transition-none"
               data-open={menuOpen}
               aria-hidden={!menuOpen}
               inert={!menuOpen}
             >
-              <div className="admin-menu-clip">
-                <div className="admin-menu-content">
+              <div className="min-h-0 overflow-hidden">
+                <div className="-translate-y-2 border-b border-white/12 p-4 transition-transform duration-300 group-data-[open=true]:translate-y-0 motion-reduce:transition-none [&_nav]:grid [&_nav]:gap-1 [&_nav>a]:flex [&_nav>a]:min-h-11 [&_nav>a]:items-center [&_nav>a]:rounded-2xl [&_nav>a]:p-3 [&_nav>button]:justify-start! [&_nav>button]:px-3! [&_nav_[aria-current=page]]:rounded-2xl! [&_nav_[aria-current=page]]:bg-[#b9f879]/10! [&_nav_[aria-current=page]]:text-[#b9f879]! [&_nav_[aria-current=page]]:opacity-100!">
                   <nav aria-label="Menu do admin">
                     {[
                       ["products", "Produtos"],
@@ -381,8 +403,10 @@ export function AdminDashboard({
                     )}
                     <Link href="/">Ver loja ↗</Link>
                   </nav>
-                  <div className="admin-menu-account">
-                    <span className="admin-user">{user.name}</span>
+                  <div className="mt-4 flex items-center justify-between gap-4 border-t border-white/12 pt-4">
+                    <span className="inline-flex min-w-0 items-center gap-2.5 wrap-anywhere">
+                      {user.name}
+                    </span>
                     <Button
                       variant="outline"
                       disabled={disabled}
@@ -397,22 +421,33 @@ export function AdminDashboard({
           </div>
         )}
       </header>
-      <main id="conteudo" className="admin-main">
+      <main
+        id="conteudo"
+        className={`mx-auto min-w-0 max-w-[1680px] px-8 pt-6 pb-16 max-[1100px]:px-5 max-[1100px]:pt-5 max-[1100px]:pb-12 max-[640px]:px-4 max-[640px]:pt-4 ${user ? "min-[1100px]:pl-32 min-[640px]:max-[1099px]:pl-26" : ""}`}
+      >
         {!user ? (
-          <Reveal as="section" className="admin-login admin-panel admin-stack">
+          <Reveal
+            as="section"
+            className="mx-auto mt-[7vh] max-w-[460px] [&_h1]:my-4 min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] grid min-w-0 gap-5 [&>*]:min-w-0"
+          >
             <div>
-              <p className="admin-muted">Área restrita</p>
-              <h1 className="admin-title">Seu catálogo.</h1>
-              <p className="admin-muted">
+              <p className="text-[#a5a8a0]">Área restrita</p>
+              <h1 className="font-display text-[clamp(2.6rem,4vw,4rem)] leading-none tracking-[-0.025em] max-[640px]:text-[2.7rem]">
+                Seu catálogo.
+              </h1>
+              <p className="text-[#a5a8a0]">
                 Entre para gerenciar produtos, filtros e outfits.
               </p>
             </div>
             {(error || data.error) && (
-              <p role="alert" className="admin-notice">
+              <p
+                role="alert"
+                className="block rounded-2xl border border-[#b9f879]/25 bg-[#b9f879]/3 p-4 wrap-anywhere [&[role=alert]]:border-[#ffa631]/40 [&[role=alert]]:bg-[#ffa631]/3 [&[role=alert]]:text-[#ffd6a0]"
+              >
                 {error || data.error}
               </p>
             )}
-            <form onSubmit={login} className="admin-stack">
+            <form onSubmit={login} className="grid min-w-0 gap-5 [&>*]:min-w-0">
               <TextField
                 label="E-mail"
                 required
@@ -440,9 +475,12 @@ export function AdminDashboard({
           </Reveal>
         ) : (
           <>
-            <div className="admin-row admin-between">
+            <div className="flex flex-wrap items-center gap-3 justify-between">
               <div>
-                <nav aria-label="Breadcrumb" className="admin-breadcrumb">
+                <nav
+                  aria-label="Breadcrumb"
+                  className="text-[0.7rem] text-[#a5a8a0] [&_ol]:mb-[1.1rem] [&_ol]:flex [&_ol]:list-none [&_ol]:flex-wrap [&_ol]:items-center [&_ol]:gap-2 [&_ol]:p-0 [&_li]:inline-flex [&_li]:items-center [&_li]:gap-2 [&_li+li]:before:content-['/'] [&_li+li]:before:opacity-50 [&_a:hover]:text-[#ece9e2] [&_a:hover]:underline [&_[aria-current=page]]:text-[#ece9e2]"
+                >
                   <ol>
                     <li>
                       <Link href="/">BLACK HEM</Link>
@@ -478,7 +516,7 @@ export function AdminDashboard({
                     )}
                   </ol>
                 </nav>
-                <h1 className="admin-title">
+                <h1 className="font-display text-[clamp(2.6rem,4vw,4rem)] leading-none tracking-[-0.025em] max-[640px]:text-[2.7rem]">
                   {
                     {
                       products: "Seu catálogo",
@@ -488,7 +526,7 @@ export function AdminDashboard({
                     }[tab]
                   }
                 </h1>
-                <p className="admin-muted admin-page-description">
+                <p className="text-[#a5a8a0] mt-3 text-[0.85rem] max-[640px]:text-[0.8rem] max-[640px]:leading-relaxed">
                   {
                     {
                       products: "Uma visão das peças que compõem a BLACK HEM.",
@@ -500,7 +538,10 @@ export function AdminDashboard({
                 </p>
               </div>
             </div>
-            <nav aria-label="Seções do admin" className="admin-sections">
+            <nav
+              aria-label="Seções do admin"
+              className="absolute top-[9.4rem] left-8 flex flex-col gap-4 max-[1100px]:left-5 max-[640px]:hidden [&_.app-button]:grid! [&_.app-button]:size-[3.2rem]! [&_.app-button]:min-h-[3.2rem]! [&_.app-button]:place-items-center! [&_.app-button]:rounded-full! [&_.app-button]:border-0! [&_.app-button]:bg-[#20211f]! [&_.app-button]:p-3! [&_.app-button]:text-[#d2d5cb]! [&_.app-button-label]:justify-center [&_.app-button[aria-current=page]]:cursor-default! [&_.app-button[aria-current=page]]:bg-[#b9f879]! [&_.app-button[aria-current=page]]:text-[#10160a]! [&_.app-button[aria-current=page]]:opacity-100!"
+            >
               {sections.map(({ key, label, icon }) =>
                 pathname === `/admin/${key}` ? (
                   <Button
@@ -511,7 +552,7 @@ export function AdminDashboard({
                     title={label}
                   >
                     <BrandIcon name={icon} />
-                    <span className="admin-nav-label">{label}</span>
+                    <span className="sr-only">{label}</span>
                   </Button>
                 ) : (
                   <Link
@@ -527,13 +568,16 @@ export function AdminDashboard({
                     }}
                   >
                     <BrandIcon name={icon} />
-                    <span className="admin-nav-label">{label}</span>
+                    <span className="sr-only">{label}</span>
                   </Link>
                 ),
               )}
             </nav>
             {(error || data.error) && (
-              <div role="alert" className="admin-notice">
+              <div
+                role="alert"
+                className="block rounded-2xl border border-[#b9f879]/25 bg-[#b9f879]/3 p-4 wrap-anywhere [&[role=alert]]:border-[#ffa631]/40 [&[role=alert]]:bg-[#ffa631]/3 [&[role=alert]]:text-[#ffd6a0]"
+              >
                 <p>{error || data.error}</p>
                 <Button
                   variant="text"
@@ -546,26 +590,30 @@ export function AdminDashboard({
                 </Button>
               </div>
             )}
-            {notice && <output className="admin-notice">{notice}</output>}
+            {notice && (
+              <output className="block rounded-2xl border border-[#b9f879]/25 bg-[#b9f879]/3 p-4 wrap-anywhere [&[role=alert]]:border-[#ffa631]/40 [&[role=alert]]:bg-[#ffa631]/3 [&[role=alert]]:text-[#ffd6a0]">
+                {notice}
+              </output>
+            )}
             {tab === "products" && !data.error && !editor && (
               <CatalogOverview products={products} offset={offset} />
             )}
             {tab === "products" ? (
               <Reveal
-                className="admin-stack"
+                className="grid min-w-0 gap-5 [&>*]:min-w-0"
                 transitionKey={`${tab}-${offset}-${editor === "new" ? "new" : (editor?.code ?? "")}`}
               >
                 <div
-                  className="admin-row admin-between admin-products-toolbar"
+                  className="flex flex-wrap items-center gap-3 justify-between max-[1100px]:items-start max-[1100px]:gap-4 max-[640px]:flex-col max-[640px]:items-stretch [&_h2]:font-display [&_h2]:text-[1.9rem] [&_p]:mt-1 [&_p]:text-[0.8rem]"
                   data-enter
                 >
                   <div>
                     <h2 className="text-2xl">Produtos</h2>
-                    <p className="admin-muted">
+                    <p className="text-[#a5a8a0]">
                       Cadastre peças e mantenha seus links atualizados.
                     </p>
                   </div>
-                  <div className="admin-row">
+                  <div className="flex flex-wrap items-center gap-3">
                     <Button
                       variant="outline"
                       disabled={disabled}
@@ -598,7 +646,7 @@ export function AdminDashboard({
                 {deleting && (
                   <Reveal
                     as="section"
-                    className="admin-panel admin-stack"
+                    className="min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] grid min-w-0 gap-5 [&>*]:min-w-0"
                     aria-label="Confirmar exclusão"
                   >
                     <h2>
@@ -609,7 +657,7 @@ export function AdminDashboard({
                       poderá ser reutilizado. Para retirar a peça da loja, você
                       também pode editar e marcar como inativa.
                     </p>
-                    <div className="admin-row">
+                    <div className="flex flex-wrap items-center gap-3">
                       <Button
                         variant="outline"
                         disabled={disabled}
@@ -627,7 +675,7 @@ export function AdminDashboard({
                     </div>
                   </Reveal>
                 )}
-                <div className="admin-panel admin-products-panel">
+                <div className="min-w-0 rounded-3xl border border-white/7 bg-[#20211f] p-6 max-[640px]:p-[1.15rem] max-[1100px]:border-0 max-[1100px]:bg-transparent max-[1100px]:p-0">
                   <ProductTable
                     products={products}
                     onEdit={(product) => {
@@ -636,12 +684,12 @@ export function AdminDashboard({
                     }}
                     onDelete={setDeleting}
                   />
-                  <div className="admin-row admin-between admin-pagination mt-6">
-                    <span className="admin-muted">
+                  <div className="flex flex-wrap items-center gap-3 justify-between border-t border-white/7 pt-4 text-xs mt-6">
+                    <span className="text-[#a5a8a0]">
                       Página {offset / 25 + 1} · {products.length}{" "}
                       {products.length === 1 ? "produto" : "produtos"}
                     </span>
-                    <div className="admin-row">
+                    <div className="flex flex-wrap items-center gap-3">
                       <Button
                         variant="outline"
                         disabled={offset === 0 || disabled}
