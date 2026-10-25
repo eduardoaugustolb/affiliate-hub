@@ -183,6 +183,8 @@ const api = Bun.serve({
   },
 });
 process.env.API_URL = api.url.origin;
+// Import after mock registration so Next's server-only modules use the test doubles.
+// These are eager test-setup imports, not lazy loading in production code.
 const auth = await import("../src/data/auth");
 const products = await import("../src/data/products");
 const catalog = await import("../src/data/catalog");
