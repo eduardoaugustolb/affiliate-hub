@@ -1,3 +1,5 @@
+## [0.10.1](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.10.0...v0.10.1) (2026-10-30)
+
 ## [0.10.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.9.0...v0.10.0) (2026-10-30)
 
 
@@ -41,6 +43,4 @@
 ### Bug Fixes
 
 * **auth:** return raw tokens and reject expired sessions ([c3ccf80](https://github.com/eduardoaugustolb/affiliate-hub/commit/c3ccf8075dcea89595ea708547746bcc1e24a136))
-
-## [0.6.3](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.2...v0.6.3) (2026-10-14)
 
