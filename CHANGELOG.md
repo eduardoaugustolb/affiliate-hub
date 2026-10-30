@@ -1,3 +1,15 @@
+## [0.10.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.9.0...v0.10.0) (2026-10-30)
+
+
+### Features
+
+* **admin:** redesign dashboard with existing UI primitives ([2cfead1](https://github.com/eduardoaugustolb/affiliate-hub/commit/2cfead1dd47ec8429255aca1adbddff92ce14012))
+* **api:** expose Instagram administration and signed webhook routes ([ac4cc0b](https://github.com/eduardoaugustolb/affiliate-hub/commit/ac4cc0b2493ec0c1688e05b7c8e0da37903cbfae))
+* **instagram:** add official Meta transport and signed event adapter ([193fed6](https://github.com/eduardoaugustolb/affiliate-hub/commit/193fed6f1dab90390efd5a9bf15c16ebda01306b))
+* **instagram:** model campaign triggers and outfit numbering ([2bf317a](https://github.com/eduardoaugustolb/affiliate-hub/commit/2bf317a358486ae3f4f2ac4d7ce0a7cf55607533))
+* **instagram:** orchestrate campaign rules and durable event processing ([cfe70b6](https://github.com/eduardoaugustolb/affiliate-hub/commit/cfe70b61daa3318d09efa5c976eb5b6bd815230c))
+* **instagram:** persist campaigns inbox and permanent send claims ([8ff85f4](https://github.com/eduardoaugustolb/affiliate-hub/commit/8ff85f4b948d0cb1bc904e743ba14bddff7d64de))
+
 ## [0.9.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.8.0...v0.9.0) (2026-10-24)
 
 
@@ -31,11 +43,4 @@
 * **auth:** return raw tokens and reject expired sessions ([c3ccf80](https://github.com/eduardoaugustolb/affiliate-hub/commit/c3ccf8075dcea89595ea708547746bcc1e24a136))
 
 ## [0.6.3](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.2...v0.6.3) (2026-10-14)
-
-## [0.6.2](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.1...v0.6.2) (2026-10-12)
-
-
-### Bug Fixes
-
-* **products:** reject empty lookup codes ([c19b1dd](https://github.com/eduardoaugustolb/affiliate-hub/commit/c19b1dd54cee6be6e8182a5f965ce56bffd75985))
 
