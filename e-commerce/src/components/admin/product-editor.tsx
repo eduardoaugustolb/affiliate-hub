@@ -32,18 +32,23 @@ export function ProductEditor({
   return (
     <Reveal
       as="section"
-      className="admin-panel admin-stack"
+      className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0"
       aria-label="Editor de produto"
     >
       <div data-enter>
-        <p className="admin-eyebrow">Catálogo / Produto</p>
+        <p className="mb-[0.6rem] text-[0.65rem] uppercase tracking-[0.14em] text-[#a5a8a0]">
+          Catálogo / Produto
+        </p>
         <h2 className="text-xl">
           {product === "new" ? "Novo produto" : `Editar ${product.code}`}
         </h2>
       </div>
-      <form onSubmit={onSave} className="admin-stack" data-enter>
-        <fieldset disabled={busy} className="admin-form-fields admin-stack">
-          <div className="admin-grid">
+      <form onSubmit={onSave} className="grid gap-5 [&>*]:min-w-0" data-enter>
+        <fieldset
+          disabled={busy}
+          className="min-w-0 border-0 p-0 grid gap-5 [&>*]:min-w-0"
+        >
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 [&>*]:min-w-0">
             <TextField
               label="Nome"
               required
@@ -105,7 +110,7 @@ export function ProductEditor({
                 product === "new" ? "" : product.imageUrls.slice(1).join("\n")
               }
               aria-describedby="product-gallery-hint"
-              className="mt-2 w-full resize-y border border-line bg-ink p-3 text-sm text-bone"
+              className="mt-2 w-full max-w-full resize-y border border-line bg-ink p-3 font-[inherit] text-sm text-bone focus-visible:outline-[#b9f879] max-[639px]:text-base"
             />
             <p
               id="product-gallery-hint"
@@ -115,9 +120,9 @@ export function ProductEditor({
               adicionais. A URL da imagem acima é a capa.
             </p>
           </div>
-          <div className="admin-divider">
+          <div className="border-t border-[#ece9e225] pt-6 [&>h3]:mb-2">
             <h3>Tamanho e cor</h3>
-            <p className="admin-muted">
+            <p className="text-[#a5a8a0]">
               Selecione todas as opções disponíveis para esta peça.
             </p>
           </div>
@@ -128,7 +133,7 @@ export function ProductEditor({
             disabled={busy}
           />
         </fieldset>
-        <div className="admin-row admin-form-actions">
+        <div className="flex flex-wrap items-center gap-3 max-[639px]:grid max-[639px]:w-full max-[639px]:grid-cols-2 max-[639px]:gap-2">
           <Button type="submit" disabled={busy}>
             {busy ? "Salvando…" : "Salvar produto"}
           </Button>

@@ -102,7 +102,7 @@ export function CatalogAdmin({
   }
   return (
     <Reveal
-      className="admin-stack"
+      className="grid gap-5 [&>*]:min-w-0"
       transitionKey={`${section}-${outfit?.code ?? ""}`}
     >
       {busy && <BrandLoader overlay />}
@@ -110,24 +110,31 @@ export function CatalogAdmin({
         <h2 className="text-2xl">
           {section === "filters" ? "Filtros do catálogo" : "Outfits"}
         </h2>
-        <p className="admin-muted">
+        <p className="text-[#a5a8a0]">
           {section === "filters"
             ? "Organize as opções de tamanho e cor disponíveis na loja."
             : "Reúna produtos em uma seleção e consulte pelo código."}
         </p>
       </div>
-      {notice && <output className="admin-notice">{notice}</output>}
+      {notice && (
+        <output className="rounded-2xl border border-[#b9f87945] bg-[#b9f87908] p-4 [overflow-wrap:anywhere]">
+          {notice}
+        </output>
+      )}
       {section === "filters" ? (
         <>
-          <div className="admin-grid">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 [&>*]:min-w-0">
             {filters
               .filter(
                 (filter) => filter.key === "size" || filter.key === "color",
               )
               .map((filter) => (
-                <section key={filter.key} className="admin-panel admin-stack">
+                <section
+                  key={filter.key}
+                  className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0"
+                >
                   <h3 className="text-xl">{filter.label}</h3>
-                  <div className="admin-row">
+                  <div className="flex flex-wrap items-center gap-3">
                     {filter.type === "choices" &&
                       filter.choices.map((choice) => (
                         <Button
@@ -146,12 +153,14 @@ export function CatalogAdmin({
                         </Button>
                       ))}
                     {filter.type === "choices" && !filter.choices.length && (
-                      <p className="admin-muted">Nenhuma opção cadastrada.</p>
+                      <p className="text-[#a5a8a0]">
+                        Nenhuma opção cadastrada.
+                      </p>
                     )}
                   </div>
                   <form
                     onSubmit={(event) => createOption(event, filter.key)}
-                    className="admin-stack"
+                    className="grid gap-5 [&>*]:min-w-0"
                   >
                     <TextField
                       label={`Nova opção de ${filter.label.toLowerCase()}`}
@@ -183,14 +192,14 @@ export function CatalogAdmin({
               As associações dos produtos com esta opção serão removidas.
             </ConfirmDialog>
           )}
-          <section className="admin-panel admin-stack">
+          <section className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0">
             <h3 className="text-xl">Definir filtros de um produto</h3>
-            <p className="admin-muted">
+            <p className="text-[#a5a8a0]">
               A seleção substitui todas as opções atuais do produto. Sem opções
               marcadas, todas as associações serão removidas. Marque o conjunto
               completo desejado, ou edite o produto para ver as opções atuais.
             </p>
-            <form onSubmit={setOptions} className="admin-stack">
+            <form onSubmit={setOptions} className="grid gap-5 [&>*]:min-w-0">
               <TextField
                 label="Código do produto"
                 required
@@ -199,13 +208,16 @@ export function CatalogAdmin({
                 maxLength={6}
                 pattern="[A-Za-z0-9]{4,6}"
               />
-              <div className="admin-grid">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 [&>*]:min-w-0">
                 {filters
                   .filter((filter) => ["size", "color"].includes(filter.key))
                   .map((filter) => (
-                    <fieldset key={filter.key}>
+                    <fieldset
+                      key={filter.key}
+                      className="min-w-0 rounded-2xl border border-[#ffffff20] p-4 max-[639px]:p-3"
+                    >
                       <legend>{filter.label}</legend>
-                      <div className="admin-row">
+                      <div className="flex flex-wrap items-center gap-3">
                         {filter.type === "choices" &&
                           filter.choices.map((choice) => (
                             <Checkbox
@@ -228,10 +240,13 @@ export function CatalogAdmin({
         </>
       ) : (
         <>
-          <div className="admin-grid">
-            <section className="admin-panel admin-stack">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 [&>*]:min-w-0">
+            <section className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0">
               <h3 className="text-xl">Criar outfit</h3>
-              <form onSubmit={createOutfit} className="admin-stack">
+              <form
+                onSubmit={createOutfit}
+                className="grid gap-5 [&>*]:min-w-0"
+              >
                 <TextField label="Nome" required maxLength={160} name="name" />
                 <TextField
                   label="Códigos dos produtos"
@@ -244,10 +259,12 @@ export function CatalogAdmin({
                 </Button>
               </form>
             </section>
-            <section className="admin-panel admin-stack">
+            <section className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0">
               <h3 className="text-xl">Consultar outfit</h3>
-              <p className="admin-muted">Use o código recebido na criação.</p>
-              <form onSubmit={findOutfit} className="admin-stack">
+              <p className="text-[#a5a8a0]">
+                Use o código recebido na criação.
+              </p>
+              <form onSubmit={findOutfit} className="grid gap-5 [&>*]:min-w-0">
                 <TextField
                   label="Código do outfit"
                   required
@@ -262,10 +279,13 @@ export function CatalogAdmin({
             </section>
           </div>
           {outfit && (
-            <Reveal as="section" className="admin-panel admin-stack">
-              <div className="admin-row admin-between">
+            <Reveal
+              as="section"
+              className="min-w-0 rounded-3xl border border-[#ffffff12] bg-[#20211f] p-6 max-[639px]:p-[1.15rem] grid gap-5 [&>*]:min-w-0"
+            >
+              <div className="flex flex-wrap items-center gap-3 justify-between">
                 <h3 className="text-xl">{outfit.name}</h3>
-                <code>{outfit.code}</code>
+                <code className="font-mono">{outfit.code}</code>
               </div>
               <p>Produtos: {outfit.productCodes.join(", ")}</p>
               {confirmDelete ? (
@@ -274,7 +294,7 @@ export function CatalogAdmin({
                     Excluir este outfit definitivamente? Os produtos serão
                     preservados.
                   </p>
-                  <div className="admin-row">
+                  <div className="flex flex-wrap items-center gap-3">
                     <Button
                       variant="outline"
                       type="button"

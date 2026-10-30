@@ -16,17 +16,22 @@ export function ProductOptions({
   disabled?: boolean;
 }) {
   return (
-    <div className="admin-grid" aria-busy={loading}>
+    <div
+      className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-5 [&>*]:min-w-0"
+      aria-busy={loading}
+    >
       {(["size", "color"] as const).map((key) => {
         const field = filters.find((f) => f.key === key);
         return (
           <fieldset
             key={key}
-            className="admin-option-group"
+            className="min-w-0 rounded-2xl border border-[#ffffff20] p-4 max-[639px]:p-3"
             disabled={disabled || loading}
           >
-            <legend>{key === "size" ? "Tamanhos" : "Cores"}</legend>
-            <div className="admin-row admin-option-choices">
+            <legend className="px-[0.35rem] text-[0.8rem] text-[#a5a8a0]">
+              {key === "size" ? "Tamanhos" : "Cores"}
+            </legend>
+            <div className="flex flex-wrap items-center gap-3 min-h-12">
               {loading ? (
                 <>
                   <Skeleton className="h-10 w-20" />
@@ -52,7 +57,7 @@ export function ProductOptions({
                   />
                 ))
               ) : (
-                <p className="admin-muted">
+                <p className="text-[#a5a8a0]">
                   Nenhuma opção cadastrada. Adicione na seção Filtros.
                 </p>
               )}
