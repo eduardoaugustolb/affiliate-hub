@@ -24,6 +24,7 @@ export enum HttpStatusCode {
 }
 
 export type HttpRestRequest = {
+	rawBody?: Uint8Array;
 	cookies: Record<string, string>;
 	body: unknown;
 	params: Record<string, string>;
@@ -59,6 +60,7 @@ export interface HttpRestServer {
 			req: HttpRestRequest,
 			res: HttpRestResponseBuilder,
 		) => Promise<HttpRestResponse>,
+		options?: { parseJson?: boolean },
 	): void;
 	close(): Promise<void>;
 	listen(port: number): Promise<void>;

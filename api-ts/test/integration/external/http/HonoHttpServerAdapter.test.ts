@@ -30,6 +30,27 @@ class CapturingRuntime implements HttpRestRuntime {
 }
 
 describe("HonoHttpServerAdapter", () => {
+	it("passes original bytes to signature handlers without parsing JSON first", async () => {
+		const runtime = new CapturingRuntime();
+		const server = new HonoHttpServerAdapter(runtime);
+		server.register(
+			HttpMethod.POST,
+			"/signed",
+			async (req, res) =>
+				res.json({
+					bytes: [...(req.rawBody ?? [])],
+					parsed: req.body === undefined,
+				}),
+			{ parseJson: false },
+		);
+		await server.listen(0);
+		const bytes = new Uint8Array([0xff, 0x7b]);
+		const response = await runtime.handler?.(
+			new Request("http://localhost/signed", { method: "POST", body: bytes }),
+		);
+		expect(response?.status).toBe(200);
+		expect(await response?.json()).toEqual({ bytes: [255, 123], parsed: true });
+	});
 	it("maps incoming request data to the handler and returns JSON response", async () => {
 		const runtime = new CapturingRuntime();
 		const server = new HonoHttpServerAdapter(runtime);
