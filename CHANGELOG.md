@@ -1,3 +1,11 @@
+## [0.11.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.10.1...v0.11.0) (2026-10-30)
+
+
+### Features
+
+* **admin:** add authenticated Instagram data access and actions ([244e994](https://github.com/eduardoaugustolb/affiliate-hub/commit/244e99403e030b754b8d5bb40737af1cf04aa78c))
+* **admin:** configure Instagram campaigns outfits and reply rules ([cfa563b](https://github.com/eduardoaugustolb/affiliate-hub/commit/cfa563b17d1af9c6da7dba97fef90c5f2528d69a))
+
 ## [0.10.1](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.10.0...v0.10.1) (2026-10-30)
 
 ## [0.10.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.9.0...v0.10.0) (2026-10-30)
@@ -27,20 +35,4 @@
 
 * **auth:** centralize session validation and protect product creation ([fc010e6](https://github.com/eduardoaugustolb/affiliate-hub/commit/fc010e630d4a5b887b49b740ab9d3313fe028ca5))
 * **products:** add authenticated update and delete routes ([3097e4a](https://github.com/eduardoaugustolb/affiliate-hub/commit/3097e4afa470bc0d1cc56ebb7bfec113788e7d20))
-
-## [0.7.0](https://github.com/eduardoaugustolb/affiliate-hub/compare/v0.6.3...v0.7.0) (2026-10-15)
-
-
-### Features
-
-* **auth:** register cookie authentication routes and API tests ([d2e396d](https://github.com/eduardoaugustolb/affiliate-hub/commit/d2e396d696d70a299881d967181431eaa81cbbcb))
-* **database:** add Bun SQL adapter and explicit transactions ([11e3b3c](https://github.com/eduardoaugustolb/affiliate-hub/commit/11e3b3c082e90157ad805e288f3dee9dc482a610))
-* **errors:** map bad requests to HTTP 400 ([8040063](https://github.com/eduardoaugustolb/affiliate-hub/commit/8040063736a1b5742dcb4fa986315f2116420279))
-* **http:** add fluent responses and cookie support to REST server ([77ca380](https://github.com/eduardoaugustolb/affiliate-hub/commit/77ca3808bf2e0503b935b548ac3af0df2ba876b8))
-* **http:** support request headers and response cookies in client ([0600780](https://github.com/eduardoaugustolb/affiliate-hub/commit/0600780e214c724d3c858e38e101290cc520b4ab))
-
-
-### Bug Fixes
-
-* **auth:** return raw tokens and reject expired sessions ([c3ccf80](https://github.com/eduardoaugustolb/affiliate-hub/commit/c3ccf8075dcea89595ea708547746bcc1e24a136))
 
